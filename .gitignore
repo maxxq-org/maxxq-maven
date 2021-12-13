@@ -1,0 +1,8 @@
+*.class
+*.project
+*.classpath
+*.jar
+*/target/**
+**/.metadata/**
+/target/
+.settings
