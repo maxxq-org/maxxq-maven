@@ -2,6 +2,7 @@ package org.chabernac.dependency;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Dependency;
+import org.apache.maven.model.Model;
 
 public class GAV {
 	private final String groupId;
@@ -10,6 +11,10 @@ public class GAV {
 	
 	public static GAV fromDependency(Dependency dependency) {
 		return new GAV(dependency.getGroupId(), dependency.getArtifactId(), dependency.getVersion());
+	}
+	
+	public static GAV fromModel(Model model) {
+		return new GAV(model.getGroupId(), model.getArtifactId(), model.getVersion());
 	}
 
 	public GAV(String groupId, String artifactId, String version) {
