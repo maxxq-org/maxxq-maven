@@ -1,9 +1,8 @@
 package org.chabernac.maven.repository;
 
-import java.io.InputStream;
-
+import org.apache.maven.model.Model;
 import org.chabernac.dependency.GAV;
 
 public interface IRepository {
-	public InputStream readPom(GAV gav);
+	public Model readPom(GAV gav);
 }

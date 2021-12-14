@@ -1,10 +1,14 @@
 package org.chabernac.maven.repository;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.maven.model.Model;
 import org.chabernac.dependency.GAV;
-import org.chabernac.dependency.POMUtils;
+import org.chabernac.dependency.IPOMUtils;
 
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
@@ -12,17 +16,24 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 public class RemoteRepository implements IRepository {
+	private final static Logger LOGGER = LogManager.getLogger(RemoteRepository.class);
+	
 	private final OkHttpClient client = new OkHttpClient();
-	private final POMUtils pomUtils;
+	private final IPOMUtils pomUtils;
+	private final Map<GAV, Model> cache = new HashMap<>();
 
-	public RemoteRepository(String centralRepoUrl) {
+	public RemoteRepository(IPOMUtils pomUtils) {
 		super();
-		pomUtils = new POMUtils(centralRepoUrl);
+		this.pomUtils = pomUtils;
 	}
 
 	@Override
-	public InputStream readPom(GAV gav) {
+	public Model readPom(GAV gav) {
+		if(cache.containsKey(gav)) {
+			return cache.get(gav);
+		}
 		String endPoint = pomUtils.getPOMUrl(gav);
+		LOGGER.debug("Resolving pom.xml from " + endPoint);
 
 		Request request = new Request.Builder()
 				.url(endPoint)
@@ -37,7 +48,9 @@ public class RemoteRepository implements IRepository {
 						"Could not retrieve pom with gav '" + gav.toString() + "' http response code '"
 								+ response.code() + "'");
 			}
-			return response.body().byteStream();
+			Model model =  pomUtils.getModelFromInputStream(response.body().byteStream());
+			cache.put(gav, model);
+			return model;
 		} catch (IOException e) {
 			throw new RepositoryException("Could not retrieve pom with gav '" + gav.toString() + "'", e);
 		}

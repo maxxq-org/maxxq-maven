@@ -1,5 +1,7 @@
 package org.chabernac.dependency;
 
+import java.util.Properties;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,5 +26,19 @@ public class POMUtilsTest {
 				.assertEquals(
 						"https://repo1.maven.org/maven2/org/apache/maven/maven-model/3.8.4/maven-model-3.8.4.pom",
 						pomUtils.getPOMUrl(dependency));
+	}
+
+	@Test
+	public void isPropertyValue() {
+		Assert.assertTrue(pomUtils.isPropertyValue("${library.version}"));
+		Assert.assertFalse(pomUtils.isPropertyValue("1.2.3"));
+	}
+
+	@Test
+	public void resolveProperties() {
+		Properties properties = new Properties();
+		properties.put("library.version", "1.2.3");
+		Assert.assertEquals("1.2.3", pomUtils.resolveProperty("${library.version}", properties));
+		Assert.assertEquals("1.2.3", pomUtils.resolveProperty("1.2.3", properties));
 	}
 }
