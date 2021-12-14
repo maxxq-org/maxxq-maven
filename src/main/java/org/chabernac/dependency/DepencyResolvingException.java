@@ -1,4 +1,4 @@
-package chabernac.readdependencies;
+package org.chabernac.dependency;
 
 public class DepencyResolvingException extends RuntimeException {
 

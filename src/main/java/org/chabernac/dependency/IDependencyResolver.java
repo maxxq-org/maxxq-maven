@@ -1,4 +1,4 @@
-package chabernac.readdependencies;
+package org.chabernac.dependency;
 
 import java.io.InputStream;
 import java.util.Set;

@@ -1,4 +1,4 @@
-package chabernac.readdependencies;
+package org.chabernac.dependency;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -29,6 +29,9 @@ public class ResolveDependencies implements IDependencyResolver {
 	}
 
 	public Set<Dependency> getDependencies(InputStream pomStream) {
+		if(pomStream == null) {
+			return new HashSet<>();
+		}
 		try {
 			MavenXpp3Reader reader = new MavenXpp3Reader();
 			Model model = reader.read(pomStream);

@@ -1,8 +1,9 @@
-package chabernac.readdependencies;
+package org.chabernac.dependency;
 
 import java.util.Set;
 
 import org.apache.maven.model.Dependency;
+import org.chabernac.dependency.ResolveDependencies;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
