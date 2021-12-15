@@ -28,6 +28,7 @@ public class ResolveDependenciesWorkerTest {
 	public void resolveDependencies() {
 		Set<Dependency> dependencies = worker.get();
 
+		dependencies.stream().forEach(dependency -> System.out.println("result: " + GAV.fromDependency(dependency)));
 		Assert.assertEquals(16, dependencies.size());
 	}
 
