@@ -1,8 +1,6 @@
 package org.chabernac.dependency;
 
 import java.io.InputStream;
-import java.util.Properties;
-
 import org.apache.maven.model.Model;
 
 public interface IPOMUtils {
@@ -13,7 +11,7 @@ public interface IPOMUtils {
 
 	public Model getModelFromResource(String resource);
 
-	public String resolveProperty(String propertyValue, Properties properties);
+	public String resolveProperty(String propertyValue, Model properties);
 
 	public boolean isPropertyValue(String value);
 
