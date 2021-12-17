@@ -1,8 +1,6 @@
 package org.chabernac.maven.repository;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,7 +17,6 @@ public class RemoteRepository implements IRepository {
 
   private final OkHttpClient client = new OkHttpClient();
   private final IPOMUtils pomUtils;
-  private final Map<GAV, Model> cache = new HashMap<>();
 
   public RemoteRepository(IPOMUtils pomUtils) {
     super();
@@ -28,15 +25,12 @@ public class RemoteRepository implements IRepository {
 
   @Override
   public Optional<Model> readPom(GAV gav) {
-    if (cache.containsKey(gav)) {
-      return Optional.of(cache.get(gav));
-    }
     String endPoint = pomUtils.getPOMUrl(gav);
     LOGGER.debug("Resolving pom.xml from " + endPoint);
 
     Request request = new Request.Builder()
-        .url(endPoint)
-        .build();
+            .url(endPoint)
+            .build();
 
     Call call = client.newCall(request);
 
@@ -47,12 +41,11 @@ public class RemoteRepository implements IRepository {
         LOGGER.warn("no pom file found for: " + gav + "in remote repo");
       } else if (response.code() != 200) {
         throw new RepositoryException(
-            "Could not retrieve pom with gav '" + gav.toString() + "' http response code '"
-                + response.code() + "'");
+                "Could not retrieve pom with gav '" + gav.toString() + "' http response code '"
+                        + response.code() + "'");
       } else {
         model = pomUtils.getModelFromInputStream(response.body().byteStream());
       }
-      cache.put(gav, model);
       return Optional.ofNullable(model);
     } catch (IOException e) {
       throw new RepositoryException("Could not retrieve pom with gav '" + gav.toString() + "'", e);
