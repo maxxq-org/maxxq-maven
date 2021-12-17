@@ -1,29 +1,29 @@
 package org.chabernac.dependency;
 
-import java.io.InputStream;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
-
 import org.apache.maven.model.Dependency;
-import org.chabernac.maven.repository.InMemoryCachingRepository;
-import org.chabernac.maven.repository.RemoteRepository;
+import org.apache.maven.model.Model;
+import org.chabernac.maven.repository.IRepository;
 
 public class ResolveDependencies implements IDependencyResolver {
 
-  private final POMUtils pomUtils;
+    private final IRepository repository;
 
-  public ResolveDependencies(String centralRepoUrl) {
-    this.pomUtils = new POMUtils(centralRepoUrl);
-  }
+    public ResolveDependencies(IRepository repository) {
+        this.repository = repository;
+    }
 
-  public Set<Dependency> getDependencies(InputStream pomStream) {
-    if (pomStream == null) {
-      return new HashSet<>();
+    public Set<Dependency> getDependencies(GAV gav) {
+        try {
+            Optional<Model> model = repository.readPom(gav);
+            if (model.isEmpty()) {
+                return new HashSet<>();
+            }
+            return new ResolveDependenciesWorker(model.get(), repository).get();
+        } catch (Exception e) {
+            throw new DepencyResolvingException("Could not resolve dependencies", e);
+        }
     }
-    try {
-      return new ResolveDependenciesWorker(pomUtils.getModelFromInputStream(pomStream), new InMemoryCachingRepository(new RemoteRepository(pomUtils))).get();
-    } catch (Exception e) {
-      throw new DepencyResolvingException("Could not resolve dependencies", e);
-    }
-  }
 }
