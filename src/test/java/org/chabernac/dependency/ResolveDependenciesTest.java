@@ -21,4 +21,12 @@ public class ResolveDependenciesTest {
         dependencies.stream().forEach(dependency -> System.out.println("result: " + GAV.fromDependency(dependency)));
         Assert.assertEquals(16, dependencies.size());
     }
+    
+    @Test
+    public void resolveDependenciesMultiModule() {
+        Set<Dependency> dependencies = resolveDependencies.getDependencies(getClass().getResourceAsStream("/parent/pom.xml"), getClass().getResourceAsStream("/module1/pom.xml"), getClass().getResourceAsStream("/module2/pom.xml"));
+
+        dependencies.stream().forEach(dependency -> System.out.println("result: " + GAV.fromDependency(dependency)));
+        Assert.assertEquals(16, dependencies.size());
+    }
 }
