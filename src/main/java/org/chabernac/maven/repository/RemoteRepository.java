@@ -63,4 +63,14 @@ public class RemoteRepository implements IRepository {
         }
     }
 
+    @Override
+    public boolean isWritable() {
+        return false;
+    }
+
+    @Override
+    public GAV store(Model model) {
+        throw new UnsupportedOperationException("store is not supported on this repository");
+    }
+
 }

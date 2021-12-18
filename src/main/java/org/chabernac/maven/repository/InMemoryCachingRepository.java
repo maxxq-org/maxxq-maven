@@ -26,4 +26,16 @@ public class InMemoryCachingRepository implements IRepository {
         cache.put(gav, model);
         return model;
     }
+
+
+    @Override
+    public boolean isWritable() {
+        return false;
+    }
+
+
+    @Override
+    public GAV store(Model model) {
+        throw new UnsupportedOperationException("store is not supported on this repository");
+    }
 }

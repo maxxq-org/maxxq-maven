@@ -1,5 +1,6 @@
 package org.chabernac.dependency;
 
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -13,6 +14,19 @@ public class ResolveDependencies implements IDependencyResolver {
 
     public ResolveDependencies(IRepository repository) {
         this.repository = repository;
+    }
+
+    public GAV store(Model model) {
+        return repository.store(model);
+    }
+    
+    public GAV store(InputStream inputStream) {
+        return store(new ModelIO().getModelFromInputStream(inputStream));
+    }
+    
+    public Set<Dependency> getDependencies(InputStream pomStream){
+        GAV gav = store(pomStream);
+        return getDependencies(gav);
     }
 
     public Set<Dependency> getDependencies(GAV gav) {

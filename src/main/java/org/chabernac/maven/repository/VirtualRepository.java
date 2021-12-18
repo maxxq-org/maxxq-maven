@@ -24,4 +24,22 @@ public class VirtualRepository implements IRepository {
         return this;
     }
 
+    @Override
+    public boolean isWritable() {
+        return repositories.stream()
+                .map(repository -> repository.isWritable())
+                .findFirst()
+                .orElse(Boolean.FALSE);
+    }
+
+    @Override
+    public GAV store(Model model) {
+        return repositories.stream()
+                .filter(repository -> repository.isWritable())
+                .map(repository -> repository.store(model))
+                .findFirst()
+                .orElse(null);
+
+    }
+
 }

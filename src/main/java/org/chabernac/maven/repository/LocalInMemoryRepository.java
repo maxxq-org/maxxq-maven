@@ -17,10 +17,15 @@ public class LocalInMemoryRepository implements IRepository {
         return Optional.empty();
     }
 
-    public GAV addModel(Model model) {
+    @Override
+    public GAV store(Model model) {
         GAV gav = GAV.fromModel(model);
         store.put(gav, model);
         return gav;
     }
 
+    @Override
+    public boolean isWritable() {
+        return true;
+    }
 }
