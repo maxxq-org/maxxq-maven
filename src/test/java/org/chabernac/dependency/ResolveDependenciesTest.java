@@ -11,8 +11,7 @@ import org.junit.Test;
 public class ResolveDependenciesTest {
     private ResolveDependencies resolveDependencies = new ResolveDependencies(
             new VirtualRepository()
-                    //.addRepository(new RemoteRepository(RemoteRepository.MAVEN_CENTRAL))
-                    .addRepository(new RemoteRepository("https://artifacts.axa.be/artifactory/maven-all/"))
+                    .addRepository(new RemoteRepository(RemoteRepository.MAVEN_CENTRAL))
                     .addRepository(new LocalInMemoryRepository()));
 
     @Test

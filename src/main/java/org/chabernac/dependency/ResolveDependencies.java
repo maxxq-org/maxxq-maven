@@ -46,7 +46,7 @@ public class ResolveDependencies implements IDependencyResolver {
     public Set<Dependency> getDependencies(GAV gav) {
         try {
             Optional<Model> model = repository.readPom(gav);
-            if (model.isEmpty()) {
+            if (!model.isPresent()) {
                 return new HashSet<>();
             }
             return new ResolveDependenciesWorker(model.get(), repository).get();

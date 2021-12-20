@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -51,18 +52,12 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         try {
             Set<Dependency> dependencies = new HashSet<>();
             cachedDependencies.put( gav, dependencies );
-            LOGGER.debug( "Retrieving dependencies for: " + gav );
+            LOGGER.debug( "Retrieving dependencies for: {}", gav );
             getPropertiesAndDependencyManagementFromParents( model );
             resolveVersionsFromDependencyManagement( model );
-            model.getDependencies()
-                .stream()
-                .filter( dependency -> isValidScope( dependency.getScope(), inclusiveTestScope ) )
-                    .forEach(dependency -> dependencies.add(dependency));
-            model.getDependencies()
-                    .stream()
-                    .filter(dependency -> isValidScope(dependency.getScope(), inclusiveTestScope))
-                .filter( dependency -> !isExcluded( dependency, exclusions ) )
-                .forEach( dependency -> dependencies.addAll( filterDependenciesAlreadyAdded( getTransitiveDependencies( dependency ), dependencies ) ) );
+            followDependencyManagementImports( model );
+            addDependenciesWithValidScopeToList( dependencies, model, exclusions, inclusiveTestScope );
+            addTransitiveDependencies( dependencies, model, exclusions, inclusiveTestScope );
             return dependencies;
         } catch ( Exception e ) {
             throw new DepencyResolvingException( "Could not resolve dependencies", e );
@@ -70,6 +65,13 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
     }
 
     private void addDependenciesWithValidScopeToList( Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, boolean inclusiveTestScope ) {
+        model.getDependencies()
+            .stream()
+            .filter( dependency -> isValidScope( dependency.getScope(), inclusiveTestScope ) )
+            .forEach( dependency -> dependencies.add( dependency ) );
+    }
+
+    private void addTransitiveDependencies( Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, boolean inclusiveTestScope ) {
         model.getDependencies()
             .stream()
             .filter( dependency -> isValidScope( dependency.getScope(), inclusiveTestScope ) )
