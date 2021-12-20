@@ -3,8 +3,10 @@ package org.chabernac.dependency;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -47,7 +49,7 @@ public class ResolveDependencies implements IDependencyResolver {
         try {
             Optional<Model> model = repository.readPom(gav);
             if (!model.isPresent()) {
-                return new HashSet<>();
+                return new LinkedHashSet<>();
             }
             return new ResolveDependenciesWorker(model.get(), repository).get();
         } catch (Exception e) {
