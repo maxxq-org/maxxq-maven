@@ -66,6 +66,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
     private void addDependenciesWithValidScopeToList(Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, boolean inclusiveTestScope) {
         model.getDependencies()
                 .stream()
+                .filter(dependency -> !dependency.isOptional())
                 .filter(dependency -> isValidScope(dependency.getScope(), inclusiveTestScope))
                 .forEach(dependency -> dependencies.add(dependency));
     }
@@ -73,6 +74,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
     private void addTransitiveDependencies(Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, boolean inclusiveTestScope) {
         model.getDependencies()
                 .stream()
+                .filter(dependency -> !dependency.isOptional())
                 .filter(dependency -> isValidScope(dependency.getScope(), inclusiveTestScope))
                 .filter(dependency -> !isExcluded(dependency, exclusions))
                 .forEach(dependency -> dependencies.addAll(filterDependenciesAlreadyAdded(getTransitiveDependencies(dependency), dependencies)));
@@ -172,11 +174,11 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
                 .stream()
                 .forEach(
                         dependency -> LOGGER
-                                .debug("dependency: " + dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion() + " scope:" + dependency.getScope()));
+                                .debug("dependency for " + GAV.fromModel(model) + ": " + dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion() + " scope:" + dependency.getScope()));
     }
 
     private void resolveVersion(Dependency resolveVersion, Model model) {
-        copyVersionFromDependencyManagement(resolveVersion, model);
+        copyVersionAndScopeFromDependencyManagement(resolveVersion, model);
 
         if (StringUtils.isEmpty(resolveVersion.getVersion())) {
             LOGGER.error(
@@ -189,14 +191,19 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         resolveVersion.setVersion(pomUtils.resolveProperty(resolveVersion.getVersion(), model));
     }
 
-    private void copyVersionFromDependencyManagement(Dependency resolveVersion, Model model) {
+    private void copyVersionAndScopeFromDependencyManagement(Dependency resolveVersion, Model model) {
         model.getDependencyManagement()
                 .getDependencies()
                 .stream()
                 .filter(dependency -> dependency.getGroupId().equals(resolveVersion.getGroupId()))
                 .filter(dependency -> dependency.getArtifactId().equals(resolveVersion.getArtifactId()))
                 .findFirst()
-                .ifPresent(dependency -> resolveVersion.setVersion(dependency.getVersion()));
+                .ifPresent(dependency -> copyVersionAndScopeTo(dependency, resolveVersion) );
+    }
+
+    private void copyVersionAndScopeTo(Dependency dependency, Dependency resolveVersion) {
+        resolveVersion.setVersion(dependency.getVersion());
+        resolveVersion.setScope(dependency.getScope());
     }
 
     private void getPropertiesAndDependencyManagementFromParents(Model model) {
@@ -222,7 +229,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             }
             if (parentModel.getDependencies() != null) {
                 parentModel.getDependencies().stream()
-                        //.map(dependency -> resolveProperties(dependency, parentModel))
+                        .map(dependency -> resolveProperties(dependency, parentModel))
                         .forEach(dependency -> model.addDependency(dependency));
             }
             if (model.getProperties() != null) {
