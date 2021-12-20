@@ -147,6 +147,9 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         if ("test".equals(scope) && includeTestScope) {
             return true;
         }
+        if ("runtime".equals(scope)) {
+            return true;
+        }
         return false;
     }
 
@@ -174,7 +177,8 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
                 .stream()
                 .forEach(
                         dependency -> LOGGER
-                                .debug("dependency for " + GAV.fromModel(model) + ": " + dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion() + " scope:" + dependency.getScope()));
+                                .debug("dependency for " + GAV.fromModel(model) + ": " + dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion() + " scope:"
+                                        + dependency.getScope()));
     }
 
     private void resolveVersion(Dependency resolveVersion, Model model) {
@@ -198,12 +202,16 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
                 .filter(dependency -> dependency.getGroupId().equals(resolveVersion.getGroupId()))
                 .filter(dependency -> dependency.getArtifactId().equals(resolveVersion.getArtifactId()))
                 .findFirst()
-                .ifPresent(dependency -> copyVersionAndScopeTo(dependency, resolveVersion) );
+                .ifPresent(dependency -> copyVersionAndScopeTo(dependency, resolveVersion));
     }
 
     private void copyVersionAndScopeTo(Dependency dependency, Dependency resolveVersion) {
-        resolveVersion.setVersion(dependency.getVersion());
-        resolveVersion.setScope(dependency.getScope());
+        if (StringUtils.isEmpty(resolveVersion.getVersion())) {
+            resolveVersion.setVersion(dependency.getVersion());
+        }
+        if (StringUtils.isEmpty(resolveVersion.getScope())) {
+            resolveVersion.setScope(dependency.getScope());
+        }
     }
 
     private void getPropertiesAndDependencyManagementFromParents(Model model) {
