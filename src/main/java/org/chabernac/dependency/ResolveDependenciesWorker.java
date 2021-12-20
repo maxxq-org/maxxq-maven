@@ -133,6 +133,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         copyVersionFromDependencyManagement(resolveVersion, model);
         
         if(StringUtils.isEmpty(resolveVersion.getVersion())) {
+            LOGGER.error("After copying the versions from the dependency management the version for " + resolveVersion.getGroupId() + ":" + resolveVersion.getArtifactId() + " in pom " + GAV.fromModel(model)  + " is still empty, model: " + new ModelIO().writeModelToString(model));
             throw new IllegalArgumentException("After copying the versions from the dependency management the version for " + resolveVersion.getGroupId() + ":" + resolveVersion.getArtifactId() + " in pom " + GAV.fromModel(model)  + " is still empty");
         }
 
