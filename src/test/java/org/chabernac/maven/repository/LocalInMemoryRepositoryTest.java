@@ -23,7 +23,7 @@ public class LocalInMemoryRepositoryTest {
         Mockito.when(model.getArtifactId()).thenReturn("artifactId");
         Mockito.when(model.getVersion()).thenReturn("version");
 
-        repository.addModel(model);
+        repository.store(model);
 
         Optional<Model> result = repository.readPom(new GAV("groupId", "artifactId", "version"));
 

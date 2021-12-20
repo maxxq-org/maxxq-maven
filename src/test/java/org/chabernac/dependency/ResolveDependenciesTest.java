@@ -11,7 +11,8 @@ import org.junit.Test;
 public class ResolveDependenciesTest {
     private ResolveDependencies resolveDependencies = new ResolveDependencies(
             new VirtualRepository()
-                    .addRepository(new RemoteRepository(RemoteRepository.MAVEN_CENTRAL))
+                    //.addRepository(new RemoteRepository(RemoteRepository.MAVEN_CENTRAL))
+                    .addRepository(new RemoteRepository("https://artifacts.axa.be/artifactory/maven-all/"))
                     .addRepository(new LocalInMemoryRepository()));
 
     @Test
@@ -19,7 +20,7 @@ public class ResolveDependenciesTest {
         Set<Dependency> dependencies = resolveDependencies.getDependencies(getClass().getResourceAsStream("/pom.xml"));
 
         dependencies.stream().forEach(dependency -> System.out.println("result: " + GAV.fromDependency(dependency)));
-        Assert.assertEquals(16, dependencies.size());
+        Assert.assertEquals(10, dependencies.size());
     }
     
     @Test

@@ -33,6 +33,13 @@ public class POMUtilsTest {
         Assert.assertEquals("1.2.3", pomUtils.resolveProperty("${library.version}", model));
         Assert.assertEquals("1.2.3", pomUtils.resolveProperty("1.2.3", model));
     }
+    
+    @Test
+    public void resolvePropertyNotFound() {
+        Properties properties = new Properties();
+        Mockito.when(model.getProperties()).thenReturn(properties);
+        Assert.assertEquals("${library.version}", pomUtils.resolveProperty("${library.version}", model));
+    }
 
     @Test
     public void resolveProjectVersion() {
