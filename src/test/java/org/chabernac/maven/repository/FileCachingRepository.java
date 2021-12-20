@@ -20,12 +20,17 @@ public class FileCachingRepository implements IRepository {
     private Logger LOGGER = LogManager.getLogger(FileCachingRepository.class);
     private final IRepository repository;
     private final Function<GAV, String> getMavenRepoPath;
-    private final IModelIO modelIO = new ModelIO();
+    private final IModelIO modelIO;
 
-    public FileCachingRepository(IRepository repository, Path basePath) {
+    public FileCachingRepository(Path basePath, IRepository repository) {
+        this(repository, basePath, new ModelIO());
+    }
+
+    FileCachingRepository(IRepository repository, Path basePath, IModelIO modelIO) {
         super();
         this.repository = repository;
         this.getMavenRepoPath = new GetMavenRepoURL(basePath.toString());
+        this.modelIO = modelIO;
     }
 
     @Override
@@ -33,19 +38,23 @@ public class FileCachingRepository implements IRepository {
         Path path = Paths.get(getMavenRepoPath.apply(gav));
         try {
             if (Files.exists(path)) {
-                return Optional.of(modelIO.getModelFromInputStream(new FileInputStream(path.toFile())));
+                try (FileInputStream input = new FileInputStream(path.toFile())) {
+                    return Optional.of(modelIO.getModelFromInputStream(input));
+                }
             }
 
             Optional<Model> modelOptional = repository.readPom(gav);
 
             if (modelOptional.isPresent()) {
-                Files.createDirectories(path);
-                modelIO.writeModelToStream(modelOptional.get(), new FileOutputStream(path.toFile()));
+                Files.createDirectories(path.getParent());
+                try (FileOutputStream output = new FileOutputStream(path.toFile())) {
+                    modelIO.writeModelToStream(modelOptional.get(), output);
+                }
             }
 
             return modelOptional;
         } catch (IOException e) {
-            LOGGER.error("Could not read/write to {}", path);
+            LOGGER.error("Could not read/write to {}", path, e);
             return Optional.empty();
         }
 

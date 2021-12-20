@@ -21,9 +21,9 @@ public class ModelIO implements IModelIO {
 
     @Override
     public void writeModelToStream(Model model, OutputStream outputStream) {
-        MavenXpp3Writer reader = new MavenXpp3Writer();
+        MavenXpp3Writer writer = new MavenXpp3Writer();
         try {
-            reader.write(outputStream, model);
+            writer.write(outputStream, model);
         } catch (Exception e) {
             throw new RepositoryException("Could not write model to outputstream", e);
         }
