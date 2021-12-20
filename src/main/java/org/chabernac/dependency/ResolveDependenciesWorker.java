@@ -80,7 +80,21 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
     }
 
     private void followDependencyManagementImports( Model model ) {
+        model.getDependencyManagement().getDependencies().stream()
+            .filter( dependency -> dependency.getScope().equals( "import" ) )
+            .filter( dependency -> dependency.getType().equals( "pom" ) )
+            .forEach( importDependency -> getManagedDependencies( importDependency ) )
+            .coll
+    }
 
+    public List<Dependency> getManagedDependencies( Dependency importDependency ) {
+        repository.readPom( GAV.fromDependency( importDependency ) ).ifPresent( model -> getManagedDependencies( model ) );
+
+    }
+
+    private List<Dependency> getManagedDependencies( Model model ) {
+        getPropertiesAndDependencyManagementFromParents( model );
+        model.getDependencyManagement().getDependencies().stream();
     }
 
     private List<Dependency> filterDependenciesAlreadyAdded( Set<Dependency> transitiveDependencies, Set<Dependency> dependencies ) {
