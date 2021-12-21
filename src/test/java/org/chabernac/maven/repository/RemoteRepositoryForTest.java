@@ -1,5 +1,5 @@
 package org.chabernac.maven.repository;
 
 public class RemoteRepositoryForTest {
-    public static final String REPO = RemoteRepository.MAVEN_CENTRAL;
+    public static final String REPO = "https://artifacts.axa.be/artifactory/maven-all";
 }
