@@ -2,17 +2,17 @@
 
 Resolve maven dependencies programmatically through simple to use Java classes.
 
-For single pom
+## For single pom
 
     Set<Dependency> resolvedDependencies = new ResolveDependencies("https://repo1.maven.org/maven2/")
                                            .getDependencies(InputStream pomStream)
 
-For reactor build
+## For reactor build
 
    
 	 Set<Dependency> resolvedDependencies = new ResolveDependencies("https://repo1.maven.org/maven2/")
                                            .getDependencies(InputStream pomStream1, InputStream pomStream2, ...)
-Advanced config for repositories
+## Advanced config for repositories
 
 	ResolveDependencies resolveDependencies = new ResolveDependencies(
             new VirtualRepository()
