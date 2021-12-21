@@ -2,12 +2,11 @@ package org.chabernac.dependency;
 
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
+
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.chabernac.maven.repository.IRepository;

@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,18 +20,18 @@ import org.apache.maven.model.Parent;
 import org.chabernac.maven.repository.IRepository;
 
 public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
-    private static final Logger LOGGER = LogManager.getLogger(ResolveDependenciesWorker.class);
-    private final Model project;
-    private final IRepository repository;
-    private final IPOMUtils pomUtils = new POMUtils();
+    private static final Logger       LOGGER             = LogManager.getLogger( ResolveDependenciesWorker.class );
+    private final Model               project;
+    private final IRepository         repository;
+    private final IPOMUtils           pomUtils           = new POMUtils();
 
     private Map<GAV, Set<Dependency>> cachedDependencies = new HashMap<>();
 
-    public ResolveDependenciesWorker(Model project,
-            IRepository repository) {
+    public ResolveDependenciesWorker( Model project,
+                                      IRepository repository ) {
         super();
-        if (project == null) {
-            throw new IllegalArgumentException("input project must not be null");
+        if ( project == null ) {
+            throw new IllegalArgumentException( "input project must not be null" );
         }
         this.project = project;
         this.repository = repository;
@@ -38,224 +39,225 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
 
     @Override
     public Set<Dependency> get() {
-        return processPomStream(project, null, true);
+        return processPomStream( project, null, true );
     }
 
-    private Set<Dependency> processPomStream(Model model, List<Exclusion> exclusions, boolean inclusiveTestScope) {
-        GAV gav = GAV.fromModel(model);
-        if (cachedDependencies.containsKey(gav)) {
-            LOGGER.debug("Returning cached dependencies for: " + gav);
-            return cachedDependencies.get(gav);
+    private Set<Dependency> processPomStream( Model model, List<Exclusion> exclusions, boolean inclusiveTestScope ) {
+        GAV gav = GAV.fromModel( model );
+        if ( cachedDependencies.containsKey( gav ) ) {
+            LOGGER.debug( "Returning cached dependencies for: {}", gav );
+            return cachedDependencies.get( gav );
         }
 
         try {
             Set<Dependency> dependencies = new LinkedHashSet<>();
-            cachedDependencies.put(gav, dependencies);
-            LOGGER.debug("Retrieving dependencies for: {}", gav);
-            getPropertiesAndDependencyManagementFromParents(model);
-            resolvedImportedDependencies(model);
-            resolveVersionsFromDependencyManagement(model);
-            addDependenciesWithValidScopeToList(dependencies, model, exclusions, inclusiveTestScope);
-            addTransitiveDependencies(dependencies, model, exclusions, inclusiveTestScope);
+            cachedDependencies.put( gav, dependencies );
+            LOGGER.debug( "Retrieving dependencies for: {}", gav );
+            getPropertiesAndDependencyManagementFromParents( model );
+            resolvedImportedDependencies( model );
+            resolveVersionsFromDependencyManagement( model );
+            addDependenciesWithValidScopeToList( dependencies, model, inclusiveTestScope );
+            addTransitiveDependencies( dependencies, model, exclusions, inclusiveTestScope );
             return dependencies;
-        } catch (Exception e) {
-            throw new DepencyResolvingException("Could not resolve dependencies", e);
+        } catch ( Exception e ) {
+            throw new DepencyResolvingException( "Could not resolve dependencies", e );
         }
     }
 
-    private void addDependenciesWithValidScopeToList(Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, boolean inclusiveTestScope) {
+    private void addDependenciesWithValidScopeToList( Set<Dependency> dependencies, Model model, boolean inclusiveTestScope ) {
         model.getDependencies()
-                .stream()
-                .filter(dependency -> !dependency.isOptional())
-                .filter(dependency -> isValidScope(dependency.getScope(), inclusiveTestScope))
-                .forEach(dependency -> dependencies.add(dependency));
+            .stream()
+            .filter( dependency -> !dependency.isOptional() )
+            .filter( dependency -> isValidScope( dependency.getScope(), inclusiveTestScope ) )
+            .forEach( dependency -> dependencies.add( dependency ) );
     }
 
-    private void addTransitiveDependencies(Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, boolean inclusiveTestScope) {
+    private void addTransitiveDependencies( Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, boolean inclusiveTestScope ) {
         model.getDependencies()
-                .stream()
-                .filter(dependency -> !dependency.isOptional())
-                .filter(dependency -> isValidScope(dependency.getScope(), inclusiveTestScope))
-                .filter(dependency -> !isExcluded(dependency, exclusions))
-                .forEach(dependency -> dependencies.addAll(filterDependenciesAlreadyAdded(getTransitiveDependencies(dependency), dependencies)));
+            .stream()
+            .filter( dependency -> !dependency.isOptional() )
+            .filter( dependency -> isValidScope( dependency.getScope(), inclusiveTestScope ) )
+            .filter( dependency -> !isExcluded( dependency, exclusions ) )
+            .forEach( dependency -> dependencies.addAll( filterDependenciesAlreadyAdded( getTransitiveDependencies( dependency ), dependencies ) ) );
     }
 
-    private void resolvedImportedDependencies(Model model) {
+    private void resolvedImportedDependencies( Model model ) {
         // Set<Dependency> resolvedDependencies = model.getDependencyManagement().getDependencies().stream()
         // .filter(dependency -> isPomImport(dependency))
         // .flatMap(importDependency -> getManagedDependencies(importDependency).stream())
         // .collect(Collectors.toSet());
 
-        model.getDependencyManagement().getDependencies().addAll(getManagedDependencyImports(model));
+        model.getDependencyManagement().getDependencies().addAll( getManagedDependencyImports( model ) );
     }
 
-    private Set<Dependency> getManagedDependencyImports(Model model) {
-        getPropertiesAndDependencyManagementFromParents(model);
+    private Set<Dependency> getManagedDependencyImports( Model model ) {
+        getPropertiesAndDependencyManagementFromParents( model );
 
         Set<Dependency> dependencies = new LinkedHashSet<>();
-        dependencies.addAll(model.getDependencyManagement().getDependencies().stream()
-                .filter(dependency -> !isPomImport(dependency))
-                .collect(Collectors.toSet()));
-        dependencies.addAll(model.getDependencyManagement().getDependencies().stream()
-                .filter(dependency -> isPomImport(dependency))
-                .flatMap(importDependency -> getManagedDependencies(importDependency).stream())
-                .collect(Collectors.toSet()));
+        dependencies.addAll(
+            model.getDependencyManagement().getDependencies().stream()
+                .filter( dependency -> !isPomImport( dependency ) )
+                .collect( Collectors.toSet() ) );
+        dependencies.addAll(
+            model.getDependencyManagement().getDependencies().stream()
+                .filter( dependency -> isPomImport( dependency ) )
+                .flatMap( importDependency -> getManagedDependencies( importDependency ).stream() )
+                .collect( Collectors.toSet() ) );
         return dependencies;
     }
 
-    private boolean isPomImport(Dependency dependency) {
-        return "import".equals(dependency.getScope()) && "pom".equals(dependency.getType());
+    private boolean isPomImport( Dependency dependency ) {
+        return "import".equals( dependency.getScope() ) && "pom".equals( dependency.getType() );
     }
 
-    public Set<Dependency> getManagedDependencies(Dependency importDependency) {
-        return repository.readPom(GAV.fromDependency(importDependency))
-                .map(model -> getManagedDependencyImports(model))
-                .orElse(new LinkedHashSet<>());
+    public Set<Dependency> getManagedDependencies( Dependency importDependency ) {
+        return repository.readPom( GAV.fromDependency( importDependency ) )
+            .map( model -> getManagedDependencyImports( model ) )
+            .orElse( new LinkedHashSet<>() );
 
     }
 
-    private List<Dependency> filterDependenciesAlreadyAdded(Set<Dependency> transitiveDependencies, Set<Dependency> dependencies) {
+    private List<Dependency> filterDependenciesAlreadyAdded( Set<Dependency> transitiveDependencies, Set<Dependency> dependencies ) {
         return transitiveDependencies
-                .stream()
-                .filter(dependency -> !dependencyExist(dependency, dependencies))
-                .collect(Collectors.toList());
+            .stream()
+            .filter( dependency -> !dependencyExist( dependency, dependencies ) )
+            .collect( Collectors.toList() );
     }
 
-    private boolean dependencyExist(Dependency dependency, Set<Dependency> dependencies) {
+    private boolean dependencyExist( Dependency dependency, Set<Dependency> dependencies ) {
         return dependencies.stream()
-                .filter(dep -> dep.getGroupId().equals(dependency.getGroupId()))
-                .anyMatch(dep -> dep.getArtifactId().equals(dependency.getArtifactId()));
+            .filter( dep -> dep.getGroupId().equals( dependency.getGroupId() ) )
+            .anyMatch( dep -> dep.getArtifactId().equals( dependency.getArtifactId() ) );
     }
 
-    private boolean isExcluded(Dependency dependency, List<Exclusion> exclusions) {
-        if (exclusions == null || exclusions.isEmpty()) {
+    private boolean isExcluded( Dependency dependency, List<Exclusion> exclusions ) {
+        if ( exclusions == null || exclusions.isEmpty() ) {
             return false;
         }
-        boolean excluded = exclusions.stream()
-                .filter(exclusion -> exclusion.getGroupId().equals(dependency.getGroupId()))
-                .anyMatch(exclusion -> exclusion.getArtifactId().equals(dependency.getArtifactId()));
-        return excluded;
+        return exclusions.stream()
+            .filter( exclusion -> exclusion.getGroupId().equals( dependency.getGroupId() ) )
+            .anyMatch( exclusion -> exclusion.getArtifactId().equals( dependency.getArtifactId() ) );
     }
 
-    private boolean isValidScope(String scope, boolean includeTestScope) {
-        if (StringUtils.isEmpty(scope)) {
+    private boolean isValidScope( String scope, boolean includeTestScope ) {
+        if ( StringUtils.isEmpty( scope ) ) {
             return true;
         }
-        if ("compile".equals(scope)) {
+        if ( "compile".equals( scope ) ) {
             return true;
         }
-        if ("test".equals(scope) && includeTestScope) {
+        if ( "test".equals( scope ) && includeTestScope ) {
             return true;
         }
-        if ("runtime".equals(scope)) {
+        if ( "runtime".equals( scope ) ) {
             return true;
         }
         return false;
     }
 
-    private Set<Dependency> getTransitiveDependencies(Dependency dependency) {
-        LOGGER.trace("Following transitive dependencies of: {}", GAV.fromDependency(dependency));
-        return repository.readPom(GAV.fromDependency(dependency))
-                .map(model -> processPomStream(model, dependency.getExclusions(), false))
-                .orElse(new LinkedHashSet<>());
+    private Set<Dependency> getTransitiveDependencies( Dependency dependency ) {
+        LOGGER.trace( "Following transitive dependencies of: {}", GAV.fromDependency( dependency ) );
+        return repository.readPom( GAV.fromDependency( dependency ) )
+            .map( model -> processPomStream( model, dependency.getExclusions(), false ) )
+            .orElse( new LinkedHashSet<>() );
     }
 
-    private void resolveVersionsFromDependencyManagement(Model model) {
-        // model.getDependencyManagement()
-        // .getDependencies()
-        // .stream()
-        // .forEach(dependency -> LOGGER.debug("managed dependency: " + GAV.fromDependency(dependency) + "
-        // scope=" + dependency.getScope()));
-        // LOGGER.debug("properties: " + model.getProperties());
+    private void resolveVersionsFromDependencyManagement( Model model ) {
+        model.getDependencies()
+            .stream()
+            .filter( dependency -> StringUtils.isEmpty( dependency.getVersion() ) || pomUtils.isPropertyValue( dependency.getVersion() ) )
+            .forEach( dependency -> resolveVersion( dependency, model ) );
 
         model.getDependencies()
-                .stream()
-                .filter(dependency -> StringUtils.isEmpty(dependency.getVersion()) || pomUtils.isPropertyValue(dependency.getVersion()))
-                .forEach(dependency -> resolveVersion(dependency, model));
-
-        model.getDependencies()
-                .stream()
-                .forEach(
-                        dependency -> LOGGER
-                                .debug("dependency for " + GAV.fromModel(model) + ": " + dependency.getGroupId() + ":" + dependency.getArtifactId() + ":" + dependency.getVersion() + " scope:"
-                                        + dependency.getScope()));
+            .stream()
+            .forEach(
+                dependency -> LOGGER.debug(
+                    "dependency for {}: {}:{}:{} scope:{}",
+                    GAV.fromModel( model ),
+                    dependency.getGroupId(),
+                    dependency.getArtifactId(),
+                    dependency.getVersion(),
+                    dependency.getScope() ) );
     }
 
-    private void resolveVersion(Dependency resolveVersion, Model model) {
-        copyVersionAndScopeFromDependencyManagement(resolveVersion, model);
+    private void resolveVersion( Dependency resolveVersion, Model model ) {
+        copyVersionAndScopeFromDependencyManagement( resolveVersion, model );
 
-        if (StringUtils.isEmpty(resolveVersion.getVersion())) {
+        if ( StringUtils.isEmpty( resolveVersion.getVersion() ) ) {
             LOGGER.error(
-                    "After copying the versions from the dependency management the version for " + resolveVersion.getGroupId() + ":" + resolveVersion.getArtifactId() + " in pom " +
-                            GAV.fromModel(model) + " is still empty, model: " + new ModelIO().writeModelToString(model));
-            throw new IllegalArgumentException("After copying the versions from the dependency management the version for " + resolveVersion.getGroupId() + ":" +
-                    resolveVersion.getArtifactId() + " in pom " + GAV.fromModel(model) + " is still empty");
+                "After copying the versions from the dependency management the version for {}:{} in pom {} is still empty, model: {}",
+                () -> resolveVersion.getGroupId(),
+                () -> resolveVersion.getArtifactId(),
+                () -> GAV.fromModel( model ),
+                () -> new ModelIO().writeModelToString( model ) );
+            throw new IllegalArgumentException( "After copying the versions from the dependency management the version for " + resolveVersion.getGroupId() + ":" +
+                                                resolveVersion.getArtifactId() + " in pom " + GAV.fromModel( model ) + " is still empty" );
         }
 
-        resolveVersion.setVersion(pomUtils.resolveProperty(resolveVersion.getVersion(), model));
+        resolveVersion.setVersion( pomUtils.resolveProperty( resolveVersion.getVersion(), model ) );
     }
 
-    private void copyVersionAndScopeFromDependencyManagement(Dependency resolveVersion, Model model) {
+    private void copyVersionAndScopeFromDependencyManagement( Dependency resolveVersion, Model model ) {
         model.getDependencyManagement()
-                .getDependencies()
-                .stream()
-                .filter(dependency -> dependency.getGroupId().equals(resolveVersion.getGroupId()))
-                .filter(dependency -> dependency.getArtifactId().equals(resolveVersion.getArtifactId()))
-                .findFirst()
-                .ifPresent(dependency -> copyVersionAndScopeTo(dependency, resolveVersion));
+            .getDependencies()
+            .stream()
+            .filter( dependency -> dependency.getGroupId().equals( resolveVersion.getGroupId() ) )
+            .filter( dependency -> dependency.getArtifactId().equals( resolveVersion.getArtifactId() ) )
+            .findFirst()
+            .ifPresent( dependency -> copyVersionAndScopeTo( dependency, resolveVersion ) );
     }
 
-    private void copyVersionAndScopeTo(Dependency dependency, Dependency resolveVersion) {
-        if (StringUtils.isEmpty(resolveVersion.getVersion())) {
-            resolveVersion.setVersion(dependency.getVersion());
+    private void copyVersionAndScopeTo( Dependency dependency, Dependency resolveVersion ) {
+        if ( StringUtils.isEmpty( resolveVersion.getVersion() ) ) {
+            resolveVersion.setVersion( dependency.getVersion() );
         }
-        if (StringUtils.isEmpty(resolveVersion.getScope())) {
-            resolveVersion.setScope(dependency.getScope());
+        if ( StringUtils.isEmpty( resolveVersion.getScope() ) ) {
+            resolveVersion.setScope( dependency.getScope() );
         }
     }
 
-    private void getPropertiesAndDependencyManagementFromParents(Model model) {
-        if (model.getDependencyManagement() == null) {
-            model.setDependencyManagement(new DependencyManagement());
+    private void getPropertiesAndDependencyManagementFromParents( Model model ) {
+        if ( model.getDependencyManagement() == null ) {
+            model.setDependencyManagement( new DependencyManagement() );
         }
 
         Parent parent = model.getParent();
-        while (parent != null) {
-            LOGGER.debug("Reading from parent with gav: " + GAV.fromParent(parent));
-            Optional<Model> modelForParent = repository.readPom(GAV.fromParent(parent));
-            if (!modelForParent.isPresent()) {
+        while ( parent != null ) {
+            LOGGER.debug( "Reading from parent with gav: {}", GAV.fromParent( parent ) );
+            Optional<Model> modelForParent = repository.readPom( GAV.fromParent( parent ) );
+            if ( !modelForParent.isPresent() ) {
                 return;
             }
             Model parentModel = modelForParent.get();
-            if (parentModel.getDependencyManagement() != null &&
-                    parentModel.getDependencyManagement().getDependencies() != null) {
+            if ( parentModel.getDependencyManagement() != null &&
+                 parentModel.getDependencyManagement().getDependencies() != null ) {
                 parentModel.getDependencyManagement()
-                        .getDependencies()
-                        .stream()
-                        .map(dependency -> resolveProperties(dependency, parentModel))
-                        .forEach(dependency -> model.getDependencyManagement().addDependency(dependency));
+                    .getDependencies()
+                    .stream()
+                    .map( dependency -> resolveProperties( dependency, parentModel ) )
+                    .forEach( dependency -> model.getDependencyManagement().addDependency( dependency ) );
             }
-            if (parentModel.getDependencies() != null) {
+            if ( parentModel.getDependencies() != null ) {
                 parentModel.getDependencies().stream()
-                        .map(dependency -> resolveProperties(dependency, parentModel))
-                        .forEach(dependency -> model.addDependency(dependency));
+                    .map( dependency -> resolveProperties( dependency, parentModel ) )
+                    .forEach( dependency -> model.addDependency( dependency ) );
             }
-            if (model.getProperties() != null) {
-                model.getProperties().putAll(parentModel.getProperties());
+            if ( model.getProperties() != null ) {
+                model.getProperties().putAll( parentModel.getProperties() );
             }
             parent = parentModel.getParent();
         }
     }
 
-    private Dependency resolveProperties(Dependency dependency, Model parentModel) {
-        if (pomUtils.isPropertyValue(dependency.getGroupId())) {
-            dependency.setGroupId(pomUtils.resolveProperty(dependency.getGroupId(), parentModel));
+    private Dependency resolveProperties( Dependency dependency, Model parentModel ) {
+        if ( pomUtils.isPropertyValue( dependency.getGroupId() ) ) {
+            dependency.setGroupId( pomUtils.resolveProperty( dependency.getGroupId(), parentModel ) );
         }
-        if (pomUtils.isPropertyValue(dependency.getArtifactId())) {
-            dependency.setArtifactId(pomUtils.resolveProperty(dependency.getArtifactId(), parentModel));
+        if ( pomUtils.isPropertyValue( dependency.getArtifactId() ) ) {
+            dependency.setArtifactId( pomUtils.resolveProperty( dependency.getArtifactId(), parentModel ) );
         }
-        if (pomUtils.isPropertyValue(dependency.getVersion())) {
-            dependency.setVersion(pomUtils.resolveProperty(dependency.getVersion(), parentModel));
+        if ( pomUtils.isPropertyValue( dependency.getVersion() ) ) {
+            dependency.setVersion( pomUtils.resolveProperty( dependency.getVersion(), parentModel ) );
         }
         return dependency;
     }
