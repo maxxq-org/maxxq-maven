@@ -26,3 +26,13 @@ Resolve maven dependencies programmatically through simple to use Java classes.
 A custom request builder can be given to RemoteRepository to craft request with the specific authentication that might be required for private repositories
 
 	new RemoteRepository(RemoteRepository.MAVEN_CENTRAL, customRequestBuilder)
+
+
+## resolver logic
+
+- traverse parent pom's: copy properties, dependencies and dependency management dependencies if not already existing
+- resolve properties in dependency management 
+- recursively follow pom includes in dependency management
+- apply dependency management on existing dependencies 
+- obtain transitive dependencies recursively. Do not replace existing dependencies (shortest path rule) 
+- reapply dependency management on existing dependencies 
