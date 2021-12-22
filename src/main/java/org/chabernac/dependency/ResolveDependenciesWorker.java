@@ -1,5 +1,6 @@
 package org.chabernac.dependency;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -53,15 +54,32 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             Set<Dependency> dependencies = new LinkedHashSet<>();
             cachedDependencies.put( gav, dependencies );
             LOGGER.debug( "Retrieving dependencies for: {}", gav );
-            getPropertiesAndDependencyManagementFromParents( model );
-            resolvedImportedDependencies( model );
+            getConfigurationsFromParent( model );
+            resolveImportedDependencies( model );
             resolveVersionsFromDependencyManagement( model );
             addDependenciesWithValidScopeToList( dependencies, model, inclusiveTestScope );
             addTransitiveDependencies( dependencies, model, exclusions, inclusiveTestScope );
+            copyVersionsFromDependencyManagement( dependencies, model.getDependencyManagement().getDependencies() );
             return dependencies;
         } catch ( Exception e ) {
             throw new DepencyResolvingException( "Could not resolve dependencies", e );
         }
+    }
+
+    private void resolveProperties( Dependency dependency, Model model ) {
+        int times = 0;
+        while ( hasPropertyValue( dependency ) ) {
+            resolveGAV( dependency, model );
+            if ( times++ == 10 ) {
+                return;
+            }
+        }
+    }
+
+    private boolean hasPropertyValue( Dependency dependency ) {
+        return pomUtils.isPropertyValue( dependency.getGroupId() ) ||
+               pomUtils.isPropertyValue( dependency.getArtifactId() ) ||
+               pomUtils.isPropertyValue( dependency.getVersion() );
     }
 
     private void addDependenciesWithValidScopeToList( Set<Dependency> dependencies, Model model, boolean inclusiveTestScope ) {
@@ -81,17 +99,23 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             .forEach( dependency -> dependencies.addAll( filterDependenciesAlreadyAdded( getTransitiveDependencies( dependency ), dependencies ) ) );
     }
 
-    private void resolvedImportedDependencies( Model model ) {
+    private void resolveImportedDependencies( Model model ) {
         // Set<Dependency> resolvedDependencies = model.getDependencyManagement().getDependencies().stream()
         // .filter(dependency -> isPomImport(dependency))
         // .flatMap(importDependency -> getManagedDependencies(importDependency).stream())
         // .collect(Collectors.toSet());
+        Set<Dependency> importedManagedDependencies = getManagedDependencyImports( model );
+        copyNonExistingDependencies( importedManagedDependencies, model.getDependencyManagement().getDependencies() );
+    }
 
-        model.getDependencyManagement().getDependencies().addAll( getManagedDependencyImports( model ) );
+    private void copyNonExistingDependencies( Collection<Dependency> fromDependencies, List<Dependency> toDependencies ) {
+        fromDependencies.stream()
+            .filter( dependency -> !dependencyFound( dependency, toDependencies ) )
+            .forEach( dependency -> toDependencies.add( dependency ) );
     }
 
     private Set<Dependency> getManagedDependencyImports( Model model ) {
-        getPropertiesAndDependencyManagementFromParents( model );
+        getConfigurationsFromParent( model );
 
         Set<Dependency> dependencies = new LinkedHashSet<>();
         dependencies.addAll(
@@ -106,15 +130,15 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         return dependencies;
     }
 
-    private boolean isPomImport( Dependency dependency ) {
-        return "import".equals( dependency.getScope() ) && "pom".equals( dependency.getType() );
-    }
-
     public Set<Dependency> getManagedDependencies( Dependency importDependency ) {
         return repository.readPom( GAV.fromDependency( importDependency ) )
             .map( model -> getManagedDependencyImports( model ) )
             .orElse( new LinkedHashSet<>() );
 
+    }
+
+    private boolean isPomImport( Dependency dependency ) {
+        return "import".equals( dependency.getScope() ) && "pom".equals( dependency.getType() );
     }
 
     private List<Dependency> filterDependenciesAlreadyAdded( Set<Dependency> transitiveDependencies, Set<Dependency> dependencies ) {
@@ -165,7 +189,8 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
     private void resolveVersionsFromDependencyManagement( Model model ) {
         model.getDependencies()
             .stream()
-            .filter( dependency -> StringUtils.isEmpty( dependency.getVersion() ) || pomUtils.isPropertyValue( dependency.getVersion() ) )
+            // .filter( dependency -> StringUtils.isEmpty( dependency.getVersion() ) || pomUtils.isPropertyValue(
+            // dependency.getVersion() ) )
             .forEach( dependency -> resolveVersion( dependency, model ) );
 
         model.getDependencies()
@@ -195,6 +220,10 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         }
 
         resolveVersion.setVersion( pomUtils.resolveProperty( resolveVersion.getVersion(), model ) );
+
+        if ( pomUtils.isPropertyValue( resolveVersion.getVersion() ) ) {
+            resolveVersion( resolveVersion, model );
+        }
     }
 
     private void copyVersionAndScopeFromDependencyManagement( Dependency resolveVersion, Model model ) {
@@ -207,16 +236,14 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             .ifPresent( dependency -> copyVersionAndScopeTo( dependency, resolveVersion ) );
     }
 
-    private void copyVersionAndScopeTo( Dependency dependency, Dependency resolveVersion ) {
-        if ( StringUtils.isEmpty( resolveVersion.getVersion() ) ) {
-            resolveVersion.setVersion( dependency.getVersion() );
-        }
+    private void copyVersionAndScopeTo( Dependency managedDependency, Dependency resolveVersion ) {
+        resolveVersion.setVersion( managedDependency.getVersion() );
         if ( StringUtils.isEmpty( resolveVersion.getScope() ) ) {
-            resolveVersion.setScope( dependency.getScope() );
+            resolveVersion.setScope( managedDependency.getScope() );
         }
     }
 
-    private void getPropertiesAndDependencyManagementFromParents( Model model ) {
+    private void getConfigurationsFromParent( Model model ) {
         if ( model.getDependencyManagement() == null ) {
             model.setDependencyManagement( new DependencyManagement() );
         }
@@ -229,27 +256,64 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
                 return;
             }
             Model parentModel = modelForParent.get();
-            if ( parentModel.getDependencyManagement() != null &&
-                 parentModel.getDependencyManagement().getDependencies() != null ) {
-                parentModel.getDependencyManagement()
-                    .getDependencies()
-                    .stream()
-                    .map( dependency -> resolveProperties( dependency, parentModel ) )
-                    .forEach( dependency -> model.getDependencyManagement().addDependency( dependency ) );
-            }
-            if ( parentModel.getDependencies() != null ) {
-                parentModel.getDependencies().stream()
-                    .map( dependency -> resolveProperties( dependency, parentModel ) )
-                    .forEach( dependency -> model.addDependency( dependency ) );
-            }
-            if ( model.getProperties() != null ) {
-                model.getProperties().putAll( parentModel.getProperties() );
-            }
+            copyNonExistingManagedDependencies( parentModel, model );
+            copyNonExistingDependencies( parentModel, model );
+            copyNonExistingProperties( parentModel, model );
             parent = parentModel.getParent();
+        }
+        resolveAllPropertiesInAllSections( model );
+    }
+
+    private void resolveAllPropertiesInAllSections( Model model ) {
+        resolveAllPropertiesInDependencies( model.getDependencyManagement().getDependencies(), model );
+        resolveAllPropertiesInDependencies( model.getDependencies(), model );
+    }
+
+    private void resolveAllPropertiesInDependencies( List<Dependency> dependencies, Model model ) {
+        dependencies.stream().forEach( dependency -> resolveProperties( dependency, model ) );
+    }
+
+    private void copyNonExistingManagedDependencies( Model parentModel, Model model ) {
+        if ( parentModel.getDependencyManagement() != null &&
+             parentModel.getDependencyManagement().getDependencies() != null ) {
+            parentModel.getDependencyManagement()
+                .getDependencies()
+                .stream()
+                .map( dependency -> resolveGAV( dependency, parentModel ) )
+                .filter( dependency -> !dependencyFound( dependency, model.getDependencyManagement().getDependencies() ) )
+                .forEach( dependency -> model.getDependencyManagement().addDependency( dependency ) );
         }
     }
 
-    private Dependency resolveProperties( Dependency dependency, Model parentModel ) {
+    private void copyNonExistingDependencies( Model parentModel, Model model ) {
+        if ( parentModel.getDependencies() != null ) {
+            parentModel.getDependencies().stream()
+                .map( dependency -> resolveGAV( dependency, parentModel ) )
+                .filter( dependency -> !dependencyFound( dependency, model.getDependencies() ) )
+                .forEach( dependency -> model.addDependency( dependency ) );
+        }
+    }
+
+    private void copyNonExistingProperties( Model parentModel, Model model ) {
+        if ( model.getProperties() != null ) {
+            parentModel.getProperties().entrySet()
+                .stream()
+                .filter( entry -> !model.getProperties().containsKey( entry.getKey() ) )
+                .peek(
+                    entry -> System.out
+                        .println( "Copying property " + entry.getKey() + ":" + entry.getValue() + " from " + GAV.fromModel( parentModel ) + " to " + GAV.fromModel( model ) ) )
+                .forEach( entry -> model.getProperties().put( entry.getKey(), entry.getValue() ) );
+        }
+
+    }
+
+    private boolean dependencyFound( Dependency search, List<Dependency> dependencies ) {
+        return dependencies.stream()
+            .filter( dependency -> dependency.getGroupId().equals( search.getGroupId() ) )
+            .anyMatch( dependency -> dependency.getArtifactId().equals( search.getArtifactId() ) );
+    }
+
+    private Dependency resolveGAV( Dependency dependency, Model parentModel ) {
         if ( pomUtils.isPropertyValue( dependency.getGroupId() ) ) {
             dependency.setGroupId( pomUtils.resolveProperty( dependency.getGroupId(), parentModel ) );
         }
@@ -260,6 +324,17 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             dependency.setVersion( pomUtils.resolveProperty( dependency.getVersion(), parentModel ) );
         }
         return dependency;
+    }
+
+    private void copyVersionsFromDependencyManagement( Set<Dependency> dependencies, List<Dependency> managedDependencies ) {
+        dependencies.stream().forEach( dependency -> copyVersionIfManaged( dependency, managedDependencies ) );
+    }
+
+    private void copyVersionIfManaged( Dependency dependency, List<Dependency> managedDependencies ) {
+        managedDependencies.stream()
+            .filter( managedDependency -> managedDependency.getGroupId().equals( dependency.getGroupId() ) )
+            .filter( managedDependency -> managedDependency.getArtifactId().equals( dependency.getArtifactId() ) )
+            .forEach( managedDependency -> copyVersionAndScopeTo( managedDependency, dependency ) );
     }
 
 }
