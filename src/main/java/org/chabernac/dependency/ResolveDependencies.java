@@ -2,11 +2,9 @@ package org.chabernac.dependency;
 
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -20,31 +18,37 @@ public class ResolveDependencies implements IDependencyResolver {
         this.repository = repository;
     }
 
+    @Override
     public GAV store(Model model) {
         return repository.store(model);
     }
 
+    @Override
     public GAV store(InputStream inputStream) {
         return store(new ModelIO().getModelFromInputStream(inputStream));
     }
 
+    @Override
     public Set<Dependency> getDependencies(InputStream... pomStreams) {
         return Arrays.stream(pomStreams)
                 .flatMap(stream -> getDependencies(stream).stream())
                 .collect(Collectors.toSet());
     }
 
+    @Override
     public Set<Dependency> getDependencies(InputStream pomStream) {
         GAV gav = store(pomStream);
         return getDependencies(gav);
     }
 
+    @Override
     public Set<Dependency> getDependencies(GAV... gavs) {
         return Arrays.stream(gavs)
                 .flatMap(gav -> getDependencies(gav).stream())
                 .collect(Collectors.toSet());
     }
 
+    @Override
     public Set<Dependency> getDependencies(GAV gav) {
         try {
             Optional<Model> model = repository.readPom(gav);
