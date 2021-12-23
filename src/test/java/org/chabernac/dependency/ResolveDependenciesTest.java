@@ -25,6 +25,36 @@ public class ResolveDependenciesTest {
             .addRepository( new LocalInMemoryRepository() ) );
 
     @Test
+    public void resolveDependenciesWithExclusion() {
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/pom-dependency-with-exclusion.pom.xml" ) );
+
+        List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
+
+        Assert.assertEquals( 1, dependencies.size() );
+        Assert.assertTrue( result.contains( "GAV [groupId=org.apache.maven, artifactId=maven-settings, version=3.8.4]" ) );
+    }
+
+    @Test
+    public void resolveDependenciesWithManagedExclusion() {
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/pom-dependency-with-managed-exclusion.pom.xml" ) );
+
+        List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
+
+        Assert.assertEquals( 1, dependencies.size() );
+        Assert.assertTrue( result.contains( "GAV [groupId=org.apache.maven, artifactId=maven-settings, version=3.8.4]" ) );
+    }
+
+    @Test
+    public void resolveDependenciesWithManagedDependency() {
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/pom-override-dependency-with-management.pom.xml" ) );
+
+        List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
+
+        Assert.assertEquals( 10, dependencies.size() );
+        Assert.assertTrue( result.contains( "GAV [groupId=org.apiguardian, artifactId=apiguardian-api, version=1.0.0]" ) );
+    }
+
+    @Test
     public void resolveDependencies() {
         Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/pom.xml" ) );
 
@@ -42,31 +72,14 @@ public class ResolveDependenciesTest {
         Assert.assertTrue( result.contains( "GAV [groupId=org.opentest4j, artifactId=opentest4j, version=1.1.1]" ) );
         Assert.assertTrue( result.contains( "GAV [groupId=org.codehaus.plexus, artifactId=plexus-utils, version=3.0.22]" ) );
     }
-    
-    @Test
-    public void resolveDependenciesWithManagedDependency() {
-        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/pom-override-dependency-with-management.pom.xml" ) );
-
-        List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
-
-        Assert.assertEquals( 10, dependencies.size() );
-        Assert.assertTrue( result.contains( "GAV [groupId=org.apiguardian, artifactId=apiguardian-api, version=1.0.0]" ) );
-        Assert.assertTrue( result.contains( "GAV [groupId=org.apache.commons, artifactId=commons-lang3, version=3.3]" ) );
-        Assert.assertTrue( result.contains( "GAV [groupId=org.junit.jupiter, artifactId=junit-jupiter-api, version=5.4.0]" ) );
-        Assert.assertTrue( result.contains( "GAV [groupId=org.junit.jupiter, artifactId=junit-jupiter-engine, version=5.4.0]" ) );
-        Assert.assertTrue( result.contains( "GAV [groupId=org.junit.platform, artifactId=junit-platform-commons, version=1.4.0]" ) );
-        Assert.assertTrue( result.contains( "GAV [groupId=org.junit.platform, artifactId=junit-platform-engine, version=1.4.0]" ) );
-        Assert.assertTrue( result.contains( "GAV [groupId=org.apache.maven, artifactId=maven-model, version=3.3.9]" ) );
-        Assert.assertTrue( result.contains( "GAV [groupId=org.apache.maven, artifactId=maven-settings, version=3.8.4]" ) );
-        Assert.assertTrue( result.contains( "GAV [groupId=org.opentest4j, artifactId=opentest4j, version=1.1.1]" ) );
-        Assert.assertTrue( result.contains( "GAV [groupId=org.codehaus.plexus, artifactId=plexus-utils, version=3.0.22]" ) );
-    }
 
     @Test
     public void resolveDependenciesWithImport() {
         Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/commons-io-2.11.0.pom.xml" ) );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
+
+        result.stream().forEach( resultstring -> System.out.println( resultstring ) );
 
         Assert.assertEquals( 28, dependencies.size() );
         Assert.assertTrue( result.contains( "GAV [groupId=org.apiguardian, artifactId=apiguardian-api, version=1.1.0]" ) );
@@ -112,4 +125,5 @@ public class ResolveDependenciesTest {
         // TODO add assertions for expected library
         System.out.println( "Add assertions for each library" );
     }
+
 }

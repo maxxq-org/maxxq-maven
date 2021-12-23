@@ -56,9 +56,9 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             LOGGER.debug( "Retrieving dependencies for: {}", gav );
             getConfigurationsFromParent( model );
             resolveImportedDependencies( model );
-            resolveVersionsFromDependencyManagement( model );
-            addDependenciesWithValidScopeToList( dependencies, model, inclusiveTestScope );
-            addTransitiveDependencies( dependencies, model, exclusions, inclusiveTestScope );
+            applyDependencyManagement( model );
+            addDependenciesWithValidScopeToList( dependencies, model, exclusions, inclusiveTestScope );
+            addTransitiveDependencieswWithValidScopeToList( dependencies, model, exclusions, inclusiveTestScope );
             copyVersionsFromDependencyManagement( dependencies, model.getDependencyManagement().getDependencies() );
             return dependencies;
         } catch ( Exception e ) {
@@ -82,15 +82,16 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
                pomUtils.isPropertyValue( dependency.getVersion() );
     }
 
-    private void addDependenciesWithValidScopeToList( Set<Dependency> dependencies, Model model, boolean inclusiveTestScope ) {
+    private void addDependenciesWithValidScopeToList( Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, boolean inclusiveTestScope ) {
         model.getDependencies()
             .stream()
             .filter( dependency -> !dependency.isOptional() )
             .filter( dependency -> isValidScope( dependency.getScope(), inclusiveTestScope ) )
+            .filter( dependency -> !isExcluded( dependency, exclusions ) )
             .forEach( dependency -> dependencies.add( dependency ) );
     }
 
-    private void addTransitiveDependencies( Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, boolean inclusiveTestScope ) {
+    private void addTransitiveDependencieswWithValidScopeToList( Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, boolean inclusiveTestScope ) {
         model.getDependencies()
             .stream()
             .filter( dependency -> !dependency.isOptional() )
@@ -179,19 +180,17 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         return false;
     }
 
-    private Set<Dependency> getTransitiveDependencies( Dependency dependency ) {
+    private Set<Dependency> getTransitiveDependencies( Dependency dependency) {
         LOGGER.trace( "Following transitive dependencies of: {}", GAV.fromDependency( dependency ) );
         return repository.readPom( GAV.fromDependency( dependency ) )
             .map( model -> processPomStream( model, dependency.getExclusions(), false ) )
             .orElse( new LinkedHashSet<>() );
     }
-
-    private void resolveVersionsFromDependencyManagement( Model model ) {
+    
+    private void applyDependencyManagement( Model model ) {
         model.getDependencies()
             .stream()
-            // .filter( dependency -> StringUtils.isEmpty( dependency.getVersion() ) || pomUtils.isPropertyValue(
-            // dependency.getVersion() ) )
-            .forEach( dependency -> resolveVersion( dependency, model ) );
+            .forEach( dependency -> applyDependencyManagement( dependency, model ) );
 
         model.getDependencies()
             .stream()
@@ -205,8 +204,8 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
                     dependency.getScope() ) );
     }
 
-    private void resolveVersion( Dependency resolveVersion, Model model ) {
-        copyVersionAndScopeFromDependencyManagement( resolveVersion, model );
+    private void applyDependencyManagement( Dependency resolveVersion, Model model ) {
+        copyVersionScopeAndExclusionsFromDependencyManagement( resolveVersion, model );
 
         if ( StringUtils.isEmpty( resolveVersion.getVersion() ) ) {
             LOGGER.error(
@@ -222,24 +221,29 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         resolveVersion.setVersion( pomUtils.resolveProperty( resolveVersion.getVersion(), model ) );
 
         if ( pomUtils.isPropertyValue( resolveVersion.getVersion() ) ) {
-            resolveVersion( resolveVersion, model );
+            applyDependencyManagement( resolveVersion, model );
         }
     }
 
-    private void copyVersionAndScopeFromDependencyManagement( Dependency resolveVersion, Model model ) {
+    private void copyVersionScopeAndExclusionsFromDependencyManagement( Dependency resolveVersion, Model model ) {
         model.getDependencyManagement()
             .getDependencies()
             .stream()
             .filter( dependency -> dependency.getGroupId().equals( resolveVersion.getGroupId() ) )
             .filter( dependency -> dependency.getArtifactId().equals( resolveVersion.getArtifactId() ) )
             .findFirst()
-            .ifPresent( dependency -> copyVersionAndScopeTo( dependency, resolveVersion ) );
+            .ifPresent( dependency -> copyVersionScopeAndExclusionsTo( dependency, resolveVersion ) );
     }
 
-    private void copyVersionAndScopeTo( Dependency managedDependency, Dependency resolveVersion ) {
-        resolveVersion.setVersion( managedDependency.getVersion() );
-        if ( StringUtils.isEmpty( resolveVersion.getScope() ) ) {
-            resolveVersion.setScope( managedDependency.getScope() );
+    private void copyVersionScopeAndExclusionsTo( Dependency managedDependency, Dependency dependency ) {
+        if ( !StringUtils.isEmpty( managedDependency.getVersion() ) ) {
+            dependency.setVersion( managedDependency.getVersion() );
+        }
+        if ( StringUtils.isEmpty( dependency.getScope() ) ) {
+            dependency.setScope( managedDependency.getScope() );
+        }
+        if(managedDependency.getExclusions() != null && !managedDependency.getExclusions().isEmpty()) {
+            dependency.getExclusions().addAll( managedDependency.getExclusions() );
         }
     }
 
@@ -334,7 +338,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         managedDependencies.stream()
             .filter( managedDependency -> managedDependency.getGroupId().equals( dependency.getGroupId() ) )
             .filter( managedDependency -> managedDependency.getArtifactId().equals( dependency.getArtifactId() ) )
-            .forEach( managedDependency -> copyVersionAndScopeTo( managedDependency, dependency ) );
+            .forEach( managedDependency -> copyVersionScopeAndExclusionsTo( managedDependency, dependency ) );
     }
 
 }
