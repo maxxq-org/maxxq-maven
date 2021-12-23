@@ -132,8 +132,6 @@
 					<ossindexAnalyzerEnabled>false</ossindexAnalyzerEnabled>
 					<retireJsAnalyzerEnabled>false</retireJsAnalyzerEnabled>
 					<assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
-					<cveUrlModified>https://artifacts.axa.be/artifactory/vulnerability-maven-repo/feeds/json/cve/1.1/nvdcve-1.1-modified.json.gz</cveUrlModified>
-					<cveUrlBase>https://artifacts.axa.be/artifactory/vulnerability-maven-repo/feeds/json/cve/1.1/nvdcve-1.1-%d.json.gz</cveUrlBase>
 					<failBuildOnCVSS>${owasp.CVSSv3.threshold}</failBuildOnCVSS>
 					<skip>${owasp.skip}</skip>
 				</configuration>
