@@ -4,7 +4,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.apache.maven.model.Dependency;
 import org.chabernac.maven.repository.FileCachingRepository;
 import org.chabernac.maven.repository.InMemoryCachingRepository;
@@ -164,4 +163,14 @@ public class ResolveDependenciesTest {
         Assert.assertEquals(0, result.size());
     }
 
+    @Test
+    public void getDependenciesForOkHttpClientWithGavFromMavenCentral() {
+        List<String> result = resolveDependencies.getDependencies(new GAV("com.squareup.okhttp3", "okhttp", "4.9.3")).stream().map(dependency -> dependency.toString()).collect(Collectors.toList());
+
+        Assert.assertEquals(4, result.size());
+        Assert.assertTrue(result.contains("Dependency {groupId=com.squareup.okio, artifactId=okio, version=2.8.0, type=jar}"));
+        Assert.assertTrue(result.contains("Dependency {groupId=org.jetbrains.kotlin, artifactId=kotlin-stdlib, version=1.4.10, type=jar}"));
+        Assert.assertTrue(result.contains("Dependency {groupId=org.jetbrains.kotlin, artifactId=kotlin-stdlib-common, version=1.4.0, type=jar}"));
+        Assert.assertTrue(result.contains("Dependency {groupId=org.jetbrains, artifactId=annotations, version=13.0, type=jar}"));
+    }
 }

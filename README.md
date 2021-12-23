@@ -2,12 +2,17 @@
 
 Resolve maven dependencies programmatically through simple to use Java classes.
 
-## For single pom
+## For single pom from maven central
+
+    Set<Dependency> resolvedDependencies = new ResolveDependencies("https://repo1.maven.org/maven2/")
+                                           .getDependencies(new GAV("com.squareup.okhttp3", "okhttp", "4.9.3"));
+
+## For single pom provided as InputStream
 
     Set<Dependency> resolvedDependencies = new ResolveDependencies("https://repo1.maven.org/maven2/")
                                            .getDependencies(InputStream pomStream)
 
-## For reactor build
+## For reactor build with pom's provided as input streams
 
    
 	 Set<Dependency> resolvedDependencies = new ResolveDependencies("https://repo1.maven.org/maven2/")
