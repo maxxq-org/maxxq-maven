@@ -18,11 +18,11 @@ import org.junit.Test;
 public class ResolveDependenciesTest {
     private ResolveDependencies resolveDependencies = new ResolveDependencies(
         new VirtualRepository()
+            .addRepository( new LocalInMemoryRepository() )
             .addRepository(
                 new InMemoryCachingRepository(
                     new FileCachingRepository( Paths.get( System.getProperty( "java.io.tmpdir" ), "pomcache" ),
-                        new RemoteRepository( RemoteRepositoryForTest.REPO ) ) ) )
-            .addRepository( new LocalInMemoryRepository() ) );
+                        new RemoteRepository( RemoteRepositoryForTest.REPO ) ) ) ) );
 
     @Test
     public void resolveDependenciesWithExclusion() {
@@ -124,6 +124,26 @@ public class ResolveDependenciesTest {
         Assert.assertEquals( 26, result.size() );
         // TODO add assertions for expected library
         System.out.println( "Add assertions for each library" );
+    }
+
+    @Test
+    public void resolveDependenciesMultiModuleStoreFirst() {
+        resolveDependencies.store( getClass().getResourceAsStream( "/parent/pom.xml" ) );
+        GAV gav1 = resolveDependencies.store( getClass().getResourceAsStream( "/module1/pom.xml" ) );
+        GAV gav2 = resolveDependencies.store( getClass().getResourceAsStream( "/module2/pom.xml" ) );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( gav1, gav2 );
+
+        List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
+
+        Assert.assertEquals( 26, result.size() );
+    }
+
+    @Test
+    public void getDependenciesForNonExistingGAV() {
+        Set<Dependency> result = resolveDependencies.getDependencies( new GAV( "groupid", "artifactid", "notexisting" ) );
+
+        Assert.assertEquals( 0, result.size() );
     }
 
 }

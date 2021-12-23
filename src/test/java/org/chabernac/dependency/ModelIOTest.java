@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.maven.model.Model;
+import org.chabernac.maven.repository.RepositoryException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +19,9 @@ public class ModelIOTest {
     @Mock
     private OutputStream outputStream;
 
+    @Mock
+    private Model        model;
+
     @Test
     public void getModelFromInputStream() {
         Model model = modelIO.getModelFromInputStream( getClass().getResourceAsStream( "/pom.xml" ) );
@@ -26,6 +30,11 @@ public class ModelIOTest {
         Assert.assertEquals( "chabernac", model.getGroupId() );
         Assert.assertEquals( "readdependencies", model.getArtifactId() );
         Assert.assertEquals( "0.0.1-SNAPSHOT", model.getVersion() );
+    }
+
+    @Test( expected = RepositoryException.class )
+    public void getModelFromNullInputStream() {
+        modelIO.getModelFromInputStream( null );
     }
 
     @Test
@@ -48,6 +57,11 @@ public class ModelIOTest {
         Assert.assertEquals( 1367, out.toByteArray().length );
     }
 
+    @Test( expected = RepositoryException.class )
+    public void writeModelToNullStream() throws IOException {
+        modelIO.writeModelToStream( model, null );
+    }
+
     @Test
     public void writeModelToString() throws IOException {
         Model model = modelIO.getModelFromInputStream( getClass().getResourceAsStream( "/pom.xml" ) );
@@ -55,6 +69,11 @@ public class ModelIOTest {
         String result = modelIO.writeModelToString( model );
 
         Assert.assertEquals( 1367, result.length() );
+    }
+
+    @Test( expected = RepositoryException.class )
+    public void writeNullModelToString() throws IOException {
+        modelIO.writeModelToString( null );
     }
 
 }

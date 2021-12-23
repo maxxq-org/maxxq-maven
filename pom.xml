@@ -13,7 +13,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<required.codecoverage>0.70</required.codecoverage>
+		<required.codecoverage>0.76</required.codecoverage>
 		<owasp.CVSSv3.threshold>1</owasp.CVSSv3.threshold>
 		<owasp.skip>false</owasp.skip>
 	</properties>
