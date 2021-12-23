@@ -35,4 +35,4 @@ A custom request builder can be given to RemoteRepository to craft request with 
 - recursively follow pom includes in dependency management
 - apply dependency management on existing dependencies 
 - obtain transitive dependencies recursively. Do not replace existing dependencies (shortest path rule) 
-- reapply dependency management on existing dependencies 
+- reapply dependency management on existing dependencies only for the root pom [dependency management is not transitive](src/main/resources/dependencymanagementisnottransitive/readme.md)
