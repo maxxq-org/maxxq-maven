@@ -37,7 +37,8 @@ public class VirtualRepository implements IRepository {
             .filter( repository -> repository.isWritable() )
             .map( repository -> repository.store( model ) )
             .findFirst()
-            .orElse( null );
+            .orElseThrow( () -> new RepositoryException( "This virtual repository does not have any underlying repo that is writable, storing models is not possible" ) );
 
     }
+
 }
