@@ -101,10 +101,6 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
     }
 
     private void resolveImportedDependencies( Model model ) {
-        // Set<Dependency> resolvedDependencies = model.getDependencyManagement().getDependencies().stream()
-        // .filter(dependency -> isPomImport(dependency))
-        // .flatMap(importDependency -> getManagedDependencies(importDependency).stream())
-        // .collect(Collectors.toSet());
         Set<Dependency> importedManagedDependencies = getManagedDependencyImports( model );
         copyNonExistingDependencies( importedManagedDependencies, model.getDependencyManagement().getDependencies() );
     }
@@ -195,8 +191,8 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         model.getDependencies()
             .stream()
             .forEach(
-                dependency -> LOGGER.debug(
-                    "dependency for {}: {}:{}:{} scope:{}",
+                dependency -> LOGGER.trace(
+                    "dependency within {} after applying dependency management: {}:{}:{} scope:{}",
                     GAV.fromModel( model ),
                     dependency.getGroupId(),
                     dependency.getArtifactId(),
@@ -204,9 +200,12 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
                     dependency.getScope() ) );
     }
 
-    private void applyDependencyManagement( Dependency resolveVersion, Model model ) {
-        copyVersionScopeAndExclusionsFromDependencyManagement( resolveVersion, model );
+    private void applyDependencyManagement( Dependency dependency, Model model ) {
+        copyVersionScopeAndExclusionsFromDependencyManagement( dependency, model );
+        detectUnresolvedVersions(dependency, model);
+    }
 
+    private void detectUnresolvedVersions( Dependency resolveVersion, Model model ) {
         if ( StringUtils.isEmpty( resolveVersion.getVersion() ) ) {
             LOGGER.error(
                 "After copying the versions from the dependency management the version for {}:{} in pom {} is still empty, model: {}",
@@ -216,13 +215,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
                 () -> new ModelIO().writeModelToString( model ) );
             throw new IllegalArgumentException( "After copying the versions from the dependency management the version for " + resolveVersion.getGroupId() + ":" +
                                                 resolveVersion.getArtifactId() + " in pom " + GAV.fromModel( model ) + " is still empty" );
-        }
-
-        resolveVersion.setVersion( pomUtils.resolveProperty( resolveVersion.getVersion(), model ) );
-
-        if ( pomUtils.isPropertyValue( resolveVersion.getVersion() ) ) {
-            applyDependencyManagement( resolveVersion, model );
-        }
+        }        
     }
 
     private void copyVersionScopeAndExclusionsFromDependencyManagement( Dependency resolveVersion, Model model ) {
