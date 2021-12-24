@@ -5,7 +5,7 @@ name: Create release version
 
 on:
   push:
-    branches: [ release/* ]
+    branches: [ release/1 ]
 
 jobs:
   build:
