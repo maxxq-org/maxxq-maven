@@ -146,10 +146,10 @@ public class ResolveDependenciesTest {
     @Test
     public void resolveDependenciesMultiModuleStoreFirst() {
         resolveDependencies.store(getClass().getResourceAsStream("/parent/pom.xml"));
-        GAV gav1 = resolveDependencies.store(getClass().getResourceAsStream("/module1/pom.xml"));
-        GAV gav2 = resolveDependencies.store(getClass().getResourceAsStream("/module2/pom.xml"));
+        GAV module1 = resolveDependencies.store(getClass().getResourceAsStream("/module1/pom.xml"));
+        GAV module2 = resolveDependencies.store(getClass().getResourceAsStream("/module2/pom.xml"));
 
-        Set<Dependency> dependencies = resolveDependencies.getDependencies(gav1, gav2);
+        Set<Dependency> dependencies = resolveDependencies.getDependencies(module1, module2);
 
         List<String> result = dependencies.stream().map(dependency -> GAV.fromDependency(dependency).toString()).collect(Collectors.toList());
 
