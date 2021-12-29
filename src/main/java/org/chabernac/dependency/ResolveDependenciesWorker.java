@@ -68,6 +68,22 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         }
     }
 
+    private void removeDoubleDependencies( Model model ) {
+        List<Dependency> dependenciesWhichCanBeRemoved = model.getDependencies().stream().filter( dependency -> StringUtils.isEmpty( dependency.getVersion() ) )
+            .filter( dependency -> modelHasVersionInOtherDependency( dependency, model ) )
+            .collect( Collectors.toList() );
+
+        model.getDependencies().removeAll( dependenciesWhichCanBeRemoved );
+
+    }
+
+    private boolean modelHasVersionInOtherDependency( Dependency dependencyWithoutVersion, Model model ) {
+        return model.getDependencies().stream()
+            .filter( dependency -> dependency.getGroupId().equals( dependencyWithoutVersion.getGroupId() ) )
+            .filter( dependency -> dependency.getArtifactId().equals( dependencyWithoutVersion.getArtifactId() ) )
+            .anyMatch( dependency -> !StringUtils.isEmpty( dependency.getVersion() ) );
+    }
+
     private boolean becauseDependencyManagementIsNotTransitiveOnlyApplyOnRootPom( boolean isRootPOM ) {
         return isRootPOM;
     }
@@ -204,11 +220,17 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
                     dependency.getArtifactId(),
                     dependency.getVersion(),
                     dependency.getScope() ) );
+
+        removeDoubleDependencies( model );
+        detectUnresolvedVersions( model );
     }
 
     private void applyDependencyManagement( Dependency dependency, Model model ) {
         copyVersionScopeAndExclusionsFromDependencyManagement( dependency, model );
-        detectUnresolvedVersions( dependency, model );
+    }
+
+    private void detectUnresolvedVersions( Model model ) {
+        model.getDependencies().stream().forEach( dependency -> detectUnresolvedVersions( dependency, model ) );
     }
 
     private void detectUnresolvedVersions( Dependency resolveVersion, Model model ) {
