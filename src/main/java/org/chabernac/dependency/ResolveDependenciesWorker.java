@@ -129,7 +129,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
 
     private void copyNonExistingDependencies( Collection<Dependency> fromDependencies, List<Dependency> toDependencies ) {
         fromDependencies.stream()
-            .filter( dependency -> !dependencyFound( dependency, toDependencies ) )
+            .filter( dependency -> !dependencyFoundWithVersion( dependency, toDependencies ) )
             .forEach( dependency -> toDependencies.add( dependency ) );
     }
 
@@ -305,7 +305,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
                 .getDependencies()
                 .stream()
                 .map( dependency -> resolveGAV( dependency, parentModel ) )
-                .filter( dependency -> !dependencyFound( dependency, model.getDependencyManagement().getDependencies() ) )
+                .filter( dependency -> !dependencyFoundWithVersion( dependency, model.getDependencyManagement().getDependencies() ) )
                 .forEach( dependency -> model.getDependencyManagement().addDependency( dependency ) );
         }
     }
@@ -314,7 +314,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         if ( parentModel.getDependencies() != null ) {
             parentModel.getDependencies().stream()
                 .map( dependency -> resolveGAV( dependency, parentModel ) )
-                .filter( dependency -> !dependencyFound( dependency, model.getDependencies() ) )
+                .filter( dependency -> !dependencyFoundWithVersion( dependency, model.getDependencies() ) )
                 .forEach( dependency -> model.addDependency( dependency ) );
         }
     }
@@ -328,10 +328,11 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         }
     }
 
-    private boolean dependencyFound( Dependency search, List<Dependency> dependencies ) {
+    private boolean dependencyFoundWithVersion( Dependency search, List<Dependency> dependencies ) {
         return dependencies.stream()
             .filter( dependency -> dependency.getGroupId().equals( search.getGroupId() ) )
-            .anyMatch( dependency -> dependency.getArtifactId().equals( search.getArtifactId() ) );
+            .filter( dependency -> dependency.getArtifactId().equals( search.getArtifactId() ) )
+            .anyMatch( dependency -> !StringUtils.isEmpty( dependency.getVersion() ) );
     }
 
     private Dependency resolveGAV( Dependency dependency, Model parentModel ) {
