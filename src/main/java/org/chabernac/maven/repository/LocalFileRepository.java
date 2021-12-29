@@ -17,23 +17,19 @@ import org.chabernac.dependency.GetMavenRepoURL;
 import org.chabernac.dependency.IModelIO;
 import org.chabernac.dependency.ModelIO;
 
-public class FileCachingRepository implements IRepository {
-    private static final Logger         LOGGER = LogManager.getLogger( FileCachingRepository.class );
+public class LocalFileRepository implements IRepository {
+    private static final Logger         LOGGER = LogManager.getLogger( LocalFileRepository.class );
 
-    private final IRepository           repository;
     private final Function<GAV, String> getMavenRepoPath;
     private final IModelIO              modelIO;
 
-    public FileCachingRepository( Path basePath,
-                                  IRepository repository ) {
-        this( repository, basePath, new ModelIO() );
+    public LocalFileRepository( Path basePath ) {
+        this( basePath, new ModelIO() );
     }
 
-    FileCachingRepository( IRepository repository,
-                           Path basePath,
-                           IModelIO modelIO ) {
+    LocalFileRepository( Path basePath,
+                         IModelIO modelIO ) {
         super();
-        this.repository = repository;
         this.getMavenRepoPath = new GetMavenRepoURL( basePath.toString() );
         this.modelIO = modelIO;
     }
@@ -49,31 +45,31 @@ public class FileCachingRepository implements IRepository {
                 }
             }
 
-            Optional<Model> modelOptional = repository.readPom( gav );
-
-            if ( modelOptional.isPresent() ) {
-                Files.createDirectories( path.getParent() );
-                LOGGER.trace( "Writing pom from '{}'", path.toFile() );
-                try (FileOutputStream output = new FileOutputStream( path.toFile() )) {
-                    modelIO.writeModelToStream( modelOptional.get(), output );
-                }
-            }
-
-            return modelOptional;
+            return Optional.empty();
         } catch ( IOException e ) {
-            throw new RepositoryException( "Could not read/write to path: '" + path + "'", e );
+            throw new RepositoryException( "Could not read from path: '" + path + "'", e );
         }
-
     }
 
     @Override
     public boolean isWritable() {
-        return false;
+        return true;
     }
 
     @Override
     public GAV store( Model model ) {
-        throw new UnsupportedOperationException( "Store not supported in this repository" );
+        GAV gav = GAV.fromModel( model );
+        Path path = Paths.get( getMavenRepoPath.apply( gav ) );
+        try {
+            Files.createDirectories( path.getParent() );
+            LOGGER.trace( "Writing pom to '{}'", path.toFile() );
+            try (FileOutputStream output = new FileOutputStream( path.toFile() )) {
+                modelIO.writeModelToStream( model, output );
+            }
+        } catch ( IOException e ) {
+            throw new RepositoryException( "Could not write to '" + path + "'", e );
+        }
+        return gav;
     }
 
 }

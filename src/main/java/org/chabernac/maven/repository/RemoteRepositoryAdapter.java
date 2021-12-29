@@ -1,6 +1,5 @@
 package org.chabernac.maven.repository;
 
-import java.io.InputStream;
 import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
@@ -22,22 +21,23 @@ public class RemoteRepositoryAdapter implements IRemoteRepositoryAdapter {
     }
 
     @Override
-    public Optional<InputStream> call( String endPoint ) {
+    public Optional<String> call( String endPoint ) {
         try {
             Request request = requestBuilder.apply( endPoint );
             Call call = client.newCall( request );
-            Response response = call.execute();
+            try (Response response = call.execute()) {
+                
+                if ( response.code() == 404 ) {
+                    LOGGER.warn( "no pom file found at: '{}' in remote repo", endPoint );
+                } else if ( response.code() != 200 ) {
+                    throw new RepositoryException(
+                        "Could not retrieve pom at endpoint '" + endPoint + "' http response code '" + response.code() + "'" );
+                } else {
+                    return Optional.of( response.body().string() );
+                }
 
-            if ( response.code() == 404 ) {
-                LOGGER.warn( "no pom file found at: '{}' in remote repo", endPoint );
-            } else if ( response.code() != 200 ) {
-                throw new RepositoryException(
-                    "Could not retrieve pom at endpoint '" + endPoint + "' http response code '" + response.code() + "'" );
-            } else {
-                return Optional.of( response.body().byteStream() );
+                return Optional.empty();
             }
-
-            return Optional.empty();
 
         } catch ( Exception e ) {
             throw new RepositoryException( "Error occured when calling endpoint: + '" + endPoint + "'", e );

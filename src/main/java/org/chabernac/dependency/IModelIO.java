@@ -9,6 +9,8 @@ public interface IModelIO {
     public Model getModelFromInputStream(InputStream inputStream);
 
     public Model getModelFromResource(String resource);
+    
+    public Model getModelFromString(String modelContent);
 
     public void writeModelToStream(Model model, OutputStream outputStream);
 

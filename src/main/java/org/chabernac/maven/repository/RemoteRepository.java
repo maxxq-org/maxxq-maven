@@ -1,6 +1,5 @@
 package org.chabernac.maven.repository;
 
-import java.io.InputStream;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -46,13 +45,13 @@ public class RemoteRepository implements IRepository {
         String endPoint = getMavenURL.apply( gav );
         LOGGER.debug( "Resolving pom.xml from '{}'", endPoint );
 
-        Optional<InputStream> pomStream = remoteRepositoryAdapter.call( endPoint );
+        Optional<String> pomStream = remoteRepositoryAdapter.call( endPoint );
 
         if ( !pomStream.isPresent() ) {
             return Optional.empty();
         }
 
-        return pomStream.map( pomInputStream -> modelIO.getModelFromInputStream( pomInputStream ) );
+        return pomStream.map( pomString -> modelIO.getModelFromString( pomString ) );
     }
 
     @Override

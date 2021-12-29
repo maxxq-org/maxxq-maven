@@ -9,7 +9,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 
-	<groupId>chabernac</groupId>
+	<groupId>be.axa</groupId>
 	<artifactId>module2</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
@@ -40,10 +40,9 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.11.0</version>
 		</dependency>
 		<dependency>
-			<groupId>chabernac</groupId>
+			<groupId>be.axa</groupId>
 			<artifactId>module1</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
