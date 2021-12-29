@@ -10,17 +10,17 @@ public class LocalInMemoryRepository implements IRepository {
     private final Map<GAV, Model> store = new HashMap<>();
 
     @Override
-    public Optional<Model> readPom(GAV gav) {
-        if (store.containsKey(gav)) {
-            return Optional.of(store.get(gav));
+    public Optional<Model> readPom( GAV gav ) {
+        if ( store.containsKey( gav ) ) {
+            return Optional.of( store.get( gav ) );
         }
         return Optional.empty();
     }
 
     @Override
-    public GAV store(Model model) {
-        GAV gav = GAV.fromModel(model);
-        store.put(gav, model);
+    public GAV store( Model model ) {
+        GAV gav = GAV.fromModel( model );
+        store.put( gav, model );
         return gav;
     }
 

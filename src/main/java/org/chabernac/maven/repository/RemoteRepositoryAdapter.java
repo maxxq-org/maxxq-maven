@@ -26,7 +26,7 @@ public class RemoteRepositoryAdapter implements IRemoteRepositoryAdapter {
             Request request = requestBuilder.apply( endPoint );
             Call call = client.newCall( request );
             try (Response response = call.execute()) {
-                
+
                 if ( response.code() == 404 ) {
                     LOGGER.warn( "no pom file found at: '{}' in remote repo", endPoint );
                 } else if ( response.code() != 200 ) {

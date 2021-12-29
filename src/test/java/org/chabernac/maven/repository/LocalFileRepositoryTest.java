@@ -49,7 +49,7 @@ public class LocalFileRepositoryTest {
 
         localFileRepository.store( createModel() );
     }
-    
+
     @Test( expected = RepositoryException.class )
     public void readThrowsIOException() {
         Model model = createModel();

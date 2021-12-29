@@ -10,24 +10,24 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith( MockitoJUnitRunner.class )
 public class LocalInMemoryRepositoryTest {
     private LocalInMemoryRepository repository = new LocalInMemoryRepository();
 
     @Mock
-    private Model model;
+    private Model                   model;
 
     @Test
     public void addModel() {
-        Mockito.when(model.getGroupId()).thenReturn("groupId");
-        Mockito.when(model.getArtifactId()).thenReturn("artifactId");
-        Mockito.when(model.getVersion()).thenReturn("version");
+        Mockito.when( model.getGroupId() ).thenReturn( "groupId" );
+        Mockito.when( model.getArtifactId() ).thenReturn( "artifactId" );
+        Mockito.when( model.getVersion() ).thenReturn( "version" );
 
-        repository.store(model);
+        repository.store( model );
 
-        Optional<Model> result = repository.readPom(new GAV("groupId", "artifactId", "version"));
+        Optional<Model> result = repository.readPom( new GAV( "groupId", "artifactId", "version" ) );
 
-        Assert.assertTrue(result.isPresent());
-        Assert.assertSame(model, result.get());
+        Assert.assertTrue( result.isPresent() );
+        Assert.assertSame( model, result.get() );
     }
 }

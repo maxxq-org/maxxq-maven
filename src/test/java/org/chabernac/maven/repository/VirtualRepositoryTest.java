@@ -110,8 +110,8 @@ public class VirtualRepositoryTest {
         Mockito.verify( repository1, Mockito.times( 0 ) ).store( model );
         Mockito.verify( repository2, Mockito.times( 1 ) ).store( model );
     }
-    
-    @Test(expected = RepositoryException.class)
+
+    @Test( expected = RepositoryException.class )
     public void storeNoRepoIsWritable() {
         Mockito.when( repository1.isWritable() ).thenReturn( Boolean.FALSE );
         Mockito.when( repository2.isWritable() ).thenReturn( Boolean.FALSE );

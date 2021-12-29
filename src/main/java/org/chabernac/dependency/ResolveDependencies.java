@@ -46,8 +46,8 @@ public class ResolveDependencies implements IDependencyResolver {
         Set<GAV> gavs = Arrays.stream( pomStreams )
             .map( pomStream -> store( pomStream ) )
             .collect( Collectors.toSet() );
-        
-        return getDependencies( gavs.stream(), excludeCorrespondingGavs ? gavs : new ArrayList<GAV>());
+
+        return getDependencies( gavs.stream(), excludeCorrespondingGavs ? gavs : new ArrayList<GAV>() );
     }
 
     @Override

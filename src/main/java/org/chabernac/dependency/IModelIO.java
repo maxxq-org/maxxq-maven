@@ -6,14 +6,14 @@ import org.apache.maven.model.Model;
 
 public interface IModelIO {
 
-    public Model getModelFromInputStream(InputStream inputStream);
+    public Model getModelFromInputStream( InputStream inputStream );
 
-    public Model getModelFromResource(String resource);
-    
-    public Model getModelFromString(String modelContent);
+    public Model getModelFromResource( String resource );
 
-    public void writeModelToStream(Model model, OutputStream outputStream);
+    public Model getModelFromString( String modelContent );
 
-    public String writeModelToString(Model model);
+    public void writeModelToStream( Model model, OutputStream outputStream );
+
+    public String writeModelToString( Model model );
 
 }
