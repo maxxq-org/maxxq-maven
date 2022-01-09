@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -21,12 +22,13 @@ import org.apache.maven.model.Parent;
 import org.chabernac.maven.repository.IRepository;
 
 public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
-    private static final Logger       LOGGER             = LogManager.getLogger( ResolveDependenciesWorker.class );
-    private final Model               project;
-    private final IRepository         repository;
-    private final IPOMUtils           pomUtils           = new POMUtils();
+    private static final Logger                   LOGGER             = LogManager.getLogger( ResolveDependenciesWorker.class );
+    private final Model                           project;
+    private final IRepository                     repository;
+    private final IPOMUtils                       pomUtils           = new POMUtils();
+    private final Function<GAV, Optional<String>> resolveRange;
 
-    private Map<GAV, Set<Dependency>> cachedDependencies = new HashMap<>();
+    private Map<GAV, Set<Dependency>>             cachedDependencies = new HashMap<>();
 
     public ResolveDependenciesWorker( Model project,
                                       IRepository repository ) {
@@ -36,6 +38,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         }
         this.project = project;
         this.repository = repository;
+        this.resolveRange = new ResolveRange( repository );
     }
 
     @Override
@@ -57,6 +60,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             getConfigurationsFromParent( model );
             resolveImportedDependencies( model );
             applyDependencyManagement( model );
+            resolveRanges( model );
             addDependenciesWithValidScopeToList( dependencies, model, exclusions, isRootPOM );
             addTransitiveDependencieswWithValidScopeToList( dependencies, model, exclusions, isRootPOM );
             if ( becauseDependencyManagementIsNotTransitiveOnlyApplyOnRootPom( isRootPOM ) ) {
@@ -68,8 +72,22 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         }
     }
 
+    private void resolveRanges( Model model ) {
+        model.getDependencies()
+            .stream()
+            .filter( dependency -> ResolveRange.isRange( dependency.getVersion() ) )
+            .forEach( dependency -> resolveVersionRange( dependency ) );
+
+    }
+
+    private void resolveVersionRange( Dependency dependency ) {
+        resolveRange.apply( GAV.fromDependency( dependency ) ).ifPresent( version -> dependency.setVersion( version ) );
+    }
+
     private void removeDoubleDependencies( Model model ) {
-        List<Dependency> dependenciesWhichCanBeRemoved = model.getDependencies().stream().filter( dependency -> StringUtils.isEmpty( dependency.getVersion() ) )
+        List<Dependency> dependenciesWhichCanBeRemoved = model.getDependencies()
+            .stream()
+            .filter( dependency -> StringUtils.isEmpty( dependency.getVersion() ) )
             .filter( dependency -> modelHasVersionInOtherDependency( dependency, model ) )
             .collect( Collectors.toList() );
 
@@ -78,7 +96,8 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
     }
 
     private boolean modelHasVersionInOtherDependency( Dependency dependencyWithoutVersion, Model model ) {
-        return model.getDependencies().stream()
+        return model.getDependencies()
+            .stream()
             .filter( dependency -> dependency.getGroupId().equals( dependencyWithoutVersion.getGroupId() ) )
             .filter( dependency -> dependency.getArtifactId().equals( dependencyWithoutVersion.getArtifactId() ) )
             .anyMatch( dependency -> !StringUtils.isEmpty( dependency.getVersion() ) );
@@ -138,11 +157,15 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
 
         Set<Dependency> dependencies = new LinkedHashSet<>();
         dependencies.addAll(
-            model.getDependencyManagement().getDependencies().stream()
+            model.getDependencyManagement()
+                .getDependencies()
+                .stream()
                 .filter( dependency -> !isPomImport( dependency ) )
                 .collect( Collectors.toSet() ) );
         dependencies.addAll(
-            model.getDependencyManagement().getDependencies().stream()
+            model.getDependencyManagement()
+                .getDependencies()
+                .stream()
                 .filter( dependency -> isPomImport( dependency ) )
                 .flatMap( importDependency -> getManagedDependencies( importDependency ).stream() )
                 .collect( Collectors.toSet() ) );
@@ -241,7 +264,8 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
                 () -> resolveVersion.getArtifactId(),
                 () -> GAV.fromModel( model ),
                 () -> new ModelIO().writeModelToString( model ) );
-            throw new IllegalArgumentException( "After copying the versions from the dependency management the version for " + resolveVersion.getGroupId() + ":" +
+            throw new IllegalArgumentException(
+                "After copying the versions from the dependency management the version for " + resolveVersion.getGroupId() + ":" +
                                                 resolveVersion.getArtifactId() + " in pom " + GAV.fromModel( model ) + " is still empty" );
         }
     }
@@ -312,7 +336,8 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
 
     private void copyNonExistingDependencies( Model parentModel, Model model ) {
         if ( parentModel.getDependencies() != null ) {
-            parentModel.getDependencies().stream()
+            parentModel.getDependencies()
+                .stream()
                 .map( dependency -> resolveGAV( dependency, parentModel ) )
                 .filter( dependency -> !dependencyFoundWithVersion( dependency, model.getDependencies() ) )
                 .forEach( dependency -> model.addDependency( dependency ) );
@@ -321,7 +346,8 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
 
     private void copyNonExistingProperties( Model parentModel, Model model ) {
         if ( model.getProperties() != null ) {
-            parentModel.getProperties().entrySet()
+            parentModel.getProperties()
+                .entrySet()
                 .stream()
                 .filter( entry -> !model.getProperties().containsKey( entry.getKey() ) )
                 .forEach( entry -> model.getProperties().put( entry.getKey(), entry.getValue() ) );
