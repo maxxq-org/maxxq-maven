@@ -75,7 +75,7 @@ public class ResolveDependenciesTest {
 
     @Test
     public void resolveDependencies() {
-        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/pom.xml" ) );
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/maven-dependencies.pom.xml" ) );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
 
