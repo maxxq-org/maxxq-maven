@@ -24,12 +24,12 @@ public class ModelIOTest {
 
     @Test
     public void getModelFromInputStream() {
-        Model model = modelIO.getModelFromInputStream( getClass().getResourceAsStream( "/pom.xml" ) );
+        Model model = modelIO.getModelFromInputStream( getClass().getResourceAsStream( "/maven-dependencies.pom.xml" ) );
 
         Assert.assertNotNull( model );
         Assert.assertEquals( "chabernac", model.getGroupId() );
-        Assert.assertEquals( "readdependencies", model.getArtifactId() );
-        Assert.assertEquals( "0.0.1-SNAPSHOT", model.getVersion() );
+        Assert.assertEquals( "maven-dependencies", model.getArtifactId() );
+        Assert.assertEquals( "0.1.0-SNAPSHOT", model.getVersion() );
     }
 
     @Test( expected = RepositoryException.class )
@@ -39,22 +39,22 @@ public class ModelIOTest {
 
     @Test
     public void getModelFromResource() {
-        Model model = modelIO.getModelFromResource( "/pom.xml" );
+        Model model = modelIO.getModelFromResource( "/maven-dependencies.pom.xml" );
 
         Assert.assertNotNull( model );
         Assert.assertEquals( "chabernac", model.getGroupId() );
-        Assert.assertEquals( "readdependencies", model.getArtifactId() );
-        Assert.assertEquals( "0.0.1-SNAPSHOT", model.getVersion() );
+        Assert.assertEquals( "maven-dependencies", model.getArtifactId() );
+        Assert.assertEquals( "0.1.0-SNAPSHOT", model.getVersion() );
     }
 
     @Test
     public void writeModelToStream() throws IOException {
-        Model model = modelIO.getModelFromInputStream( getClass().getResourceAsStream( "/pom.xml" ) );
+        Model model = modelIO.getModelFromInputStream( getClass().getResourceAsStream( "/maven-dependencies.pom.xml" ) );
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         modelIO.writeModelToStream( model, out );
 
-        Assert.assertEquals( 1367, out.toByteArray().length );
+        Assert.assertEquals( 1369, out.toByteArray().length );
     }
 
     @Test( expected = RepositoryException.class )
@@ -64,11 +64,11 @@ public class ModelIOTest {
 
     @Test
     public void writeModelToString() throws IOException {
-        Model model = modelIO.getModelFromInputStream( getClass().getResourceAsStream( "/pom.xml" ) );
+        Model model = modelIO.getModelFromInputStream( getClass().getResourceAsStream( "/maven-dependencies.pom.xml" ) );
 
         String result = modelIO.writeModelToString( model );
 
-        Assert.assertEquals( 1367, result.length() );
+        Assert.assertEquals( 1369, result.length() );
     }
 
     @Test( expected = RepositoryException.class )
