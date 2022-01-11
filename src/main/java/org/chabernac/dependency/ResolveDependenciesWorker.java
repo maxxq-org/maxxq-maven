@@ -66,10 +66,18 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             if ( becauseDependencyManagementIsNotTransitiveOnlyApplyOnRootPom( isRootPOM ) ) {
                 copyVersionsFromDependencyManagement( dependencies, model.getDependencyManagement().getDependencies() );
             }
-            return dependencies;
+            return removeDuplicates( dependencies );
         } catch ( Exception e ) {
             throw new DepencyResolvingException( "Could not resolve dependencies", e );
         }
+    }
+
+    private Set<Dependency> removeDuplicates( Set<Dependency> dependencies ) {
+        return dependencies.stream()
+            .map( dependency -> new ComparableDependency( dependency ) )
+            .distinct()
+            .map( dependency -> dependency.getDependency() )
+            .collect( Collectors.toSet() );
     }
 
     private void resolveRanges( Model model ) {

@@ -2,6 +2,7 @@ package org.chabernac.dependency;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Model;
 
@@ -21,13 +22,13 @@ public class POMUtils implements IPOMUtils {
         Matcher matcher = VERSION_PATTERN.matcher( propertyValue );
         if ( matcher.matches() ) {
             String property = matcher.group( 1 );
-            if ( property.equals( "project.version" ) ) {
+            if ( property.equals( "project.version" ) || property.equals( "pom.version" ) ) {
                 return GAV.fromModel( model ).getVersion();
             }
-            if ( property.equals( "project.groupId" ) ) {
+            if ( property.equals( "project.groupId" ) || property.equals( "pom.groupId" ) ) {
                 return GAV.fromModel( model ).getGroupId();
             }
-            if ( property.equals( "project.artifactId" ) ) {
+            if ( property.equals( "project.artifactId" ) || property.equals( "pom.artifactId" ) ) {
                 return GAV.fromModel( model ).getArtifactId();
             }
             if ( model.getProperties().containsKey( property ) ) {

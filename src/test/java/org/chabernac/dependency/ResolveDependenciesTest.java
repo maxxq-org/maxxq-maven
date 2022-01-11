@@ -4,8 +4,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.maven.artifact.versioning.InvalidVersionSpecificationException;
-import org.apache.maven.artifact.versioning.VersionRange;
+
 import org.apache.maven.model.Dependency;
 import org.chabernac.maven.repository.FileCachingRepository;
 import org.chabernac.maven.repository.InMemoryCachingRepository;
@@ -216,8 +215,22 @@ public class ResolveDependenciesTest {
     }
     
     @Test
-    public void testRange() throws InvalidVersionSpecificationException {
-        VersionRange range = VersionRange.createFromVersionSpec("[3.0.0,4.0.0)");
-        System.out.println(range.getRecommendedVersion());
+    public void getDependenciesForActiveMQWithGavFromMavenCentral() {
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/pom-with-old-property-style.xml" ) );
+
+        List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).sorted().collect( Collectors.toList() );
+        Assert.assertEquals( 12, result.size() );
+        Assert.assertTrue( result.contains( "GAV [groupId=avalon-framework, artifactId=avalon-framework, version=4.1.3]" ) );
+        Assert.assertTrue( result.contains( "GAV [groupId=backport-util-concurrent, artifactId=backport-util-concurrent, version=2.1]" ) );
+        Assert.assertTrue( result.contains( "GAV [groupId=commons-logging, artifactId=commons-logging, version=1.1]" ) );
+        Assert.assertTrue( result.contains( "GAV [groupId=commons-logging, artifactId=commons-logging-api, version=1.1]" ) );
+        Assert.assertTrue( result.contains( "GAV [groupId=javax.servlet, artifactId=servlet-api, version=2.3]" ) );
+        Assert.assertTrue( result.contains( "GAV [groupId=log4j, artifactId=log4j, version=1.2.12]" ) );
+        Assert.assertTrue( result.contains( "GAV [groupId=logkit, artifactId=logkit, version=1.0.1]" ) );
+        Assert.assertTrue( result.contains( "GAV [groupId=org.apache.activemq, artifactId=activeio-core, version=3.1.0]" ) );
+        Assert.assertTrue( result.contains( "GAV [groupId=org.apache.activemq, artifactId=activemq-core, version=5.2.0]" ) );
+        Assert.assertTrue( result.contains( "GAV [groupId=org.apache.camel, artifactId=camel-core, version=1.5.0]" ) );
+        Assert.assertTrue( result.contains( "GAV [groupId=org.apache.geronimo.specs, artifactId=geronimo-j2ee-management_1.0_spec, version=1.0]" ) );
+        Assert.assertTrue( result.contains( "GAV [groupId=org.apache.geronimo.specs, artifactId=geronimo-jms_1.1_spec, version=1.1.1]" ) );
     }
 }
