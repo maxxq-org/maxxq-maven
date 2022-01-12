@@ -87,6 +87,8 @@ public class ResolveDependencies implements IDependencyResolver {
                 return new LinkedHashSet<>();
             }
             return new ResolveDependenciesWorker( model.get(), repository ).get();
+        } catch ( DepencyResolvingException e ) {
+            throw e;
         } catch ( Exception e ) {
             throw new DepencyResolvingException( "Could not resolve dependencies", e );
         }

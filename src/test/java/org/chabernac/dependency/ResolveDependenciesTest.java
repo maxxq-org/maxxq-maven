@@ -90,7 +90,7 @@ public class ResolveDependenciesTest {
         Assert.assertTrue( result.contains( "GAV [groupId=org.opentest4j, artifactId=opentest4j, version=1.1.1]" ) );
         Assert.assertTrue( result.contains( "GAV [groupId=org.codehaus.plexus, artifactId=plexus-utils, version=3.0.22]" ) );
     }
-    
+
     @Test
     public void resolveDependenciesWithRanges() {
         Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/maven-dependencies-range.pom.xml" ) );
@@ -109,7 +109,7 @@ public class ResolveDependenciesTest {
         Assert.assertTrue( result.contains( "GAV [groupId=org.opentest4j, artifactId=opentest4j, version=1.1.1]" ) );
         Assert.assertTrue( result.contains( "GAV [groupId=org.codehaus.plexus, artifactId=plexus-utils, version=3.3.0]" ) );
     }
-   
+
     @Test
     public void resolveDependenciesFlawedWithDouble() {
         Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/maven-dependencies-double.pom.xml" ) );
@@ -213,7 +213,16 @@ public class ResolveDependenciesTest {
         Assert.assertTrue( result.contains( "Dependency {groupId=org.jetbrains.kotlin, artifactId=kotlin-stdlib-common, version=1.4.0, type=jar}" ) );
         Assert.assertTrue( result.contains( "Dependency {groupId=org.jetbrains, artifactId=annotations, version=13.0, type=jar}" ) );
     }
-    
+
+    @Test
+    public void getDependenciesForJongo() {
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/jongo-1.3.0.pom" ) );
+
+        List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).sorted().collect( Collectors.toList() );
+
+        Assert.assertEquals( 31, result.size() );
+    }
+
     @Test
     public void getDependenciesForActiveMQWithGavFromMavenCentral() {
         Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/pom-with-old-property-style.xml" ) );

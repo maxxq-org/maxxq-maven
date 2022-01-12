@@ -57,9 +57,9 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             Set<Dependency> dependencies = new LinkedHashSet<>();
             cachedDependencies.put( gav, dependencies );
             LOGGER.debug( "Retrieving dependencies for: {}", gav );
-            getConfigurationsFromParent( model );
+            boolean allParentsLoaded = getConfigurationsFromParent( model );
             resolveImportedDependencies( model );
-            applyDependencyManagement( model );
+            applyDependencyManagement( model, allParentsLoaded );
             resolveRanges( model );
             addDependenciesWithValidScopeToList( dependencies, model, exclusions, isRootPOM );
             addTransitiveDependencieswWithValidScopeToList( dependencies, model, exclusions, isRootPOM );
@@ -67,6 +67,8 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
                 copyVersionsFromDependencyManagement( dependencies, model.getDependencyManagement().getDependencies() );
             }
             return removeDuplicates( dependencies );
+        } catch ( DepencyResolvingException e ) {
+            throw e;
         } catch ( Exception e ) {
             throw new DepencyResolvingException( "Could not resolve dependencies", e );
         }
@@ -236,7 +238,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             .orElse( new LinkedHashSet<>() );
     }
 
-    private void applyDependencyManagement( Model model ) {
+    private void applyDependencyManagement( Model model, boolean allParentsLoaded ) {
         model.getDependencies()
             .stream()
             .forEach( dependency -> applyDependencyManagement( dependency, model ) );
@@ -253,18 +255,18 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
                     dependency.getScope() ) );
 
         removeDoubleDependencies( model );
-        detectUnresolvedVersions( model );
+        detectUnresolvedVersions( model, allParentsLoaded );
     }
 
     private void applyDependencyManagement( Dependency dependency, Model model ) {
         copyVersionScopeAndExclusionsFromDependencyManagement( dependency, model );
     }
 
-    private void detectUnresolvedVersions( Model model ) {
-        model.getDependencies().stream().forEach( dependency -> detectUnresolvedVersions( dependency, model ) );
+    private void detectUnresolvedVersions( Model model, boolean allParentsLoaded ) {
+        model.getDependencies().stream().forEach( dependency -> detectUnresolvedVersions( dependency, model, allParentsLoaded ) );
     }
 
-    private void detectUnresolvedVersions( Dependency resolveVersion, Model model ) {
+    private void detectUnresolvedVersions( Dependency resolveVersion, Model model, boolean allParentsLoaded ) {
         if ( StringUtils.isEmpty( resolveVersion.getVersion() ) ) {
             LOGGER.error(
                 "After copying the versions from the dependency management the version for {}:{} in pom {} is still empty, model: {}",
@@ -272,9 +274,16 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
                 () -> resolveVersion.getArtifactId(),
                 () -> GAV.fromModel( model ),
                 () -> new ModelIO().writeModelToString( model ) );
-            throw new IllegalArgumentException(
-                "After copying the versions from the dependency management the version for " + resolveVersion.getGroupId() + ":" +
-                                                resolveVersion.getArtifactId() + " in pom " + GAV.fromModel( model ) + " is still empty" );
+            if ( !allParentsLoaded ) {
+                LOGGER.error(
+                    "<-- This is likely caused by a inconsistency in one of the pom file referrring to an incorrect parent pom file, check the parent defined for {}",
+                    GAV.fromModel( model ) );
+                throw new DepencyResolvingException(
+                    "An inconsistency has been found in the pom definitions, probably the parent of " + GAV.fromModel( model ) + " is not correctly defined" );
+            }
+            throw new DepencyResolvingException(
+                GAV.fromModel( model ) + " has dependency issues, the version of " + resolveVersion.getGroupId() + ":" + resolveVersion.getArtifactId() +
+                                                 " could not be defined, even after obtainining managed versions from the parents" );
         }
     }
 
@@ -300,7 +309,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         }
     }
 
-    private void getConfigurationsFromParent( Model model ) {
+    private boolean getConfigurationsFromParent( Model model ) {
         if ( model.getDependencyManagement() == null ) {
             model.setDependencyManagement( new DependencyManagement() );
         }
@@ -310,7 +319,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             LOGGER.debug( "Reading from parent with gav: {}", GAV.fromParent( parent ) );
             Optional<Model> modelForParent = repository.readPom( GAV.fromParent( parent ) );
             if ( !modelForParent.isPresent() ) {
-                return;
+                return false;
             }
             Model parentModel = modelForParent.get();
             copyNonExistingManagedDependencies( parentModel, model );
@@ -319,6 +328,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             parent = parentModel.getParent();
         }
         resolveAllPropertiesInAllSections( model );
+        return true;
     }
 
     private void resolveAllPropertiesInAllSections( Model model ) {
