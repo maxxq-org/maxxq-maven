@@ -19,7 +19,7 @@ public class ResolveDependenciesWorkerTest {
 
     @Before
     public void setUp() {
-        worker = new ResolveDependenciesWorker( new ModelIO().getModelFromResource( "/maven-dependencies.pom.xml" ), new RemoteRepository( RemoteRepositoryForTest.REPO ) );
+        worker = new ResolveDependenciesWorker( new ModelIO().getModelFromResource( "/maven-dependencies.pom.xml" ), new RemoteRepository( RemoteRepositoryForTest.REPO ), false );
     }
 
     @Test

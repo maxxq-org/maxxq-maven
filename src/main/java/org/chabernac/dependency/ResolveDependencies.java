@@ -17,6 +17,16 @@ import org.chabernac.maven.repository.IRepository;
 public class ResolveDependencies implements IDependencyResolver {
 
     private final IRepository repository;
+    private boolean           ignoreIconsistencies = false;
+
+    public boolean isIgnoreIconsistencies() {
+        return ignoreIconsistencies;
+    }
+
+    public ResolveDependencies setIgnoreIconsistencies( boolean ignoreIconsistencies ) {
+        this.ignoreIconsistencies = ignoreIconsistencies;
+        return this;
+    }
 
     public ResolveDependencies( IRepository repository ) {
         this.repository = repository;
@@ -86,7 +96,7 @@ public class ResolveDependencies implements IDependencyResolver {
             if ( !model.isPresent() ) {
                 return new LinkedHashSet<>();
             }
-            return new ResolveDependenciesWorker( model.get(), repository ).get();
+            return new ResolveDependenciesWorker( model.get(), repository, ignoreIconsistencies ).get();
         } catch ( DepencyResolvingException e ) {
             throw e;
         } catch ( Exception e ) {

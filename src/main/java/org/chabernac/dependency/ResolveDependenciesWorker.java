@@ -29,9 +29,11 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
     private final Function<GAV, Optional<String>> resolveRange;
 
     private Map<GAV, Set<Dependency>>             cachedDependencies = new HashMap<>();
+    private final boolean                         ignoreInconsistencies;
 
     public ResolveDependenciesWorker( Model project,
-                                      IRepository repository ) {
+                                      IRepository repository,
+                                      boolean ignoreInconsistencies ) {
         super();
         if ( project == null ) {
             throw new IllegalArgumentException( "input project must not be null" );
@@ -39,6 +41,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         this.project = project;
         this.repository = repository;
         this.resolveRange = new ResolveRange( repository );
+        this.ignoreInconsistencies = ignoreInconsistencies;
     }
 
     @Override
@@ -255,11 +258,27 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
                     dependency.getScope() ) );
 
         removeDoubleDependencies( model );
-        detectUnresolvedVersions( model, allParentsLoaded );
+        if ( ignoreInconsistencies ) {
+            removeIncompleteDependencies( model );
+        } else {
+            detectUnresolvedVersions( model, allParentsLoaded );
+        }
     }
 
     private void applyDependencyManagement( Dependency dependency, Model model ) {
         copyVersionScopeAndExclusionsFromDependencyManagement( dependency, model );
+    }
+
+    private void removeIncompleteDependencies( Model model ) {
+        List<Dependency> dependenciesToRemove = model.getDependencies()
+            .stream()
+            .filter( dependency -> StringUtils.isEmpty( dependency.getVersion() ) )
+            .collect( Collectors.toList() );
+        model.getDependencies().removeAll( dependenciesToRemove );
+        if ( !dependenciesToRemove.isEmpty() ) {
+            String missingVersionsfor = dependenciesToRemove.stream().map( dependency -> dependency.getGroupId() + ":" + dependency.getArtifactId() ).collect( Collectors.joining( "," ) );
+            LOGGER.warn( "Inconsistencies are ignored and a {} have been found in {} no versions could be resolved for: '{}'", dependenciesToRemove.size(),  GAV.fromModel( model ), missingVersionsfor );
+        }
     }
 
     private void detectUnresolvedVersions( Model model, boolean allParentsLoaded ) {

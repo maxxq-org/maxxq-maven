@@ -171,9 +171,9 @@ public class ResolveDependenciesTest {
     @Test
     public void resolveDependenciesMultiModule() {
         Set<Dependency> dependencies = resolveDependencies.getDependencies(
-            getClass().getResourceAsStream( "/module2/pom.xml" ),
-            getClass().getResourceAsStream( "/parent/pom.xml" ),
-            getClass().getResourceAsStream( "/module1/pom.xml" ) );
+            getClass().getResourceAsStream( "/multimodule/module2.pom.xml" ),
+            getClass().getResourceAsStream( "/multimodule/parent.pom.xml" ),
+            getClass().getResourceAsStream( "/multimodule/module1.pom.xml" ) );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
 
@@ -184,9 +184,9 @@ public class ResolveDependenciesTest {
 
     @Test
     public void resolveDependenciesMultiModuleStoreFirst() {
-        resolveDependencies.store( getClass().getResourceAsStream( "/parent/pom.xml" ) );
-        GAV module1 = resolveDependencies.store( getClass().getResourceAsStream( "/module1/pom.xml" ) );
-        GAV module2 = resolveDependencies.store( getClass().getResourceAsStream( "/module2/pom.xml" ) );
+        resolveDependencies.store( getClass().getResourceAsStream( "/multimodule/parent.pom.xml" ) );
+        GAV module1 = resolveDependencies.store( getClass().getResourceAsStream( "/multimodule/module1.pom.xml" ) );
+        GAV module2 = resolveDependencies.store( getClass().getResourceAsStream( "/multimodule/module2.pom.xml" ) );
 
         Set<Dependency> dependencies = resolveDependencies.getDependencies( module1, module2 );
 
@@ -241,5 +241,15 @@ public class ResolveDependenciesTest {
         Assert.assertTrue( result.contains( "GAV [groupId=org.apache.camel, artifactId=camel-core, version=1.5.0]" ) );
         Assert.assertTrue( result.contains( "GAV [groupId=org.apache.geronimo.specs, artifactId=geronimo-j2ee-management_1.0_spec, version=1.0]" ) );
         Assert.assertTrue( result.contains( "GAV [groupId=org.apache.geronimo.specs, artifactId=geronimo-jms_1.1_spec, version=1.1.1]" ) );
+    }
+
+    @Test
+    public void getDependenciesWithFaultyMultiModuleProjectIgnoreIConsistencies() {
+        resolveDependencies.setIgnoreIconsistencies( true );
+        Set<Dependency> dependencies = resolveDependencies.getDependencies(
+            getClass().getResourceAsStream( "/multimoduleinconsistent/parent.pom.xml" ),
+            getClass().getResourceAsStream( "/multimoduleinconsistent/module2.pom.xml" ) );
+
+        Assert.assertTrue( dependencies.size() > 0 );
     }
 }
