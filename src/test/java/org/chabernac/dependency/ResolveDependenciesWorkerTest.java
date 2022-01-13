@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.apache.maven.model.Dependency;
 import org.chabernac.maven.repository.RemoteRepository;
-import org.chabernac.maven.repository.RemoteRepositoryForTest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,7 +18,7 @@ public class ResolveDependenciesWorkerTest {
 
     @Before
     public void setUp() {
-        worker = new ResolveDependenciesWorker( new ModelIO().getModelFromResource( "/maven-dependencies.pom.xml" ), new RemoteRepository( RemoteRepositoryForTest.REPO ), false );
+        worker = new ResolveDependenciesWorker( new ModelIO().getModelFromResource( "/maven-dependencies.pom.xml" ), new RemoteRepository(), false );
     }
 
     @Test

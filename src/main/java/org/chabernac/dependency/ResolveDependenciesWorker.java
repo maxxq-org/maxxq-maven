@@ -175,14 +175,21 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
                 .stream()
                 .filter( dependency -> !isPomImport( dependency ) )
                 .collect( Collectors.toSet() ) );
-        dependencies.addAll(
-            model.getDependencyManagement()
-                .getDependencies()
-                .stream()
-                .filter( dependency -> isPomImport( dependency ) )
-                .flatMap( importDependency -> getManagedDependencies( importDependency ).stream() )
-                .collect( Collectors.toSet() ) );
+
+        model.getDependencyManagement()
+            .getDependencies()
+            .stream()
+            .filter( dependency -> isPomImport( dependency ) )
+            .flatMap( importDependency -> getManagedDependencies( importDependency ).stream() )
+            .forEach( dependency -> addIfNotExisting( dependency, dependencies ) );
+
         return dependencies;
+    }
+
+    private void addIfNotExisting( Dependency dependencyToAdd, Set<Dependency> dependencies ) {
+        if ( !dependencyExist( dependencyToAdd, dependencies ) ) {
+            dependencies.add( dependencyToAdd );
+        }
     }
 
     public Set<Dependency> getManagedDependencies( Dependency importDependency ) {
@@ -203,7 +210,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             .collect( Collectors.toList() );
     }
 
-    private boolean dependencyExist( Dependency dependency, Set<Dependency> dependencies ) {
+    private boolean dependencyExist( Dependency dependency, Collection<Dependency> dependencies ) {
         return dependencies.stream()
             .filter( dep -> dep.getGroupId().equals( dependency.getGroupId() ) )
             .anyMatch( dep -> dep.getArtifactId().equals( dependency.getArtifactId() ) );
@@ -276,8 +283,13 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             .collect( Collectors.toList() );
         model.getDependencies().removeAll( dependenciesToRemove );
         if ( !dependenciesToRemove.isEmpty() ) {
-            String missingVersionsfor = dependenciesToRemove.stream().map( dependency -> dependency.getGroupId() + ":" + dependency.getArtifactId() ).collect( Collectors.joining( "," ) );
-            LOGGER.warn( "Inconsistencies are ignored and a {} have been found in {} no versions could be resolved for: '{}'", dependenciesToRemove.size(),  GAV.fromModel( model ), missingVersionsfor );
+            String missingVersionsfor = dependenciesToRemove.stream().map( dependency -> dependency.getGroupId() + ":" + dependency.getArtifactId() )
+                .collect( Collectors.joining( "," ) );
+            LOGGER.warn(
+                "Inconsistencies are ignored and a {} have been found in {} no versions could be resolved for: '{}'",
+                dependenciesToRemove.size(),
+                GAV.fromModel( model ),
+                missingVersionsfor );
         }
     }
 
@@ -338,6 +350,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             LOGGER.debug( "Reading from parent with gav: {}", GAV.fromParent( parent ) );
             Optional<Model> modelForParent = repository.readPom( GAV.fromParent( parent ) );
             if ( !modelForParent.isPresent() ) {
+                LOGGER.warn( "Parent model with gav {} could not be loaded", GAV.fromParent( parent ) );
                 return false;
             }
             Model parentModel = modelForParent.get();

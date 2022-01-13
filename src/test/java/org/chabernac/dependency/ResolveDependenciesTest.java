@@ -10,7 +10,6 @@ import org.chabernac.maven.repository.FileCachingRepository;
 import org.chabernac.maven.repository.InMemoryCachingRepository;
 import org.chabernac.maven.repository.LocalInMemoryRepository;
 import org.chabernac.maven.repository.RemoteRepository;
-import org.chabernac.maven.repository.RemoteRepositoryForTest;
 import org.chabernac.maven.repository.VirtualRepository;
 import org.junit.Assert;
 import org.junit.Test;
@@ -22,7 +21,7 @@ public class ResolveDependenciesTest {
             .addRepository(
                 new InMemoryCachingRepository(
                     new FileCachingRepository( Paths.get( System.getProperty( "java.io.tmpdir" ), "pomcache" ),
-                        new RemoteRepository( RemoteRepositoryForTest.REPO ) ) ) ) );
+                        new RemoteRepository() ) ) ) );
 
     @Test
     public void resolveDependenciesWithExclusion() {
@@ -251,5 +250,17 @@ public class ResolveDependenciesTest {
             getClass().getResourceAsStream( "/multimoduleinconsistent/module2.pom.xml" ) );
 
         Assert.assertTrue( dependencies.size() > 0 );
+    }
+
+    @Test
+    public void resolveDependenciesForMultipleBoms() {
+        GAV parent = resolveDependencies.store( getClass().getResourceAsStream( "/multipleboms/multiple-bom.pom" ) );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( parent );
+
+        List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
+        Assert.assertTrue( dependencies.size() > 0 );
+        Assert.assertTrue( result.contains( "GAV [groupId=org.apache.logging.log4j, artifactId=log4j-core, version=2.16.0]" ) );
+        Assert.assertFalse( result.contains( "GAV [groupId=org.apache.logging.log4j, artifactId=log4j-core, version=2.12.1]" ) );
     }
 }
