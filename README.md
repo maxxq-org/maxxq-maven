@@ -51,3 +51,10 @@ A custom request builder can be given to RemoteRepository to craft request with 
 - apply dependency management on existing dependencies (not on the transitive ones, these are not yet loaded)
 - obtain transitive dependencies recursively. Do not replace existing dependencies (shortest path rule & in case of conflict take the first one) 
 - reapply dependency management on existing dependencies only for the root pom [dependency management is not transitive](src/main/resources/dependencymanagementisnottransitive/readme.md)
+
+
+## links
+
+[maven bom](https://reflectoring.io/maven-bom/)
+
+[maven dependency mechanism](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html)
