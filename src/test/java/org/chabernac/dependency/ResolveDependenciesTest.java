@@ -12,16 +12,23 @@ import org.chabernac.maven.repository.LocalInMemoryRepository;
 import org.chabernac.maven.repository.RemoteRepository;
 import org.chabernac.maven.repository.VirtualRepository;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 public class ResolveDependenciesTest {
-    private ResolveDependencies resolveDependencies = new ResolveDependencies(
-        new VirtualRepository()
-            .addRepository( new LocalInMemoryRepository() )
-            .addRepository(
-                new InMemoryCachingRepository(
-                    new FileCachingRepository( Paths.get( System.getProperty( "java.io.tmpdir" ), "pomcache" ),
-                        new RemoteRepository() ) ) ) );
+    private ResolveDependencies resolveDependencies;
+
+    @Before
+    public void setUp() {
+        resolveDependencies = new ResolveDependencies(
+            new VirtualRepository()
+                .addRepository( new LocalInMemoryRepository() )
+                .addRepository(
+                    new InMemoryCachingRepository(
+                        new FileCachingRepository(
+                            Paths.get( System.getProperty( "java.io.tmpdir" ), "pomcache" ),
+                            new RemoteRepository() ) ) ) );
+    }
 
     @Test
     public void resolveDependenciesWithExclusion() {
@@ -182,6 +189,36 @@ public class ResolveDependenciesTest {
     }
 
     @Test
+    public void resolveDependenciesMultiModule2() {
+        Set<Dependency> dependencies = resolveDependencies.getDependencies(
+            getClass().getResourceAsStream( "/multimodulefollowmodules/pom.xml" ),
+            getClass().getResourceAsStream( "/multimodulefollowmodules/module1/pom.xml" ),
+            getClass().getResourceAsStream( "/multimodulefollowmodules/module2/pom.xml" ) );
+
+        List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
+
+        Assert.assertEquals( 26, result.size() );
+        Assert.assertTrue( result.contains( "GAV [groupId=commons-io, artifactId=commons-io, version=2.11.0]" ) );
+        System.out.println( "Add assertions for each library" );
+    }
+
+    @Test
+    public void resolveDependenciesMultiModuleFollowModules() {
+        List<GAV> gavs = resolveDependencies
+            .setPomStreamProvider( new ClasspathPomStreamProvider() )
+            .storeMultiModule( getClass().getResourceAsStream( "/multimodulefollowmodules/pom.xml" ), "/multimodulefollowmodules/" );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( gavs );
+
+        List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
+        result.stream().forEach( resultstring -> System.out.println( resultstring ) );
+        Assert.assertEquals( 27, result.size() );
+        Assert.assertTrue( result.contains( "GAV [groupId=commons-io, artifactId=commons-io, version=2.11.0]" ) );
+        Assert.assertTrue( result.contains( "GAV [groupId=org.apache.commons, artifactId=commons-lang3, version=3.12.0]" ) );
+        System.out.println( "Add assertions for each library" );
+    }
+
+    @Test
     public void resolveDependenciesMultiModuleStoreFirst() {
         resolveDependencies.store( getClass().getResourceAsStream( "/multimodule/parent.pom.xml" ) );
         GAV module1 = resolveDependencies.store( getClass().getResourceAsStream( "/multimodule/module1.pom.xml" ) );
@@ -203,7 +240,9 @@ public class ResolveDependenciesTest {
 
     @Test
     public void getDependenciesForOkHttpClientWithGavFromMavenCentral() {
-        List<String> result = resolveDependencies.getDependencies( new GAV( "com.squareup.okhttp3", "okhttp", "4.9.3" ) ).stream().map( dependency -> dependency.toString() )
+        List<String> result = resolveDependencies.getDependencies( new GAV( "com.squareup.okhttp3", "okhttp", "4.9.3" ) )
+            .stream()
+            .map( dependency -> dependency.toString() )
             .collect( Collectors.toList() );
 
         Assert.assertEquals( 4, result.size() );

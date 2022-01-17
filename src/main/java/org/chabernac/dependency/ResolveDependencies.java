@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,8 +17,13 @@ import org.chabernac.maven.repository.IRepository;
 
 public class ResolveDependencies implements IDependencyResolver {
 
-    private final IRepository repository;
-    private boolean           ignoreIconsistencies = false;
+    private final IRepository  repository;
+    private boolean            ignoreIconsistencies = false;
+    private IPomStreamProvider pomStreamProvider;
+
+    public ResolveDependencies( IRepository repository ) {
+        this.repository = repository;
+    }
 
     public boolean isIgnoreIconsistencies() {
         return ignoreIconsistencies;
@@ -28,8 +34,33 @@ public class ResolveDependencies implements IDependencyResolver {
         return this;
     }
 
-    public ResolveDependencies( IRepository repository ) {
-        this.repository = repository;
+    public IPomStreamProvider getPomStreamProvider() {
+        return pomStreamProvider;
+    }
+
+    public ResolveDependencies setPomStreamProvider( IPomStreamProvider pomStreamProvider ) {
+        this.pomStreamProvider = pomStreamProvider;
+        return this;
+    }
+
+    @Override
+    public List<GAV> storeMultiModule( InputStream inputStream, String relativePathOfGivenPomStream ) {
+        return storeMultiModule( new ModelIO().getModelFromInputStream( inputStream ), relativePathOfGivenPomStream );
+    }
+
+    @Override
+    public List<GAV> storeMultiModule( Model model, String relativePathOfGivenPomModel ) {
+        List<GAV> gavs = new ArrayList<>();
+        GAV gav = repository.store( model );
+        gavs.add( gav );
+        if ( pomStreamProvider != null && model.getModules() != null ) {
+            gavs.addAll(
+                model.getModules()
+                    .stream()
+                    .flatMap( module -> storeMultiModule( pomStreamProvider.loadPomFromRelativeLocation( relativePathOfGivenPomModel + "/" +  module ), relativePathOfGivenPomModel + "/" +  module ).stream() )
+                    .collect( Collectors.toList() ) );
+        }
+        return gavs;
     }
 
     @Override
