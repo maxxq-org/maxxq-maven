@@ -54,13 +54,42 @@ public class ResolveDependencies implements IDependencyResolver {
         GAV gav = repository.store( model );
         gavs.add( gav );
         if ( pomStreamProvider != null && model.getModules() != null ) {
-            gavs.addAll(
-                model.getModules()
-                    .stream()
-                    .flatMap( module -> storeMultiModule( pomStreamProvider.loadPomFromRelativeLocation( relativePathOfGivenPomModel + "/" +  module ), relativePathOfGivenPomModel + "/" +  module ).stream() )
-                    .collect( Collectors.toList() ) );
+            gavs.addAll( followAndGetGavOfModules( model, relativePathOfGivenPomModel ) );
         }
         return gavs;
+    }
+
+    private Collection<GAV> followAndGetGavOfModules( Model model, String relativePathOfGivenPomModel ) {
+        return model.getModules()
+            .stream()
+            .map( module -> relativePathOfGivenPomModel + "/" + module )
+            .map( modulePath -> new PomStreamAndRelativeLocation( modulePath, pomStreamProvider.loadPomFromRelativeLocation( modulePath ) ) )
+            .filter( pomStreamAndRelativeLocation -> pomStreamAndRelativeLocation.isPresent() )
+            .flatMap( pomStreamAndRelativeLocation -> storeMultiModule( pomStreamAndRelativeLocation.getPomStream(), pomStreamAndRelativeLocation.getRelativeLocation() ).stream() )
+            .collect( Collectors.toList() );
+    }
+
+    private class PomStreamAndRelativeLocation {
+        public String                relativeLocation;
+        public Optional<InputStream> pomStream;
+
+        public PomStreamAndRelativeLocation( String relativeLocation, Optional<InputStream> pomStream ) {
+            super();
+            this.relativeLocation = relativeLocation;
+            this.pomStream = pomStream;
+        }
+
+        public boolean isPresent() {
+            return pomStream.isPresent();
+        }
+
+        public InputStream getPomStream() {
+            return pomStream.get();
+        }
+
+        public String getRelativeLocation() {
+            return relativeLocation;
+        }
     }
 
     @Override

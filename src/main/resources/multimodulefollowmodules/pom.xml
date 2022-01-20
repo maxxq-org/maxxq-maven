@@ -18,6 +18,7 @@
 	<modules>
 		<module>module1</module>
 		<module>module2</module>
+		<module>notexistingmodule</module>
 	</modules>
 
 	<build>
