@@ -3,6 +3,7 @@ package org.chabernac.dependency;
 import java.util.Properties;
 
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,6 +20,9 @@ public class POMUtilsTest {
 
     @Mock
     private Model model;
+
+    @Mock
+    private Parent parent;
 
     @Test
     public void isPropertyValue() {
@@ -56,7 +60,7 @@ public class POMUtilsTest {
     }
 
     @Test
-    public void resolveProjectVersion() {
+    public void resolveProjectPropeties() {
         Mockito.when(model.getVersion()).thenReturn("1.2.3");
         Mockito.when(model.getGroupId()).thenReturn("groupId");
         Mockito.when(model.getArtifactId()).thenReturn("artifactId");
@@ -67,5 +71,20 @@ public class POMUtilsTest {
         Assert.assertEquals("1.2.3", pomUtils.resolveProperty("${pom.version}", model));
         Assert.assertEquals("groupId", pomUtils.resolveProperty("${pom.groupId}", model));
         Assert.assertEquals("artifactId", pomUtils.resolveProperty("${pom.artifactId}", model));
+    }
+    
+    @Test
+    public void resolveParentProperties() {
+        Mockito.when(model.getParent()).thenReturn( parent );
+        Mockito.when(parent.getVersion()).thenReturn( "1.2.3" );
+        Mockito.when(parent.getArtifactId()).thenReturn( "artifactId" );
+        Mockito.when(parent.getGroupId()).thenReturn( "groupId" );
+        
+        Assert.assertEquals("1.2.3", pomUtils.resolveProperty("${project.parent.version}", model));
+        Assert.assertEquals("groupId", pomUtils.resolveProperty("${project.parent.groupId}", model));
+        Assert.assertEquals("artifactId", pomUtils.resolveProperty("${project.parent.artifactId}", model));
+        Assert.assertEquals("1.2.3", pomUtils.resolveProperty("${pom.parent.version}", model));
+        Assert.assertEquals("groupId", pomUtils.resolveProperty("${pom.parent.groupId}", model));
+        Assert.assertEquals("artifactId", pomUtils.resolveProperty("${pom.parent.artifactId}", model));
     }
 }

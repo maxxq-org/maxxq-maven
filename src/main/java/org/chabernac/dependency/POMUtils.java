@@ -32,6 +32,15 @@ public class POMUtils implements IPOMUtils {
             if ( propertyKey.equals( "project.artifactId" ) || propertyKey.equals( "pom.artifactId" ) ) {
                 propertyValue = propertyValue.replace( property, GAV.fromModel( model ).getArtifactId() );
             }
+            if ( model.getParent() != null && ( propertyKey.equals( "project.parent.version" ) || propertyKey.equals( "pom.parent.version" ) ) ) {
+                propertyValue = propertyValue.replace( property, GAV.fromParent( model.getParent() ).getVersion() );
+            }
+            if ( model.getParent() != null && ( propertyKey.equals( "project.parent.groupId" ) || propertyKey.equals( "pom.parent.groupId" ) ) ) {
+                propertyValue = propertyValue.replace( property, GAV.fromParent( model.getParent() ).getGroupId() );
+            }
+            if ( model.getParent() != null && ( propertyKey.equals( "project.parent.artifactId" ) || propertyKey.equals( "pom.parent.artifactId" ) ) ) {
+                propertyValue = propertyValue.replace( property, GAV.fromParent( model.getParent() ).getArtifactId() );
+            }
             if ( model.getProperties() != null && model.getProperties().containsKey( propertyKey ) ) {
                 propertyValue = propertyValue.replace( property, model.getProperties().getProperty( propertyKey ) );
             }
