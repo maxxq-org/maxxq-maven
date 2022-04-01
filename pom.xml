@@ -35,7 +35,7 @@
 		<required.codecoverage>0.75</required.codecoverage>
 		<owasp.CVSSv3.threshold>1</owasp.CVSSv3.threshold>
 		<owasp.skip>false</owasp.skip>
-		<log4j.version>2.17.1</log4j.version>
+		<log4j.version>2.17.2</log4j.version>
 	</properties>
 
 	<build>
@@ -49,7 +49,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.10.0</version>
+					<version>3.10.1</version>
 				</plugin>
 				<plugin>
 					<groupId>org.jacoco</groupId>
@@ -245,7 +245,7 @@
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-artifact</artifactId>
-			<version>3.8.4</version>
+			<version>3.8.5</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.apache.maven/maven-repository-metadata -->
 		<dependency>
