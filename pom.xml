@@ -35,7 +35,7 @@
 		<required.codecoverage>0.75</required.codecoverage>
 		<owasp.CVSSv3.threshold>1</owasp.CVSSv3.threshold>
 		<owasp.skip>false</owasp.skip>
-		<log4j.version>2.17.2</log4j.version>
+		<log4j.version>2.18.0</log4j.version>
 	</properties>
 
 	<build>
