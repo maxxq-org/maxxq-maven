@@ -3,12 +3,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>chabernac</groupId>
+	<groupId>org.javaa.maven</groupId>
 	<artifactId>readdependencies</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>readdependencies</name>
+	<description>Library for calculating maven dependencies</description>
 	<url>https://github.com/guychauliac/MavenDependencyResolver</url>
 
 	<licenses>
@@ -21,6 +22,9 @@
 	<developers>
 		<developer>
 			<name>Guy Chauliac</name>
+			<email>guy.chauliac@gmail.com</email>
+			<organization>org.javaa</organization>
+			<organizationUrl>https://github.com/guychauliac/MavenDependencyResolver</organizationUrl>
 		</developer>
 	</developers>
 
@@ -33,7 +37,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<required.codecoverage>0.75</required.codecoverage>
-		<owasp.CVSSv3.threshold>1</owasp.CVSSv3.threshold>
+		<owasp.CVSSv3.threshold>6</owasp.CVSSv3.threshold>
 		<owasp.skip>false</owasp.skip>
 		<log4j.version>2.18.0</log4j.version>
 	</properties>
