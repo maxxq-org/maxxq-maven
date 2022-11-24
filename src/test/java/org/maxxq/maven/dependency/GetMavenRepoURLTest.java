@@ -3,8 +3,6 @@ package org.maxxq.maven.dependency;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.maxxq.maven.dependency.GAV;
-import org.maxxq.maven.dependency.GetMavenRepoURL;
 import org.maxxq.maven.repository.RemoteRepository;
 import org.mockito.Mock;
 import org.mockito.Mockito;

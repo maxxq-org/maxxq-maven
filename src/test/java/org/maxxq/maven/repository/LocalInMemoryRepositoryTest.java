@@ -1,12 +1,12 @@
 package org.maxxq.maven.repository;
 
 import java.util.Optional;
+
 import org.apache.maven.model.Model;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.maxxq.maven.dependency.GAV;
-import org.maxxq.maven.repository.LocalInMemoryRepository;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;

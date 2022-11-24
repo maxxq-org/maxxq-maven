@@ -8,7 +8,6 @@ import org.apache.maven.model.Model;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.maxxq.maven.dependency.ModelIO;
 import org.maxxq.maven.repository.RepositoryException;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;

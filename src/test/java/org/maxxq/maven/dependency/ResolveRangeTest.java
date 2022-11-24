@@ -2,14 +2,13 @@ package org.maxxq.maven.dependency;
 
 import java.util.Arrays;
 import java.util.Optional;
+
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.maxxq.maven.dependency.GAV;
-import org.maxxq.maven.dependency.ResolveRange;
 import org.maxxq.maven.repository.IRepository;
 import org.mockito.Mock;
 import org.mockito.Mockito;

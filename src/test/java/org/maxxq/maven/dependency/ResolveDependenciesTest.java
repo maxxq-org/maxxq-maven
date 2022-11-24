@@ -9,8 +9,6 @@ import org.apache.maven.model.Dependency;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.maxxq.maven.dependency.GAV;
-import org.maxxq.maven.dependency.ResolveDependencies;
 import org.maxxq.maven.repository.FileCachingRepository;
 import org.maxxq.maven.repository.InMemoryCachingRepository;
 import org.maxxq.maven.repository.LocalInMemoryRepository;

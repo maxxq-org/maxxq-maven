@@ -10,8 +10,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.maxxq.maven.dependency.GAV;
-import org.maxxq.maven.repository.IRemoteRepositoryRequestBuilder;
-import org.maxxq.maven.repository.RemoteRepository;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;

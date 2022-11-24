@@ -2,7 +2,6 @@ package org.maxxq.maven.dependency;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.maxxq.maven.dependency.GetVersionsURL;
 
 public class GetVersionsURLTest {
     private GetVersionsURL getVersionsURL = new GetVersionsURL("https://repo1.maven.org/maven2/");

@@ -13,8 +13,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.maxxq.maven.dependency.GAV;
 import org.maxxq.maven.dependency.IModelIO;
-import org.maxxq.maven.repository.LocalFileRepository;
-import org.maxxq.maven.repository.RepositoryException;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;

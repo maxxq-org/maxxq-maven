@@ -2,7 +2,6 @@ package org.maxxq.maven.repository;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.maxxq.maven.repository.DefaultRemoteRepositoryRequestBuilder;
 
 import okhttp3.Request;
 
