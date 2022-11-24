@@ -1,10 +1,11 @@
 name: Deploy snapshot to sonatype 
 
-# Run workflow on commits to the `master` branch
+# Run workflow when the workflow to check the quality is completed
 on:
-  push:
-    branches:
-      - master
+  workflow_run:
+    workflows: [CodeQL]
+    types:
+      - completed
 
 jobs:
   release:
