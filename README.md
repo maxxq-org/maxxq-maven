@@ -59,6 +59,9 @@ A custom request builder can be given to RemoteRepository to craft request with 
 
 [maven dependency mechanism](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html)
 
-## Deployment
+## Local Deployment
 snapshot: mvn deploy -DaltDeploymentRepository=ossrh::default::https://s01.oss.sonatype.org/content/repositories/snapshots
 release:  mvn deploy -DaltDeploymentRepository=ossrh::default::https://s01.oss.sonatype.org/service/local/staging/deploy/maven2
+
+## Deployment with github action
+https://github.com/marketplace/actions/action-maven-publish
