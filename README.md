@@ -65,3 +65,6 @@ release:  mvn deploy -DaltDeploymentRepository=ossrh::default::https://s01.oss.s
 
 ## Deployment with github action
 https://github.com/marketplace/actions/action-maven-publish
+
+## References
+https://dzone.com/articles/how-to-create-and-release-a-jar-to-maven-central
