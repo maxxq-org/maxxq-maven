@@ -2,26 +2,36 @@
 
 Resolve maven dependencies programmatically through simple to use Java classes.
 
+## Getting started
+
+Add maven dependency:
+
+	<dependency>
+		<groupId>org.maxxq.maven</groupId>
+		<artifactId>readdependencies</artifactId>
+		<version>1.0.0</version>
+	</dependency>
+
 ## For single pom from maven central
 
-    Set<Dependency> resolvedDependencies = new ResolveDependencies("https://repo1.maven.org/maven2/")
+    Set<Dependency> resolvedDependencies = new ResolveDependencies(new RemoteRepository( "https://repo1.maven.org/maven2/" ))
                                            .getDependencies(new GAV("com.squareup.okhttp3", "okhttp", "4.9.3"));
 
 ## For single pom provided as InputStream
 
-    Set<Dependency> resolvedDependencies = new ResolveDependencies("https://repo1.maven.org/maven2/")
+    Set<Dependency> resolvedDependencies = new ResolveDependencies(new RemoteRepository( "https://repo1.maven.org/maven2/" )))
                                            .getDependencies(InputStream pomStream)
 
 ## For reactor build with pom's provided as input streams
 
    
-	 Set<Dependency> resolvedDependencies = new ResolveDependencies("https://repo1.maven.org/maven2/")
+	 Set<Dependency> resolvedDependencies = new ResolveDependencies(new RemoteRepository( "https://repo1.maven.org/maven2/" )))
                                            .getDependencies(InputStream pomStream1, InputStream pomStream2, ...)
                                            
                                            
 ## For specific modules of reactor build with pom's provided as input streams
 
-     ResolveDependencies resolveDependencies = new ResolveDependencies("https://repo1.maven.org/maven2/")
+     ResolveDependencies resolveDependencies = new ResolveDependencies(new RemoteRepository( "https://repo1.maven.org/maven2/" )))
 	  GAV parent = resolveDependencies.store(getClass().getResourceAsStream("/parent/pom.xml"));
      GAV module1 = resolveDependencies.store(getClass().getResourceAsStream("/module1/pom.xml"));
      GAV module2 = resolveDependencies.store(getClass().getResourceAsStream("/module2/pom.xml"));
@@ -67,4 +77,8 @@ release:  mvn deploy -DaltDeploymentRepository=ossrh::default::https://s01.oss.s
 https://github.com/marketplace/actions/action-maven-publish
 
 ## References
+https://maven.apache.org/repository/guide-central-repository-upload.html
+
 https://dzone.com/articles/how-to-create-and-release-a-jar-to-maven-central
+
+
