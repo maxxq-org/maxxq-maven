@@ -6,3 +6,4 @@
 **/.metadata/**
 /target/
 .settings
+*.versionsBackup
