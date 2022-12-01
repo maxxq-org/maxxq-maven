@@ -1,8 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.maxxq.maven</groupId>
-	<artifactId>readdependencies</artifactId>
+	<artifactId>maxxq-maven</artifactId>
 	<version>1.1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
@@ -212,8 +213,7 @@
 
 
 	<dependencyManagement>
-		<!-- As dependency management is not transitive do not manage dependency 
-			versions for libraries in the dependency management section -->
+		<!-- As dependency management is not transitive do not manage dependency versions for libraries in the dependency management section -->
 	</dependencyManagement>
 
 	<dependencies>
