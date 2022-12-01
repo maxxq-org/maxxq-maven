@@ -1,6 +1,7 @@
 package org.maxxq.maven.configuration;
 
 import java.io.InputStream;
+import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,15 +21,24 @@ public class ResolveBuildConfiguration implements IConfigurationResolver {
     }
 
     @Override
-    public Model resolve( Model model ) throws RepositoryException {
-        new ResolveBuildConfigurationWorker( model, repository).run();
-        return model;
+    public Optional<Model> resolveBuildConfiguration( GAV projectIdentifier ) throws RepositoryException {
+        Optional<Model> model = repository.readPom( projectIdentifier );
+        if ( model.isPresent() ) {
+            return Optional.of( resolveBuildConfiguration( model.get() ) );
+        }
+        return Optional.empty();
     }
 
     @Override
-    public Model resolve( InputStream inputStream ) throws RepositoryException {
+    public Model resolveBuildConfiguration( InputStream inputStream ) throws RepositoryException {
         Model model = new ModelIO().getModelFromInputStream( inputStream );
-        return resolve( model );
+        return resolveBuildConfiguration( model );
+    }
+
+    @Override
+    public Model resolveBuildConfiguration( Model model ) throws RepositoryException {
+        new ResolveBuildConfigurationWorker( model, repository ).run();
+        return model;
     }
 
     @Override

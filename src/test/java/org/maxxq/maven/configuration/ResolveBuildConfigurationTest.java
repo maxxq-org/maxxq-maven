@@ -34,7 +34,7 @@ public class ResolveBuildConfigurationTest {
     public void resolveConfigurationMultiModule() {
         resolveConfiguration.store( getClass().getResourceAsStream( "/multimodule/parent.pom.xml" ) );
 
-        Model result = resolveConfiguration.resolve( getClass().getResourceAsStream( "/multimodule/module1.pom.xml" ) );
+        Model result = resolveConfiguration.resolveBuildConfiguration( getClass().getResourceAsStream( "/multimodule/module1.pom.xml" ) );
 
         Assert.assertNotNull( result );
         Optional<Plugin> compilerPlugin = result.getBuild().getPlugins().stream().filter( plugin -> plugin.getArtifactId().equals( "maven-compiler-plugin" ) ).findFirst();
