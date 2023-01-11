@@ -32,3 +32,18 @@ jobs:
           nexus_username: ${{ secrets.nexus_username }}
           nexus_password: ${{ secrets.nexus_password }}
           maven_goals_phases: clean deploy -DaltDeploymentRepository=ossrh::default::https://s01.oss.sonatype.org/service/local/staging/deploy/maven2
+  tag:         
+    runs-on: ubuntu-18.04
+    needs: [release]
+    steps:
+      - name: Get version from pom.xml
+        id: get-version
+        uses: jactions/maven-version@v1
+      - name: Create Tag
+        uses: negz/create-tag@v1
+        with:
+          version: ${{ steps.get-version.outputs.version }}
+          message: Release version for ${{ steps.get-version.outputs.version }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+        
+        
