@@ -16,7 +16,7 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.ref }}
+          ref: ${{ github.head_ref }}
         
       - name: Install Java and Maven
         uses: actions/setup-java@v1
