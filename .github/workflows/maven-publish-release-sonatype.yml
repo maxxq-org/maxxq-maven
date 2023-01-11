@@ -10,15 +10,14 @@ on:
       - 'release/**'
 
 jobs:
-  checkout:
+  release:
     runs-on: ubuntu-18.04
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
-  release:
-    runs-on: ubuntu-18.04
-    needs: [checkout]
-    steps:
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.ref }}
+        
       - name: Install Java and Maven
         uses: actions/setup-java@v1
         with:
