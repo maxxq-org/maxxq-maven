@@ -10,13 +10,23 @@ on:
       - 'release/**'
 
 jobs:
+  printJob:    
+    name: Print event
+    runs-on: ubuntu-latest
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: |
+        echo "$GITHUB_CONTEXT"
+
   release:
     runs-on: ubuntu-18.04
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.head_ref }}
+          ref: ${{ github.event.branch }}
         
       - name: Install Java and Maven
         uses: actions/setup-java@v1
