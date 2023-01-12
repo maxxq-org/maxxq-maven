@@ -26,7 +26,7 @@ jobs:
       - name: Check out Git repository
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.branch }}
+          ref: ${{ github.event.workflow_run.head_branch }}
         
       - name: Install Java and Maven
         uses: actions/setup-java@v1
