@@ -47,7 +47,7 @@ jobs:
     steps:
       - name: Get version from pom.xml
         id: get-version
-        uses: jactions/maven-version@v1
+        uses: JActions/maven-version@v1.2.0
       - name: Create Tag
         uses: negz/create-tag@v1
         with:
