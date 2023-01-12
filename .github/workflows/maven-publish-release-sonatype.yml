@@ -45,6 +45,11 @@ jobs:
     runs-on: ubuntu-18.04
     needs: [release]
     steps:
+      - name: Checkout files
+        uses: Bhacaz/checkout-files@v2
+        with:
+         files: pom.xml
+         branch: ${{ github.event.workflow_run.head_branch }}
       - name: Get version from pom.xml
         id: get-version
         uses: JActions/maven-version@v1.2.0
