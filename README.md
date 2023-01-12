@@ -76,6 +76,23 @@ release:  mvn deploy -DaltDeploymentRepository=ossrh::default::https://s01.oss.s
 ## Deployment with github action
 https://github.com/marketplace/actions/action-maven-publish
 
+### create release version
+git checkout release/[1-9] 1-9: major version of the release
+git reset --hard master	      : reset to the last version for which a release needs to be created
+mvn versions:set              : set the version to the desired release version
+git push --force	      : force the release branch to this version containing the release version
+
+github action [worfklow for code quality](.github/workflows/codeql-analysis.yml) will be triggered after which 
+github action [workflow for release version](.github/workflows/maven-publish-release-sonatype.yml) for publishing the release is executed
+
+after successfull execution the release version is uploade to sonatype where a manual approval will result in a final publishing of the jar.
+Go to [https://s01.oss.sonatype.org/#stagingRepositories](https://s01.oss.sonatype.org/#stagingRepositories) and login with your crendentials.  Find the jar ready for publication and either choose 'close' to finalize the publication or 'reject' to discard the release version.
+
+After closing the artifact is available on [https://search.maven.org/](https://search.maven.org/) but not yet on [https://mvnrepository.com/repos/central](https://mvnrepository.com/repos/central), to be analysed.
+
+### create snapshot version
+After publishing to master the [workflow for snapshot version](.github/workflows/maven-publish-snapshot-sonatype.yml) will be triggered which will automatically publish the snapshot version, which is made available on https://s01.oss.sonatype.org/content/repositories/snapshots
+
 ## References
 https://maven.apache.org/repository/guide-central-repository-upload.html
 
