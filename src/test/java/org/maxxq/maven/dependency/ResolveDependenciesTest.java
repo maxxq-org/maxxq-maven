@@ -9,10 +9,9 @@ import org.apache.maven.model.Dependency;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.maxxq.maven.repository.FileCachingRepository;
 import org.maxxq.maven.repository.InMemoryCachingRepository;
+import org.maxxq.maven.repository.LocalFileRepository;
 import org.maxxq.maven.repository.LocalInMemoryRepository;
-import org.maxxq.maven.repository.RemoteRepository;
 import org.maxxq.maven.repository.VirtualRepository;
 
 public class ResolveDependenciesTest {
@@ -25,9 +24,10 @@ public class ResolveDependenciesTest {
                 .addRepository( new LocalInMemoryRepository() )
                 .addRepository(
                     new InMemoryCachingRepository(
-                        new FileCachingRepository(
-                            Paths.get( System.getProperty( "java.io.tmpdir" ), "pomcache" ),
-                            new RemoteRepository() ) ) ) );
+                        new LocalFileRepository( Paths.get( "src/test/resources/pomcache" ) ) ) ) );
+//                        new FileCachingRepository(
+//                            Paths.get( "src/test/resources/pomcache" ),
+//                            new RemoteRepository() ) ) ) );
     }
 
     @Test

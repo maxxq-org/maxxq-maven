@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>junit</groupId>
+  <artifactId>junit</artifactId>
+  <version>4.10</version>
+  <name>JUnit</name>
+  <description>JUnit is a regression testing framework written by Erich Gamma and Kent Beck.
+        It is used by the developer who implements unit tests in Java.</description>
+  <url>http://junit.org</url>
+  <organization>
+    <name>JUnit</name>
+    <url>http://www.junit.org</url>
+  </organization>
+  <licenses>
+    <license>
+      <name>Common Public License Version 1.0</name>
+      <url>http://www.opensource.org/licenses/cpl1.0.txt</url>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>dsaff</id>
+      <name>David Saff</name>
+      <email>david@saff.net</email>
+    </developer>
+  </developers>
+  <mailingLists>
+    <mailingList>
+      <name>JUnit Mailing List</name>
+      <post>junit@yahoogroups.com</post>
+      <archive>http://tech.groups.yahoo.com/group/junit/</archive>
+    </mailingList>
+  </mailingLists>
+  <scm>
+    <connection>scm:git:git://github.com/KentBeck/junit.git</connection>
+    <developerConnection>scm:git:git@github.com:KentBeck/junit.git</developerConnection>
+    <url>http://github.com/KentBeck/junit/tree/master</url>
+  </scm>
+  <properties>
+    <jdk.version>1.5</jdk.version>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-core</artifactId>
+      <version>1.1</version>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <encoding>ISO-8859-1</encoding>
+          <source>${jdk.version}</source>
+          <target>${jdk.version}</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

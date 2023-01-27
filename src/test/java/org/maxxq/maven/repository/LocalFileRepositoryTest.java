@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.util.Optional;
 
+import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.model.Model;
 import org.junit.Assert;
 import org.junit.Before;
@@ -70,6 +71,24 @@ public class LocalFileRepositoryTest {
     @Test
     public void isWritable() {
         Assert.assertTrue( localFileRepository.isWritable() );
+    }
+
+    @Test
+    public void getRealMetaData() {
+        localFileRepository = new LocalFileRepository( Paths.get( "src/test/resources/pomcache" ) );
+
+        Optional<Metadata> result = localFileRepository.getMetaData( "org.apache.maven", "maven-model" );
+
+        Assert.assertTrue( result.isPresent() );
+    }
+
+    @Test
+    public void getMetaDataDoesNotExists() {
+        localFileRepository = new LocalFileRepository( Paths.get( "src/test/resources/pomcache" ) );
+
+        Optional<Metadata> result = localFileRepository.getMetaData( "groupid", "artifactid" );
+
+        Assert.assertFalse( result.isPresent() );
     }
 
     private Model createModel() {
