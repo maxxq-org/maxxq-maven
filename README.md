@@ -6,11 +6,11 @@ Resolve maven dependencies programmatically through simple to use Java classes.
 
 Add maven dependency:
 
-	<dependency>
-		<groupId>org.maxxq.maven</groupId>
-		<artifactId>readdependencies</artifactId>
-		<version>1.0.0</version>
-	</dependency>
+    <dependency>
+        <groupId>org.maxxq.maven</groupId>
+        <artifactId>maxxq-maven</artifactId>
+        <version>1.1.0</version>
+    </dependency>
 
 ## For single pom from maven central
 
