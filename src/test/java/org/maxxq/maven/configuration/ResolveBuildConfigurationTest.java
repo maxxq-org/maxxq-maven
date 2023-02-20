@@ -8,7 +8,6 @@ import org.apache.maven.model.Plugin;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.maxxq.maven.dependency.ModelIO;
 import org.maxxq.maven.repository.FileCachingRepository;
@@ -41,7 +40,6 @@ public class ResolveBuildConfigurationTest {
     }
     
     @Test
-    @Ignore
     public void resolveConfigurationWithParent() {
         resolveConfiguration.store( getClass().getResourceAsStream("/build.parent.pom.xml" ));
         

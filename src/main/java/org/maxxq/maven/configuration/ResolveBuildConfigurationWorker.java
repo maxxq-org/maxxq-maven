@@ -46,10 +46,13 @@ public class ResolveBuildConfigurationWorker implements Runnable {
             Model parentModel = modelForParent.get();
             copyNonExistingBuildPlugins( parentModel, project );
             copyConfigurationOfExistingPlugins( parentModel, project );
+            copyNonExistingBuildManagementPlugins( parentModel, project );
+            copyConfigurationOfExistingBuildManagementPlugins( parentModel, project );
             copyNonExistingProperties( parentModel, project );
             parent = parentModel.getParent();
         }
 
+        applyDependencyManagement( project );
         resolvePropertiesForBuildPlugins();
     }
 
@@ -116,12 +119,35 @@ public class ResolveBuildConfigurationWorker implements Runnable {
             .forEach( plugin -> copyProperties( plugin, getPlugin( model, plugin ) ) );
     }
 
+    private void copyConfigurationOfExistingBuildManagementPlugins( Model parentModel, Model model ) {
+        if ( parentModel.getBuild() == null || parentModel.getBuild().getPluginManagement() == null || parentModel.getBuild().getPluginManagement().getPlugins() == null ) {
+            return;
+        }
+
+        parentModel.getBuild()
+            .getPluginManagement()
+            .getPlugins()
+            .stream()
+            .forEach( plugin -> copyProperties( plugin, getBuildManagementPlugin( model, plugin ) ) );
+    }
+
     private void copyProperties( Plugin fromPlugin, Plugin toPlugin ) {
         toPlugin.setConfiguration( Xpp3DomUtils.mergeXpp3Dom( (Xpp3Dom) toPlugin.getConfiguration(), (Xpp3Dom) fromPlugin.getConfiguration() ) );
     }
 
     private Plugin getPlugin( Model model, Plugin plugin ) {
         return model.getBuild()
+            .getPlugins()
+            .stream()
+            .filter( p -> p.getGroupId().equals( plugin.getGroupId() ) )
+            .filter( p -> p.getArtifactId().equals( plugin.getArtifactId() ) )
+            .findFirst()
+            .get();
+    }
+
+    private Plugin getBuildManagementPlugin( Model model, Plugin plugin ) {
+        return model.getBuild()
+            .getPluginManagement()
             .getPlugins()
             .stream()
             .filter( p -> p.getGroupId().equals( plugin.getGroupId() ) )
@@ -139,11 +165,61 @@ public class ResolveBuildConfigurationWorker implements Runnable {
 
     }
 
+    private void copyNonExistingBuildManagementPlugins( Model parentModel, Model model ) {
+        if ( parentModel.getBuild() == null || parentModel.getBuild().getPluginManagement() == null || parentModel.getBuild().getPluginManagement().getPlugins() == null ) {
+            return;
+        }
+
+        parentModel.getBuild()
+            .getPluginManagement()
+            .getPlugins()
+            .stream()
+            .filter( plugin -> !modelHasBuildManagementPlugin( model, plugin ) )
+            .forEach( plugin -> model.getBuild().getPluginManagement().addPlugin( plugin ) );
+
+    }
+
     private boolean modelHasPlugin( Model model, Plugin plugin ) {
         return model.getBuild()
             .getPlugins()
             .stream()
             .filter( p -> p.getGroupId().equals( plugin.getGroupId() ) )
             .anyMatch( p -> p.getArtifactId().equals( plugin.getArtifactId() ) );
+    }
+
+    private boolean modelHasBuildManagementPlugin( Model model, Plugin plugin ) {
+        return model.getBuild()
+            .getPluginManagement()
+            .getPlugins()
+            .stream()
+            .filter( p -> p.getGroupId().equals( plugin.getGroupId() ) )
+            .anyMatch( p -> p.getArtifactId().equals( plugin.getArtifactId() ) );
+    }
+
+    private void applyDependencyManagement( Model model ) {
+        if ( model.getBuild() == null || model.getBuild().getPluginManagement() == null || model.getBuild().getPluginManagement().getPlugins() == null ) {
+            return;
+        }
+        
+        model.getBuild()
+            .getPlugins()
+            .stream()
+            .forEach( plugin -> applyDependencyManagement( plugin, model ) );
+
+    }
+
+    private void applyDependencyManagement( Plugin plugin, Model model ) {
+        if ( model.getBuild() == null || model.getBuild().getPluginManagement() == null || model.getBuild().getPluginManagement().getPlugins() == null ) {
+            return;
+        }
+        
+        model.getBuild()
+            .getPluginManagement()
+            .getPlugins()
+            .stream()
+            .filter( managedPlugin -> plugin.getArtifactId().equals( managedPlugin.getArtifactId() ) )
+            .filter( managedPlugin -> plugin.getGroupId().equals( managedPlugin.getGroupId() ) )
+            .findFirst()
+            .ifPresent( managedPlugin -> plugin.setVersion( managedPlugin.getVersion() ) );
     }
 }
