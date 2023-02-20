@@ -87,10 +87,10 @@ release:  mvn deploy -DaltDeploymentRepository=ossrh::default::https://s01.oss.s
 https://github.com/marketplace/actions/action-maven-publish
 
 ### create release version
-git checkout release/[1-9] 1-9: major version of the release
-git reset --hard master	      : reset to the last version for which a release needs to be created
-mvn versions:set              : set the version to the desired release version
-git push --force	      : force the release branch to this version containing the release version
+	git checkout release/[1-9] 1-9: major version of the release
+	git reset --hard master	      : reset to the last version for which a release needs to be created
+	mvn versions:set              : set the version to the desired release version
+	git push --force	      : force the release branch to this version containing the release version
 
 github action [worfklow for code quality](.github/workflows/codeql-analysis.yml) will be triggered after which 
 github action [workflow for release version](.github/workflows/maven-publish-release-sonatype.yml) for publishing the release is executed
