@@ -8,7 +8,9 @@ import org.apache.maven.model.Plugin;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+import org.maxxq.maven.dependency.ModelIO;
 import org.maxxq.maven.repository.FileCachingRepository;
 import org.maxxq.maven.repository.InMemoryCachingRepository;
 import org.maxxq.maven.repository.LocalInMemoryRepository;
@@ -28,6 +30,27 @@ public class ResolveBuildConfigurationTest {
                         new FileCachingRepository(
                             Paths.get( System.getProperty( "java.io.tmpdir" ), "pomcache" ),
                             new RemoteRepository() ) ) ) );
+    }
+    
+    @Test
+    public void resolveConfigurationEmptyPom() {
+        Model result = resolveConfiguration.resolveBuildConfiguration( getClass().getResourceAsStream( "/empty.pom.xml" ) );
+
+        Assert.assertNotNull( result );
+        new ModelIO().writeModelToStream( result, System.out );
+    }
+    
+    @Test
+    @Ignore
+    public void resolveConfigurationWithParent() {
+        resolveConfiguration.store( getClass().getResourceAsStream("/build.parent.pom.xml" ));
+        
+        Model result = resolveConfiguration.resolveBuildConfiguration( getClass().getResourceAsStream( "/build.only.pom.xml" ) );
+
+        Assert.assertNotNull( result );
+        new ModelIO().writeModelToStream( result, System.out );
+        
+        Assert.assertEquals( "3.11.0", result.getBuild().getPluginsAsMap().get( "org.apache.maven.plugins:maven-compiler-plugin" ).getVersion() );
     }
 
     @Test

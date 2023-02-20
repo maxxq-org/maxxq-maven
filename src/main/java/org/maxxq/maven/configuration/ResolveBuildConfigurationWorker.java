@@ -24,7 +24,7 @@ public class ResolveBuildConfigurationWorker implements Runnable {
     private POMUtils            pomUtils = new POMUtils();
 
     public ResolveBuildConfigurationWorker( Model project,
-                                       IRepository repository ) {
+                                            IRepository repository ) {
         super();
         if ( project == null ) {
             throw new IllegalArgumentException( "input project must not be null" );
@@ -49,10 +49,15 @@ public class ResolveBuildConfigurationWorker implements Runnable {
             copyNonExistingProperties( parentModel, project );
             parent = parentModel.getParent();
         }
-        resolveProperties();
+
+        resolvePropertiesForBuildPlugins();
     }
 
-    private void resolveProperties() {
+    private void resolvePropertiesForBuildPlugins() {
+        if ( project.getBuild() == null || project.getBuild().getPlugins() == null ) {
+            return;
+        }
+
         project.getBuild()
             .getPlugins()
             .stream()
@@ -141,5 +146,4 @@ public class ResolveBuildConfigurationWorker implements Runnable {
             .filter( p -> p.getGroupId().equals( plugin.getGroupId() ) )
             .anyMatch( p -> p.getArtifactId().equals( plugin.getArtifactId() ) );
     }
-
 }
