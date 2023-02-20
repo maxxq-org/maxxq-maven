@@ -96,7 +96,7 @@ github action [worfklow for code quality](.github/workflows/codeql-analysis.yml)
 github action [workflow for release version](.github/workflows/maven-publish-release-sonatype.yml) for publishing the release is executed
 
 after successfull execution the release version is uploade to sonatype where a manual approval will result in a final publishing of the jar.
-Go to [https://s01.oss.sonatype.org/#stagingRepositories](https://s01.oss.sonatype.org/#stagingRepositories) and login with your crendentials.  Find the jar ready for publication and either choose 'close' to finalize the publication or 'reject' to discard the release version.
+Go to [https://s01.oss.sonatype.org/#stagingRepositories](https://s01.oss.sonatype.org/#stagingRepositories) and login with your crendentials.  Find the jar ready for publication and either choose 'close' to finalize the publication or 'reject' to discard the release version.  [https://central.sonatype.org/publish/release/#locate-and-examine-your-staging-repository](sonatype publish staged artifacts)
 
 After closing the artifact is available on [https://search.maven.org/](https://search.maven.org/) but not yet on [https://mvnrepository.com/repos/central](https://mvnrepository.com/repos/central), to be analysed.
 
