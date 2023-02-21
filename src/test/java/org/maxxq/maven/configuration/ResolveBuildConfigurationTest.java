@@ -52,6 +52,18 @@ public class ResolveBuildConfigurationTest {
     }
 
     @Test
+    public void resolveConfigurationWithEmptyParent() {
+        resolveConfiguration.store( getClass().getResourceAsStream("/empty.pom.xml" ));
+        
+        Model result = resolveConfiguration.resolveBuildConfiguration( getClass().getResourceAsStream( "/pom.empty.parent.xml" ) );
+
+        Assert.assertNotNull( result );
+        new ModelIO().writeModelToStream( result, System.out );
+        
+        Assert.assertEquals( "3.11.0", result.getBuild().getPluginManagement().getPluginsAsMap().get( "org.apache.maven.plugins:maven-compiler-plugin" ).getVersion() );
+    }
+
+    @Test
     public void resolveConfigurationMultiModule() {
         resolveConfiguration.store( getClass().getResourceAsStream( "/multimodule/parent.pom.xml" ) );
 

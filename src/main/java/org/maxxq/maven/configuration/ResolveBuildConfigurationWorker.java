@@ -113,6 +113,10 @@ public class ResolveBuildConfigurationWorker implements Runnable {
     }
 
     private void copyConfigurationOfExistingPlugins( Model parentModel, Model model ) {
+        if ( parentModel.getBuild() == null || parentModel.getBuild().getPlugins() == null ) {
+            return;
+        }
+
         parentModel.getBuild()
             .getPlugins()
             .stream()
@@ -131,32 +135,34 @@ public class ResolveBuildConfigurationWorker implements Runnable {
             .forEach( plugin -> copyProperties( plugin, getBuildManagementPlugin( model, plugin ) ) );
     }
 
-    private void copyProperties( Plugin fromPlugin, Plugin toPlugin ) {
-        toPlugin.setConfiguration( Xpp3DomUtils.mergeXpp3Dom( (Xpp3Dom) toPlugin.getConfiguration(), (Xpp3Dom) fromPlugin.getConfiguration() ) );
+    private void copyProperties( Plugin fromPlugin, Optional<Plugin> toPlugin ) {
+        toPlugin.ifPresent( plugin -> plugin.setConfiguration( Xpp3DomUtils.mergeXpp3Dom( (Xpp3Dom) plugin.getConfiguration(), (Xpp3Dom) fromPlugin.getConfiguration() ) ) );
     }
 
-    private Plugin getPlugin( Model model, Plugin plugin ) {
+    private Optional<Plugin> getPlugin( Model model, Plugin plugin ) {
         return model.getBuild()
             .getPlugins()
             .stream()
             .filter( p -> p.getGroupId().equals( plugin.getGroupId() ) )
             .filter( p -> p.getArtifactId().equals( plugin.getArtifactId() ) )
-            .findFirst()
-            .get();
+            .findFirst();
     }
 
-    private Plugin getBuildManagementPlugin( Model model, Plugin plugin ) {
+    private Optional<Plugin> getBuildManagementPlugin( Model model, Plugin plugin ) {
         return model.getBuild()
             .getPluginManagement()
             .getPlugins()
             .stream()
             .filter( p -> p.getGroupId().equals( plugin.getGroupId() ) )
             .filter( p -> p.getArtifactId().equals( plugin.getArtifactId() ) )
-            .findFirst()
-            .get();
+            .findFirst();
     }
 
     private void copyNonExistingBuildPlugins( Model parentModel, Model model ) {
+        if ( parentModel.getBuild() == null || parentModel.getBuild().getPlugins() == null ) {
+            return;
+        }
+
         parentModel.getBuild()
             .getPlugins()
             .stream()
@@ -200,7 +206,7 @@ public class ResolveBuildConfigurationWorker implements Runnable {
         if ( model.getBuild() == null || model.getBuild().getPluginManagement() == null || model.getBuild().getPluginManagement().getPlugins() == null ) {
             return;
         }
-        
+
         model.getBuild()
             .getPlugins()
             .stream()
@@ -212,7 +218,7 @@ public class ResolveBuildConfigurationWorker implements Runnable {
         if ( model.getBuild() == null || model.getBuild().getPluginManagement() == null || model.getBuild().getPluginManagement().getPlugins() == null ) {
             return;
         }
-        
+
         model.getBuild()
             .getPluginManagement()
             .getPlugins()

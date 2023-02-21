@@ -110,8 +110,10 @@ https://dzone.com/articles/how-to-create-and-release-a-jar-to-maven-central
 
 ## Release notes
 
-### 1.1.1
+### 1.1.2
+- Fix NullPointerException when ResolveBuildConfiguration encounters a parent pom.xml with empty build section
 
+### 1.1.1
 - Fix NullPointerException when ResolveBuildConfiguration encounters a pom.xml with empty PluginManagement Section
 
 ### 1.1.0
@@ -119,6 +121,5 @@ https://dzone.com/articles/how-to-create-and-release-a-jar-to-maven-central
 
 
 ### 1.0.0
-
 - First stable release version
 
