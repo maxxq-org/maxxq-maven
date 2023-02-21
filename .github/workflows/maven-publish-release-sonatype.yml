@@ -42,7 +42,7 @@ jobs:
           nexus_password: ${{ secrets.nexus_password }}
           maven_goals_phases: clean deploy -DaltDeploymentRepository=ossrh::default::https://s01.oss.sonatype.org/service/local/staging/deploy/maven2
   tag:         
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     needs: [release]
     steps:
       - name: Checkout files
