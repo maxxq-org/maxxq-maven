@@ -30,7 +30,7 @@ public class ResolveBuildConfigurationTest {
                             Paths.get( System.getProperty( "java.io.tmpdir" ), "pomcache" ),
                             new RemoteRepository() ) ) ) );
     }
-    
+
     @Test
     public void resolveConfigurationEmptyPom() {
         Model result = resolveConfiguration.resolveBuildConfiguration( getClass().getResourceAsStream( "/empty.pom.xml" ) );
@@ -38,29 +38,74 @@ public class ResolveBuildConfigurationTest {
         Assert.assertNotNull( result );
         new ModelIO().writeModelToStream( result, System.out );
     }
-    
+
+    @Test
+    public void resolveConfigurationNoParentAndProperty() {
+        Model result = resolveConfiguration.resolveBuildConfiguration( getClass().getResourceAsStream( "/pom.with.build.and.property.xml" ) );
+
+        Assert.assertNotNull( result );
+        new ModelIO().writeModelToStream( result, System.out );
+        Assert.assertEquals( "3.8.1", result.getBuild().getPluginsAsMap().get( "org.apache.maven.plugins:maven-compiler-plugin" ).getVersion() );
+    }
+
+    @Test
+    public void resolveConfigurationNoParentAndPropertyInConfiguration() {
+        Model result = resolveConfiguration.resolveBuildConfiguration( getClass().getResourceAsStream( "/pom.with.build.and.property.in.configuration.xml" ) );
+
+        Assert.assertNotNull( result );
+        new ModelIO().writeModelToStream( result, System.out );
+        Assert.assertTrue(result.getBuild().getPluginsAsMap().get( "org.apache.maven.plugins:maven-compiler-plugin" ).getConfiguration().toString().contains( "<source>17</source>" ) );
+        Assert.assertTrue(result.getBuild().getPluginsAsMap().get( "org.apache.maven.plugins:maven-compiler-plugin" ).getConfiguration().toString().contains( "<target>17</target>" ) );
+    }
+
     @Test
     public void resolveConfigurationWithParent() {
-        resolveConfiguration.store( getClass().getResourceAsStream("/build.parent.pom.xml" ));
-        
+        resolveConfiguration.store( getClass().getResourceAsStream( "/build.parent.pom.xml" ) );
+
         Model result = resolveConfiguration.resolveBuildConfiguration( getClass().getResourceAsStream( "/build.only.pom.xml" ) );
 
         Assert.assertNotNull( result );
         new ModelIO().writeModelToStream( result, System.out );
-        
         Assert.assertEquals( "3.11.0", result.getBuild().getPluginsAsMap().get( "org.apache.maven.plugins:maven-compiler-plugin" ).getVersion() );
     }
 
     @Test
     public void resolveConfigurationWithEmptyParent() {
-        resolveConfiguration.store( getClass().getResourceAsStream("/empty.pom.xml" ));
-        
+        resolveConfiguration.store( getClass().getResourceAsStream( "/empty.pom.xml" ) );
+
         Model result = resolveConfiguration.resolveBuildConfiguration( getClass().getResourceAsStream( "/pom.empty.parent.xml" ) );
 
         Assert.assertNotNull( result );
         new ModelIO().writeModelToStream( result, System.out );
-        
         Assert.assertEquals( "3.11.0", result.getBuild().getPluginManagement().getPluginsAsMap().get( "org.apache.maven.plugins:maven-compiler-plugin" ).getVersion() );
+    }
+
+    @Test
+    public void resolveConfigurationEmptyPomWithEmptyParent() {
+        resolveConfiguration.store( getClass().getResourceAsStream( "/emptypomwithemptyparent/parent.pom.no.build.xml" ) );
+
+        Model result = resolveConfiguration.resolveBuildConfiguration( getClass().getResourceAsStream( "/emptypomwithemptyparent/pom.with.parent.no.build.xml" ) );
+
+        Assert.assertNotNull( result );
+    }
+
+    @Test
+    public void resolveConfigurationEmptyPomWithNonEmptyBuildManagementInParent() {
+        resolveConfiguration.store( getClass().getResourceAsStream( "/emptypomwithnonemptypluginmanagementinparent/parent.pom.with.build.xml" ) );
+
+        Model result = resolveConfiguration
+            .resolveBuildConfiguration( getClass().getResourceAsStream( "/emptypomwithnonemptypluginmanagementinparent/pom.with.parent.no.build.xml" ) );
+
+        Assert.assertNotNull( result );
+    }
+
+    @Test
+    public void resolveConfigurationEmptyPomWithNonEmptyParent() {
+        resolveConfiguration.store( getClass().getResourceAsStream( "/emptypomwithnonemptyparent/parent.pom.with.build.xml" ) );
+
+        Model result = resolveConfiguration.resolveBuildConfiguration( getClass().getResourceAsStream( "/emptypomwithnonemptyparent/pom.with.parent.no.build.xml" ) );
+
+        Assert.assertNotNull( result );
     }
 
     @Test

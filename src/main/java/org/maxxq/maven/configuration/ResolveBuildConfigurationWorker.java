@@ -6,9 +6,11 @@ import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Parent;
 import org.apache.maven.model.Plugin;
+import org.apache.maven.model.PluginManagement;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.codehaus.plexus.util.xml.Xpp3DomUtils;
@@ -70,26 +72,26 @@ public class ResolveBuildConfigurationWorker implements Runnable {
     private void resolveProperties( Plugin plugin ) {
         int times = 0;
         while ( hasPropertyValue( plugin ) ) {
-            resolveGAV( plugin, project );
+            resolvePropertiesInPlugin( plugin, project );
             if ( times++ == 10 ) {
                 return;
             }
         }
     }
 
-    private void resolveGAV( Plugin plugin, Model parentModel ) {
+    private void resolvePropertiesInPlugin( Plugin plugin, Model model ) {
         if ( pomUtils.isPropertyValue( plugin.getGroupId() ) ) {
-            plugin.setGroupId( pomUtils.resolveProperty( plugin.getGroupId(), parentModel ) );
+            plugin.setGroupId( pomUtils.resolveProperty( plugin.getGroupId(), model ) );
         }
         if ( pomUtils.isPropertyValue( plugin.getArtifactId() ) ) {
-            plugin.setArtifactId( pomUtils.resolveProperty( plugin.getArtifactId(), parentModel ) );
+            plugin.setArtifactId( pomUtils.resolveProperty( plugin.getArtifactId(), model ) );
         }
         if ( pomUtils.isPropertyValue( plugin.getVersion() ) ) {
-            plugin.setVersion( pomUtils.resolveProperty( plugin.getVersion(), parentModel ) );
+            plugin.setVersion( pomUtils.resolveProperty( plugin.getVersion(), model ) );
         }
-        if ( pomUtils.isPropertyValue( plugin.getConfiguration().toString() ) ) {
+        if ( plugin.getConfiguration() != null && pomUtils.isPropertyValue( plugin.getConfiguration().toString() ) ) {
             try {
-                plugin.setConfiguration( Xpp3DomBuilder.build( new StringReader( pomUtils.resolveProperty( plugin.getConfiguration().toString(), parentModel ) ) ) );
+                plugin.setConfiguration( Xpp3DomBuilder.build( new StringReader( pomUtils.resolveProperty( plugin.getConfiguration().toString(), model ) ) ) );
             } catch ( XmlPullParserException | IOException e ) {
                 e.printStackTrace();
             }
@@ -99,7 +101,8 @@ public class ResolveBuildConfigurationWorker implements Runnable {
     private boolean hasPropertyValue( Plugin plugin ) {
         return pomUtils.isPropertyValue( plugin.getGroupId() ) ||
                pomUtils.isPropertyValue( plugin.getArtifactId() ) ||
-               pomUtils.isPropertyValue( plugin.getVersion() );
+               pomUtils.isPropertyValue( plugin.getVersion() ) ||
+               ( plugin.getConfiguration() != null && pomUtils.isPropertyValue( plugin.getConfiguration().toString() ) );
     }
 
     private void copyNonExistingProperties( Model parentModel, Model model ) {
@@ -140,6 +143,10 @@ public class ResolveBuildConfigurationWorker implements Runnable {
     }
 
     private Optional<Plugin> getPlugin( Model model, Plugin plugin ) {
+        if ( model.getBuild() == null || model.getBuild().getPlugins() == null ) {
+            return Optional.empty();
+        }
+
         return model.getBuild()
             .getPlugins()
             .stream()
@@ -149,6 +156,10 @@ public class ResolveBuildConfigurationWorker implements Runnable {
     }
 
     private Optional<Plugin> getBuildManagementPlugin( Model model, Plugin plugin ) {
+        if ( model.getBuild() == null || model.getBuild().getPluginManagement() == null || model.getBuild().getPluginManagement().getPlugins() == null ) {
+            return Optional.empty();
+        }
+
         return model.getBuild()
             .getPluginManagement()
             .getPlugins()
@@ -167,8 +178,25 @@ public class ResolveBuildConfigurationWorker implements Runnable {
             .getPlugins()
             .stream()
             .filter( plugin -> !modelHasPlugin( model, plugin ) )
-            .forEach( plugin -> model.getBuild().addPlugin( plugin ) );
+            .forEach( plugin -> addPluginToModel( model, plugin ) );
+    }
 
+    private void addPluginToModel( Model model, Plugin plugin ) {
+        if ( model.getBuild() == null ) {
+            model.setBuild( new Build() );
+        }
+        model.getBuild().addPlugin( plugin );
+    }
+
+    private void addManagedPluginToModel( Model model, Plugin plugin ) {
+        if ( model.getBuild() == null ) {
+            model.setBuild( new Build() );
+        }
+        if ( model.getBuild().getPluginManagement() == null ) {
+            model.getBuild().setPluginManagement( new PluginManagement() );
+
+        }
+        model.getBuild().getPluginManagement().addPlugin( plugin );
     }
 
     private void copyNonExistingBuildManagementPlugins( Model parentModel, Model model ) {
@@ -181,11 +209,15 @@ public class ResolveBuildConfigurationWorker implements Runnable {
             .getPlugins()
             .stream()
             .filter( plugin -> !modelHasBuildManagementPlugin( model, plugin ) )
-            .forEach( plugin -> model.getBuild().getPluginManagement().addPlugin( plugin ) );
+            .forEach( plugin -> addManagedPluginToModel( model, plugin ) );
 
     }
 
     private boolean modelHasPlugin( Model model, Plugin plugin ) {
+        if ( model.getBuild() == null || model.getBuild().getPlugins() == null ) {
+            return false;
+        }
+
         return model.getBuild()
             .getPlugins()
             .stream()
@@ -194,6 +226,10 @@ public class ResolveBuildConfigurationWorker implements Runnable {
     }
 
     private boolean modelHasBuildManagementPlugin( Model model, Plugin plugin ) {
+        if ( model.getBuild() == null || model.getBuild().getPluginManagement() == null || model.getBuild().getPluginManagement().getPlugins() == null ) {
+            return false;
+        }
+
         return model.getBuild()
             .getPluginManagement()
             .getPlugins()
