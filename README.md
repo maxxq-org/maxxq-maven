@@ -110,6 +110,9 @@ https://dzone.com/articles/how-to-create-and-release-a-jar-to-maven-central
 
 ## Release notes
 
+### 1.1.3
+- ResolveBuildConfiguration did not resolve properties that refer to other properties
+
 ### 1.1.2
 - Fix NullPointerException when ResolveBuildConfiguration encounters a parent pom.xml with empty build section
 

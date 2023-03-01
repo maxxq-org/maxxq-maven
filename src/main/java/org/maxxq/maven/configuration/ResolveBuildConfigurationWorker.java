@@ -2,6 +2,7 @@ package org.maxxq.maven.configuration;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
@@ -55,7 +56,18 @@ public class ResolveBuildConfigurationWorker implements Runnable {
         }
 
         applyDependencyManagement( project );
+        resolveProperties();
         resolvePropertiesForBuildPlugins();
+    }
+
+    private void resolveProperties() {
+        project.getProperties().entrySet().stream().forEach( propertyEntry -> resolveProperties( propertyEntry ) );
+    }
+
+    private void resolveProperties( Entry<Object, Object> propertyEntry ) {
+        if ( pomUtils.isPropertyValue( propertyEntry.getValue().toString() ) ) {
+            propertyEntry.setValue( pomUtils.resolveProperty( propertyEntry.getValue().toString(), project ) );
+        }
     }
 
     private void resolvePropertiesForBuildPlugins() {

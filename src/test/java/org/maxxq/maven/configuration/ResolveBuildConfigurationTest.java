@@ -54,8 +54,10 @@ public class ResolveBuildConfigurationTest {
 
         Assert.assertNotNull( result );
         new ModelIO().writeModelToStream( result, System.out );
-        Assert.assertTrue(result.getBuild().getPluginsAsMap().get( "org.apache.maven.plugins:maven-compiler-plugin" ).getConfiguration().toString().contains( "<source>17</source>" ) );
-        Assert.assertTrue(result.getBuild().getPluginsAsMap().get( "org.apache.maven.plugins:maven-compiler-plugin" ).getConfiguration().toString().contains( "<target>17</target>" ) );
+        Assert.assertTrue(
+            result.getBuild().getPluginsAsMap().get( "org.apache.maven.plugins:maven-compiler-plugin" ).getConfiguration().toString().contains( "<source>17</source>" ) );
+        Assert.assertTrue(
+            result.getBuild().getPluginsAsMap().get( "org.apache.maven.plugins:maven-compiler-plugin" ).getConfiguration().toString().contains( "<target>17</target>" ) );
     }
 
     @Test
@@ -123,5 +125,13 @@ public class ResolveBuildConfigurationTest {
         Assert.assertEquals( "17", config.getChild( "source" ).getValue() );
         Assert.assertEquals( "17", config.getChild( "target" ).getValue() );
         Assert.assertEquals( "true", config.getChild( "debug" ).getValue() );
+    }
+
+    @Test
+    public void resolveConfigurationSpringBoot() {
+        Model result = resolveConfiguration.resolveBuildConfiguration( getClass().getResourceAsStream( "/spring.boot.parent.pom.xml" ) );
+
+        Assert.assertNotNull( result );
+        Assert.assertEquals( "1.8", result.getProperties().get( "maven.compiler.source" ) );
     }
 }
