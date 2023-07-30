@@ -6,9 +6,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileTime;
+import java.util.Date;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -18,6 +22,7 @@ import org.maxxq.maven.dependency.GetMavenRepoURL;
 import org.maxxq.maven.dependency.GetVersionsURL;
 import org.maxxq.maven.dependency.IModelIO;
 import org.maxxq.maven.dependency.ModelIO;
+import org.maxxq.maven.model.MavenModel;
 
 public class FileCachingRepository implements IRepository {
     private static final Logger LOGGER = LogManager.getLogger(FileCachingRepository.class);
@@ -48,8 +53,9 @@ public class FileCachingRepository implements IRepository {
         try {
             if (Files.exists(path)) {
                 LOGGER.trace("Reading pom from '{}'", path.toFile());
+                BasicFileAttributes attributes = Files.readAttributes( path, BasicFileAttributes.class );
                 try (FileInputStream input = new FileInputStream(path.toFile())) {
-                    return Optional.of(modelIO.getModelFromInputStream(input));
+                    return Optional.of( new MavenModel( modelIO.getModelFromInputStream( input ), new Date( attributes.lastModifiedTime().toMillis() ) ) );
                 }
             }
 
@@ -60,6 +66,10 @@ public class FileCachingRepository implements IRepository {
                 LOGGER.trace("Writing pom from '{}'", path.toFile());
                 try (FileOutputStream output = new FileOutputStream(path.toFile())) {
                     modelIO.writeModelToStream(modelOptional.get(), output);
+                }
+                
+                if ( modelOptional.get() instanceof MavenModel ) {
+                    Files.setLastModifiedTime( path, FileTime.fromMillis( ( (MavenModel) modelOptional.get() ).getCreationDate().getTime() ) );
                 }
             }
 

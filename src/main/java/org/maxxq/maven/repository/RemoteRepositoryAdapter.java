@@ -21,7 +21,7 @@ public class RemoteRepositoryAdapter implements IRemoteRepositoryAdapter {
     }
 
     @Override
-    public Optional<String> call( String endPoint ) {
+    public Optional<CallResponse> call( String endPoint ) {
         try {
             Request request = requestBuilder.apply( endPoint );
             Call call = client.newCall( request );
@@ -33,7 +33,7 @@ public class RemoteRepositoryAdapter implements IRemoteRepositoryAdapter {
                     throw new RepositoryException(
                         "Could not retrieve pom at endpoint '" + endPoint + "' http response code '" + response.code() + "'" );
                 } else {
-                    return Optional.of( response.body().string() );
+                    return Optional.of( new CallResponse( response.body().string(), response.headers() ) );
                 }
 
                 return Optional.empty();

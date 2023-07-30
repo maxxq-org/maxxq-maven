@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Optional;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
@@ -14,6 +17,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.maxxq.maven.dependency.GAV;
 import org.maxxq.maven.dependency.IModelIO;
+import org.maxxq.maven.model.MavenModel;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -41,6 +45,23 @@ public class LocalFileRepositoryTest {
         Assert.assertEquals( "groupid", result.get().getGroupId() );
         Assert.assertEquals( "artifactid", result.get().getArtifactId() );
         Assert.assertEquals( "version", result.get().getVersion() );
+    }
+
+    @Test
+    public void storeReadMavenModel() throws ParseException {
+        SimpleDateFormat format = new SimpleDateFormat( "dd/MM/yyyy" );
+        Date aDateInThePast = format.parse( "22/11/2021" );
+        Model mavenModel = new MavenModel( createModel(), aDateInThePast );
+
+        GAV gav = localFileRepository.store( mavenModel );
+        Optional<Model> result = localFileRepository.readPom( gav );
+
+        Assert.assertTrue( result.isPresent() );
+        Assert.assertEquals( "groupid", result.get().getGroupId() );
+        Assert.assertEquals( "artifactid", result.get().getArtifactId() );
+        Assert.assertEquals( "version", result.get().getVersion() );
+        Assert.assertTrue( result.get() instanceof MavenModel );
+        Assert.assertEquals( "22/11/2021", format.format( ( (MavenModel) result.get() ).getCreationDate() ) );
     }
 
     @Test( expected = RepositoryException.class )
