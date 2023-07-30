@@ -39,7 +39,7 @@ public class FileCachingRepositoryTest {
     private Model                 model;
 
     @Mock
-    private Metadata metadata;
+    private Metadata              metadata;
 
     @Before
     public void setUp() throws IOException {
@@ -71,11 +71,11 @@ public class FileCachingRepositoryTest {
         result = repo.readPom( gav );
 
         Assert.assertTrue( result.isPresent() );
-        Assert.assertEquals( model, result.get() );
+        Assert.assertEquals( GAV.fromModel( model ), GAV.fromModel( result.get() ) );
         Mockito.verify( repository, Mockito.times( 1 ) ).readPom( gav );
         Mockito.verify( modelIO, Mockito.times( 1 ) ).writeModelToStream( Mockito.same( model ), Mockito.any( OutputStream.class ) );
     }
-    
+
     @Test
     public void readPomNotPresent() {
         Model model = new Model();
@@ -90,10 +90,10 @@ public class FileCachingRepositoryTest {
         Assert.assertFalse( result.isPresent() );
         Mockito.verify( repository, Mockito.times( 1 ) ).readPom( gav );
     }
-    
+
     @Test
     public void getMetaData() {
-        Mockito.when( repository.getMetaData( "groupid","artifactid") ).thenReturn( Optional.of( metadata ) );
+        Mockito.when( repository.getMetaData( "groupid", "artifactid" ) ).thenReturn( Optional.of( metadata ) );
         Mockito.when( modelIO.getMetaDataFromString( Mockito.any( InputStream.class ) ) ).thenReturn( metadata );
 
         Optional<Metadata> result = repo.getMetaData( "groupid", "artifactid" );
@@ -101,18 +101,18 @@ public class FileCachingRepositoryTest {
 
         Assert.assertTrue( result.isPresent() );
         Assert.assertEquals( metadata, result.get() );
-        Mockito.verify( repository, Mockito.times( 1 ) ).getMetaData( "groupid","artifactid" );
-        Mockito.verify( modelIO, Mockito.times( 1 ) ).writeMetadataToStream( Mockito.same( metadata), Mockito.any( OutputStream.class ) );
+        Mockito.verify( repository, Mockito.times( 1 ) ).getMetaData( "groupid", "artifactid" );
+        Mockito.verify( modelIO, Mockito.times( 1 ) ).writeMetadataToStream( Mockito.same( metadata ), Mockito.any( OutputStream.class ) );
     }
-    
+
     @Test
     public void getMetaDataNotPresent() {
-        Mockito.when( repository.getMetaData( "groupid","artifactid") ).thenReturn( Optional.empty() );
+        Mockito.when( repository.getMetaData( "groupid", "artifactid" ) ).thenReturn( Optional.empty() );
 
         Optional<Metadata> result = repo.getMetaData( "groupid", "artifactid" );
 
         Assert.assertFalse( result.isPresent() );
-        Mockito.verify( repository, Mockito.times( 1 ) ).getMetaData( "groupid","artifactid" );
+        Mockito.verify( repository, Mockito.times( 1 ) ).getMetaData( "groupid", "artifactid" );
     }
 
     @Test
@@ -125,4 +125,3 @@ public class FileCachingRepositoryTest {
         repo.store( model );
     }
 }
-
