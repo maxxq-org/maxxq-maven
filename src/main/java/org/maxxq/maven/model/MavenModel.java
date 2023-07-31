@@ -424,4 +424,8 @@ public class MavenModel extends Model {
         model.setChildProjectUrlInheritAppendPath( childProjectUrlInheritAppendPath );
     }
 
+    public Model getModel() {
+        return model;
+    }
+
 }

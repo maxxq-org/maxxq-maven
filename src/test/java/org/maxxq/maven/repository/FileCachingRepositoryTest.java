@@ -6,7 +6,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -19,6 +22,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.maxxq.maven.dependency.GAV;
 import org.maxxq.maven.dependency.IModelIO;
+import org.maxxq.maven.model.MavenModel;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -58,13 +63,17 @@ public class FileCachingRepositoryTest {
     }
 
     @Test
-    public void readPom() {
+    public void readPom() throws ParseException {
         Model model = new Model();
         model.setGroupId( "groupid" );
         model.setArtifactId( "artifactid" );
         model.setVersion( "version" );
+        SimpleDateFormat format = new SimpleDateFormat( "dd/MM/yyyy" );
+        Date aDateInThePast = format.parse( "22/11/2021" );
+        Model mavenModel = new MavenModel( model, aDateInThePast );
+
         GAV gav = GAV.fromModel( model );
-        Mockito.when( repository.readPom( gav ) ).thenReturn( Optional.of( model ) );
+        Mockito.when( repository.readPom( gav ) ).thenReturn( Optional.of( mavenModel ) );
         Mockito.when( modelIO.getModelFromInputStream( Mockito.any( InputStream.class ) ) ).thenReturn( model );
 
         Optional<Model> result = repo.readPom( gav );
@@ -72,8 +81,14 @@ public class FileCachingRepositoryTest {
 
         Assert.assertTrue( result.isPresent() );
         Assert.assertEquals( GAV.fromModel( model ), GAV.fromModel( result.get() ) );
+        Assert.assertTrue( result.get() instanceof MavenModel );
+        Assert.assertEquals( "22/11/2021", format.format( ( (MavenModel) result.get() ).getCreationDate() ) );
         Mockito.verify( repository, Mockito.times( 1 ) ).readPom( gav );
-        Mockito.verify( modelIO, Mockito.times( 1 ) ).writeModelToStream( Mockito.same( model ), Mockito.any( OutputStream.class ) );
+        ArgumentCaptor<Model> writtenModelCaptor = ArgumentCaptor.forClass( Model.class );
+        Mockito.verify( modelIO, Mockito.times( 1 ) ).writeModelToStream( writtenModelCaptor.capture(), Mockito.any( OutputStream.class ) );
+        Model writtenModel = writtenModelCaptor.getValue();
+        Assert.assertTrue( writtenModel instanceof MavenModel );
+        Assert.assertSame( model, ( (MavenModel) writtenModel ).getModel() );
     }
 
     @Test
