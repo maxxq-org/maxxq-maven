@@ -9,7 +9,7 @@ Add maven dependency:
     <dependency>
         <groupId>org.maxxq.maven</groupId>
         <artifactId>maxxq-maven</artifactId>
-        <version>1.1.3</version>
+        <version>1.2.0</version>
     </dependency>
 
 ## Resolving dependencies
@@ -109,6 +109,9 @@ https://maven.apache.org/repository/guide-central-repository-upload.html
 https://dzone.com/articles/how-to-create-and-release-a-jar-to-maven-central
 
 ## Release notes
+
+### 1.2.0
+- Implementations of IRepository (FileCachingRespository, LocalFileRepository, RemoteRepository) will return an instance of org.maxxq.maven.model.MavenModel instead of org.apache.maven.model.Model when readPom(GAV gav) is being invoked.  Because org.maxxq.maven.model.MavenModel extends org.apache.maven.model.Model the modifications are fully backwards compatible.  IRepository still defines org.apache.maven.model.Model as return type for readPom(GAV gav).  The user of the library might choose to cast the returned object to org.maxxq.maven.model.MavenModel to get access to additional properties like the creationDate.  The creaztion date contained in org.maxxq.maven.model.MavenModel represents the date the corresponding maven artifact was uploaded to maven central.
 
 ### 1.1.3
 - ResolveBuildConfiguration did not resolve properties that refer to other properties
