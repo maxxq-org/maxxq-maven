@@ -56,7 +56,7 @@ public class LocalFileRepository implements IRepository {
             }
 
             return Optional.empty();
-        } catch ( IOException e ) {
+        } catch ( Exception e ) {
             throw new RepositoryException( "Could not read from path: '" + path + "'", e );
         }
     }
@@ -81,7 +81,7 @@ public class LocalFileRepository implements IRepository {
                 Files.setLastModifiedTime( path, FileTime.fromMillis( ( (MavenModel) model ).getCreationDate().getTime() ) );
             }
 
-        } catch ( IOException e ) {
+        } catch ( Exception e ) {
             throw new RepositoryException( "Could not write to '" + path + "'", e );
         }
         return gav;

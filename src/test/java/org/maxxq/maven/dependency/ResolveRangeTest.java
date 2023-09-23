@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.maxxq.maven.repository.IRepository;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith( MockitoJUnitRunner.class )
 public class ResolveRangeTest {
@@ -52,12 +52,7 @@ public class ResolveRangeTest {
 
     @Test
     public void applyNoRange() {
-        Mockito.when( gav.getGroupId() ).thenReturn( "groupid" );
-        Mockito.when( gav.getArtifactId() ).thenReturn( "artifactid" );
         Mockito.when( gav.getVersion() ).thenReturn( "1.0.1" );
-        Mockito.when( repository.getMetaData( "groupid", "artifactid" ) ).thenReturn( Optional.of( metaData ) );
-        Mockito.when( metaData.getVersioning() ).thenReturn( versioning );
-        Mockito.when( versioning.getVersions() ).thenReturn( Arrays.asList( "1.0.0", "1.0.1", "1.0.2" ) );
 
         Optional<String> result = resolveRange.apply( gav );
 
@@ -67,8 +62,6 @@ public class ResolveRangeTest {
 
     @Test( expected = IllegalArgumentException.class )
     public void applyInvalidRange() {
-        Mockito.when( gav.getGroupId() ).thenReturn( "groupid" );
-        Mockito.when( gav.getArtifactId() ).thenReturn( "artifactid" );
         Mockito.when( gav.getVersion() ).thenReturn( "[1.0.1," );
 
         resolveRange.apply( gav );

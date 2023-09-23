@@ -9,7 +9,7 @@ import org.junit.runner.RunWith;
 import org.maxxq.maven.dependency.GAV;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith( MockitoJUnitRunner.class )
 public class LocalInMemoryRepositoryTest {

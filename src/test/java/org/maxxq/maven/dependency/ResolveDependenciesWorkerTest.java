@@ -12,7 +12,7 @@ import org.junit.runner.RunWith;
 import org.maxxq.maven.repository.FileCachingRepository;
 import org.maxxq.maven.repository.InMemoryCachingRepository;
 import org.maxxq.maven.repository.RemoteRepository;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith( MockitoJUnitRunner.class )
 public class ResolveDependenciesWorkerTest {

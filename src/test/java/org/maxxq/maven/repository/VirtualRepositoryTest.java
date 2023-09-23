@@ -10,7 +10,7 @@ import org.junit.runner.RunWith;
 import org.maxxq.maven.dependency.GAV;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith( MockitoJUnitRunner.class )
 public class VirtualRepositoryTest {
@@ -37,7 +37,6 @@ public class VirtualRepositoryTest {
     @Test
     public void readPomRepo1HasModel() {
         Mockito.when( repository1.readPom( gav ) ).thenReturn( Optional.of( model ) );
-        Mockito.when( repository2.readPom( gav ) ).thenReturn( Optional.empty() );
 
         Optional<Model> result = virtualRepository.readPom( gav );
 
@@ -77,7 +76,6 @@ public class VirtualRepositoryTest {
     @Test
     public void isWritableRepo1() {
         Mockito.when( repository1.isWritable() ).thenReturn( Boolean.TRUE );
-        Mockito.when( repository2.isWritable() ).thenReturn( Boolean.FALSE );
 
         Assert.assertTrue( virtualRepository.isWritable() );
     }
@@ -93,7 +91,6 @@ public class VirtualRepositoryTest {
     @Test
     public void isWritableRepo1and2() {
         Mockito.when( repository1.isWritable() ).thenReturn( Boolean.TRUE );
-        Mockito.when( repository2.isWritable() ).thenReturn( Boolean.TRUE );
 
         Assert.assertTrue( virtualRepository.isWritable() );
     }

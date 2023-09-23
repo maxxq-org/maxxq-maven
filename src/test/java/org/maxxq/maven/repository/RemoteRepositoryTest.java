@@ -15,7 +15,7 @@ import org.maxxq.maven.dependency.GAV;
 import org.maxxq.maven.model.MavenModel;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import okhttp3.Request;
 

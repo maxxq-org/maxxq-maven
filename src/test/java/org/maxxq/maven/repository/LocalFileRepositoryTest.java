@@ -1,6 +1,5 @@
 package org.maxxq.maven.repository;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
@@ -20,7 +19,7 @@ import org.maxxq.maven.dependency.IModelIO;
 import org.maxxq.maven.model.MavenModel;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith( MockitoJUnitRunner.class )
 public class LocalFileRepositoryTest {
@@ -67,7 +66,7 @@ public class LocalFileRepositoryTest {
     @Test( expected = RepositoryException.class )
     public void storeThrowsIOException() {
         localFileRepository = new LocalFileRepository( Paths.get( System.getProperty( "java.io.tmpdir" ), "pomcache" ), modelIO );
-        Mockito.doThrow( IOException.class ).when( modelIO ).writeModelToStream( Mockito.any( Model.class ), Mockito.any( OutputStream.class ) );
+        Mockito.doThrow( RuntimeException.class ).when( modelIO ).writeModelToStream( Mockito.any( Model.class ), Mockito.any( OutputStream.class ) );
 
         localFileRepository.store( createModel() );
     }
@@ -77,7 +76,7 @@ public class LocalFileRepositoryTest {
         Model model = createModel();
         localFileRepository.store( model );
         localFileRepository = new LocalFileRepository( Paths.get( System.getProperty( "java.io.tmpdir" ), "pomcache" ), modelIO );
-        Mockito.doThrow( IOException.class ).when( modelIO ).getModelFromInputStream( Mockito.any( InputStream.class ) );
+        Mockito.doThrow( RuntimeException.class ).when( modelIO ).getModelFromInputStream( Mockito.any( InputStream.class ) );
 
         localFileRepository.readPom( GAV.fromModel( model ) );
     }
