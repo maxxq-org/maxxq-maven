@@ -111,9 +111,15 @@ https://dzone.com/articles/how-to-create-and-release-a-jar-to-maven-central
 ## Release notes
 
 ### 1.3.0
-- Capability of providing a custom dependency filter with ResolveDependencies.seDependencyFilter().  By default DefaultDependencyFilter will be used.  DefaultDependencyFilter will retain 
-	* dependencies with scope: compile and runtime.  
-	* dependencies with scope test only for the given pom and not for transitive dependencies.
+- Capability of providing a custom dependency filter with ResolveDependencies.setDependencyFilter().
+
+	e.g. ResolveDependencies resolveDependencies = new ResolveDependencies(repo)
+				.setDependenyFilter( ( dependency, depth ) -> dependency.getScope().equals( "compile" ) ); //will only retain dependencies with scope 'compile'
+				.setDependenyFilter( ( dependency, depth ) -> depth <= 1 );                                //will only retain dependencies from the root and first level transitive dependencies
+	
+By default DefaultDependencyFilter will be used.  DefaultDependencyFilter will retain:
+- dependencies with scope: compile and runtime.  
+- dependencies with scope test only for the given pom and not for transitive dependencies.
 
 ### 1.2.0
 - Implementations of IRepository (FileCachingRespository, LocalFileRepository, RemoteRepository) will return an instance of org.maxxq.maven.model.MavenModel instead of org.apache.maven.model.Model when readPom(GAV gav) is being invoked.  Because org.maxxq.maven.model.MavenModel extends org.apache.maven.model.Model the modifications are fully backwards compatible.  IRepository still defines org.apache.maven.model.Model as return type for readPom(GAV gav).  The user of the library might choose to cast the returned object to org.maxxq.maven.model.MavenModel to get access to additional properties like the creationDate.  The creaztion date contained in org.maxxq.maven.model.MavenModel represents the date the corresponding maven artifact was uploaded to maven central.

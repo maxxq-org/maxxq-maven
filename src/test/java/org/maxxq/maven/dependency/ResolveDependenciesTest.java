@@ -98,8 +98,8 @@ public class ResolveDependenciesTest {
     }
 
     @Test
-    public void resolveDependenciesCustomFilter() {
-        resolveDependencies.setDependenyFilter( ( dependency, isRootPOM ) -> dependency.getScope().equals( "compile" ) );
+    public void resolveDependenciesCustomFilterForScopeCompile() {
+        resolveDependencies.setDependenyFilter( ( dependency, depth ) -> dependency.getScope().equals( "compile" ) );
         Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/maven-dependencies.pom.xml" ) );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
@@ -110,6 +110,20 @@ public class ResolveDependenciesTest {
         Assert.assertTrue( result.contains( "GAV [groupId=org.apache.maven, artifactId=maven-model, version=3.3.9]" ) );
         Assert.assertTrue( result.contains( "GAV [groupId=org.apache.maven, artifactId=maven-settings, version=3.8.4]" ) );
         Assert.assertTrue( result.contains( "GAV [groupId=org.codehaus.plexus, artifactId=plexus-utils, version=3.0.22]" ) );
+    }
+    
+    @Test
+    public void resolveDependenciesCustomFilterForDepth() {
+        resolveDependencies.setDependenyFilter( ( dependency, depth ) -> depth == 0 );
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/maven-dependencies.pom.xml" ) );
+
+        List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
+
+        System.out.println( result );
+        Assert.assertEquals( 3, dependencies.size() );
+        Assert.assertTrue( result.contains( "GAV [groupId=org.apache.maven, artifactId=maven-model, version=3.3.9]" ) );
+        Assert.assertTrue( result.contains( "GAV [groupId=org.apache.maven, artifactId=maven-settings, version=3.8.4]" ) );
+        Assert.assertTrue( result.contains( "GAV [groupId=org.junit.jupiter, artifactId=junit-jupiter-engine, version=5.4.0]" ) );
     }
 
     @Test

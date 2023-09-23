@@ -4,5 +4,5 @@ import org.apache.maven.model.Dependency;
 
 @FunctionalInterface
 public interface IDependencyFilter {
-    public boolean keepDependency( Dependency dependency, boolean isRootPOM );
+    public boolean keepDependency( Dependency dependency, int depth );
 }

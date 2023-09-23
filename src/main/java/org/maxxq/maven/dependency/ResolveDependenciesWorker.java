@@ -49,10 +49,10 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
 
     @Override
     public Set<Dependency> get() {
-        return processPomStream( project, null, true );
+        return processPomStream( project, null, 0 );
     }
 
-    private Set<Dependency> processPomStream( Model model, List<Exclusion> exclusions, boolean isRootPOM ) {
+    private Set<Dependency> processPomStream( Model model, List<Exclusion> exclusions, int depth ) {
         GAV gav = GAV.fromModel( model );
         if ( cachedDependencies.containsKey( gav ) ) {
             LOGGER.debug( "Returning cached dependencies for: {}", gav );
@@ -67,9 +67,9 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             resolveImportedDependencies( model );
             applyDependencyManagement( model, allParentsLoaded );
             resolveRanges( model );
-            addDependenciesToList( dependencies, model, exclusions, isRootPOM );
-            addTransitiveDependencieswToList( dependencies, model, exclusions, isRootPOM );
-            if ( becauseDependencyManagementIsNotTransitiveOnlyApplyOnRootPom( isRootPOM ) ) {
+            addDependenciesToList( dependencies, model, exclusions, depth );
+            addTransitiveDependencieswToList( dependencies, model, exclusions, depth );
+            if ( becauseDependencyManagementIsNotTransitiveOnlyApplyOnRootPom( depth ) ) {
                 copyVersionsFromDependencyManagement( dependencies, model.getDependencyManagement().getDependencies() );
             }
             return removeDuplicates( dependencies );
@@ -119,8 +119,8 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             .anyMatch( dependency -> !StringUtils.isEmpty( dependency.getVersion() ) );
     }
 
-    private boolean becauseDependencyManagementIsNotTransitiveOnlyApplyOnRootPom( boolean isRootPOM ) {
-        return isRootPOM;
+    private boolean becauseDependencyManagementIsNotTransitiveOnlyApplyOnRootPom( int depth ) {
+        return depth == 0;
     }
 
     private void resolveProperties( Dependency dependency, Model model ) {
@@ -139,12 +139,12 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
                pomUtils.isPropertyValue( dependency.getVersion() );
     }
 
-    private void addDependenciesToList( Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, boolean isRootPom ) {
+    private void addDependenciesToList( Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, int depth ) {
         model.getDependencies()
             .stream()
             .map( dependency -> addDefaults( dependency ) )
             .filter( dependency -> !dependency.isOptional() )
-            .filter( dependency -> dependencyFilter.keepDependency( dependency, isRootPom ) )
+            .filter( dependency -> dependencyFilter.keepDependency( dependency, depth ) )
             .filter( dependency -> !isExcluded( dependency, exclusions ) )
             .forEach( dependency -> dependencies.add( dependency ) );
     }
@@ -156,14 +156,14 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         return dependency;
     }
 
-    private void addTransitiveDependencieswToList( Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, boolean isRootPom ) {
+    private void addTransitiveDependencieswToList( Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, int depth ) {
         model.getDependencies()
             .stream()
             .map( dependency -> addDefaults( dependency ) )
             .filter( dependency -> !dependency.isOptional() )
-            .filter( dependency -> dependencyFilter.keepDependency( dependency, isRootPom ) )
+            .filter( dependency -> dependencyFilter.keepDependency( dependency, depth ) )
             .filter( dependency -> !isExcluded( dependency, exclusions ) )
-            .forEach( dependency -> dependencies.addAll( filterDependenciesAlreadyAdded( getTransitiveDependencies( dependency ), dependencies ) ) );
+            .forEach( dependency -> dependencies.addAll( filterDependenciesAlreadyAdded( getTransitiveDependencies( dependency, depth ), dependencies ) ) );
     }
 
     private void resolveImportedDependencies( Model model ) {
@@ -237,10 +237,10 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             .anyMatch( exclusion -> exclusion.getArtifactId().equals( dependency.getArtifactId() ) );
     }
 
-    private Set<Dependency> getTransitiveDependencies( Dependency dependency ) {
+    private Set<Dependency> getTransitiveDependencies( Dependency dependency, int depth ) {
         LOGGER.trace( "Following transitive dependencies of: {}", GAV.fromDependency( dependency ) );
         return repository.readPom( GAV.fromDependency( dependency ) )
-            .map( model -> processPomStream( model, dependency.getExclusions(), false ) )
+            .map( model -> processPomStream( model, dependency.getExclusions(), depth + 1 ) )
             .orElse( new LinkedHashSet<>() );
     }
 
