@@ -27,7 +27,8 @@ public class ResolveDependenciesWorkerTest {
                 new FileCachingRepository(
                     Paths.get( "src/test/resources/pomcache" ),
                     new RemoteRepository() ) ),
-            false );
+            false,
+            null);
     }
 
     @Test

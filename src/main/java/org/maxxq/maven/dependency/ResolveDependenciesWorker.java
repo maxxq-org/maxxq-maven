@@ -30,10 +30,12 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
 
     private Map<GAV, Set<Dependency>>             cachedDependencies = new HashMap<>();
     private final boolean                         ignoreInconsistencies;
+    private final IDependencyFilter               dependencyFilter;
 
     public ResolveDependenciesWorker( Model project,
                                       IRepository repository,
-                                      boolean ignoreInconsistencies ) {
+                                      boolean ignoreInconsistencies,
+                                      IDependencyFilter dependencyFilter ) {
         super();
         if ( project == null ) {
             throw new IllegalArgumentException( "input project must not be null" );
@@ -42,6 +44,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         this.repository = repository;
         this.resolveRange = new ResolveRange( repository );
         this.ignoreInconsistencies = ignoreInconsistencies;
+        this.dependencyFilter = dependencyFilter == null ? new DefaultDependencyFilter() : dependencyFilter;
     }
 
     @Override
@@ -64,8 +67,8 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             resolveImportedDependencies( model );
             applyDependencyManagement( model, allParentsLoaded );
             resolveRanges( model );
-            addDependenciesWithValidScopeToList( dependencies, model, exclusions, isRootPOM );
-            addTransitiveDependencieswWithValidScopeToList( dependencies, model, exclusions, isRootPOM );
+            addDependenciesToList( dependencies, model, exclusions, isRootPOM );
+            addTransitiveDependencieswToList( dependencies, model, exclusions, isRootPOM );
             if ( becauseDependencyManagementIsNotTransitiveOnlyApplyOnRootPom( isRootPOM ) ) {
                 copyVersionsFromDependencyManagement( dependencies, model.getDependencyManagement().getDependencies() );
             }
@@ -136,20 +139,29 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
                pomUtils.isPropertyValue( dependency.getVersion() );
     }
 
-    private void addDependenciesWithValidScopeToList( Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, boolean inclusiveTestScope ) {
+    private void addDependenciesToList( Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, boolean isRootPom ) {
         model.getDependencies()
             .stream()
+            .map( dependency -> addDefaults( dependency ) )
             .filter( dependency -> !dependency.isOptional() )
-            .filter( dependency -> isValidScope( dependency.getScope(), inclusiveTestScope ) )
+            .filter( dependency -> dependencyFilter.keepDependency( dependency, isRootPom ) )
             .filter( dependency -> !isExcluded( dependency, exclusions ) )
             .forEach( dependency -> dependencies.add( dependency ) );
     }
 
-    private void addTransitiveDependencieswWithValidScopeToList( Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, boolean inclusiveTestScope ) {
+    private Dependency addDefaults( Dependency dependency ) {
+        if ( dependency.getScope() == null ) {
+            dependency.setScope( "compile" );
+        }
+        return dependency;
+    }
+
+    private void addTransitiveDependencieswToList( Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, boolean isRootPom ) {
         model.getDependencies()
             .stream()
+            .map( dependency -> addDefaults( dependency ) )
             .filter( dependency -> !dependency.isOptional() )
-            .filter( dependency -> isValidScope( dependency.getScope(), inclusiveTestScope ) )
+            .filter( dependency -> dependencyFilter.keepDependency( dependency, isRootPom ) )
             .filter( dependency -> !isExcluded( dependency, exclusions ) )
             .forEach( dependency -> dependencies.addAll( filterDependenciesAlreadyAdded( getTransitiveDependencies( dependency ), dependencies ) ) );
     }
@@ -225,22 +237,6 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             .anyMatch( exclusion -> exclusion.getArtifactId().equals( dependency.getArtifactId() ) );
     }
 
-    private boolean isValidScope( String scope, boolean includeTestScope ) {
-        if ( StringUtils.isEmpty( scope ) ) {
-            return true;
-        }
-        if ( "compile".equals( scope ) ) {
-            return true;
-        }
-        if ( "test".equals( scope ) && includeTestScope ) {
-            return true;
-        }
-        if ( "runtime".equals( scope ) ) {
-            return true;
-        }
-        return false;
-    }
-
     private Set<Dependency> getTransitiveDependencies( Dependency dependency ) {
         LOGGER.trace( "Following transitive dependencies of: {}", GAV.fromDependency( dependency ) );
         return repository.readPom( GAV.fromDependency( dependency ) )
@@ -283,7 +279,8 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             .collect( Collectors.toList() );
         model.getDependencies().removeAll( dependenciesToRemove );
         if ( !dependenciesToRemove.isEmpty() ) {
-            String missingVersionsfor = dependenciesToRemove.stream().map( dependency -> dependency.getGroupId() + ":" + dependency.getArtifactId() )
+            String missingVersionsfor = dependenciesToRemove.stream()
+                .map( dependency -> dependency.getGroupId() + ":" + dependency.getArtifactId() )
                 .collect( Collectors.joining( "," ) );
             LOGGER.warn(
                 "Inconsistencies are ignored and a {} have been found in {} no versions could be resolved for: '{}'",

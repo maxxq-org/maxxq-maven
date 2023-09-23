@@ -42,12 +42,10 @@
 			<version>5.4.0</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.maven/maven-settings -->
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-settings</artifactId>
 			<version>3.8.4</version>
 		</dependency>
-
 	</dependencies>
 </project>

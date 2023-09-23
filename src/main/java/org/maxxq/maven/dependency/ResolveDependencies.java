@@ -20,6 +20,7 @@ public class ResolveDependencies implements IDependencyResolver {
     private final IRepository  repository;
     private boolean            ignoreIconsistencies = false;
     private IPomStreamProvider pomStreamProvider;
+    private IDependencyFilter  dependencyFilter;
 
     public ResolveDependencies( IRepository repository ) {
         this.repository = repository;
@@ -156,11 +157,16 @@ public class ResolveDependencies implements IDependencyResolver {
             if ( !model.isPresent() ) {
                 return new LinkedHashSet<>();
             }
-            return new ResolveDependenciesWorker( model.get(), repository, ignoreIconsistencies ).get();
+            return new ResolveDependenciesWorker( model.get(), repository, ignoreIconsistencies, dependencyFilter ).get();
         } catch ( DepencyResolvingException e ) {
             throw e;
         } catch ( Exception e ) {
             throw new DepencyResolvingException( "Could not resolve dependencies", e );
         }
+    }
+
+    public ResolveDependencies setDependenyFilter( IDependencyFilter dependencyFilter ) {
+        this.dependencyFilter = dependencyFilter;
+        return this;
     }
 }
