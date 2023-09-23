@@ -6,12 +6,12 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Build pull requests
+name: Build feature branch
 
 on:
 
-  pull_request:
-    branches: [ "master" ]
+  push:
+    branches: [ "feature/**" ]
 
 jobs:
   build:
