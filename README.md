@@ -9,7 +9,7 @@ Add maven dependency:
     <dependency>
         <groupId>org.maxxq.maven</groupId>
         <artifactId>maxxq-maven</artifactId>
-        <version>1.2.0</version>
+        <version>1.3.0</version>
     </dependency>
 
 ## Resolving dependencies
@@ -110,6 +110,10 @@ https://dzone.com/articles/how-to-create-and-release-a-jar-to-maven-central
 
 ## Release notes
 
+## 1.3.1
+- Replace mockito-all with mockito-core
+- Compile with Java 17, target Java 8
+
 ### 1.3.0
 - Capability of providing a custom dependency filter with ResolveDependencies.setDependencyFilter().
 
@@ -120,6 +124,8 @@ https://dzone.com/articles/how-to-create-and-release-a-jar-to-maven-central
 By default DefaultDependencyFilter will be used.  DefaultDependencyFilter will retain:
 - dependencies with scope: compile and runtime.  
 - dependencies with scope test only for the given pom and not for transitive dependencies.
+
+- upgrade several dependencies: maven-model (3.9.4), maven-settings (3.9.4), okio (3.5.0), commons-lang3 (3.13.0), kotlin-stdlib-common (1.9.10), kotlin-stdlib (1.9.10), maven-repository-metadata (3.9.4)
 
 ### 1.2.0
 - Implementations of IRepository (FileCachingRespository, LocalFileRepository, RemoteRepository) will return an instance of org.maxxq.maven.model.MavenModel instead of org.apache.maven.model.Model when readPom(GAV gav) is being invoked.  Because org.maxxq.maven.model.MavenModel extends org.apache.maven.model.Model the modifications are fully backwards compatible.  IRepository still defines org.apache.maven.model.Model as return type for readPom(GAV gav).  The user of the library might choose to cast the returned object to org.maxxq.maven.model.MavenModel to get access to additional properties like the creationDate.  The creaztion date contained in org.maxxq.maven.model.MavenModel represents the date the corresponding maven artifact was uploaded to maven central.
