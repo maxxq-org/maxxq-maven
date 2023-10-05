@@ -14,8 +14,7 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
-
+  build_java17:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,5 +25,19 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
-    - name: Build with Maven
+    - name: Build with Maven on Java 17
+      run: mvn -B package --file pom.xml
+
+  build_java21:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+    - name: Build with Maven on Java 21
       run: mvn -B package --file pom.xml
