@@ -3,6 +3,7 @@ package org.maxxq.maven.repository;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.model.Model;
 import org.maxxq.maven.dependency.GAV;
@@ -34,8 +35,10 @@ public class InMemoryCachingRepository implements IRepository {
     }
 
     @Override
-    public GAV store(Model model) {
-        throw new UnsupportedOperationException("store is not supported on this repository");
+    public GAV store( Model model ) {
+        GAV gav = GAV.fromModel( model );
+        cache.put( gav, Optional.of( model ) );
+        return gav;
     }
 
     @Override
