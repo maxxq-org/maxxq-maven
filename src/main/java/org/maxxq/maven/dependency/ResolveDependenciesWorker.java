@@ -64,6 +64,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             cachedDependencies.put( gav, dependencies );
             LOGGER.debug( "Retrieving dependencies for: {}", gav );
             boolean allParentsLoaded = getConfigurationsFromParent( model );
+            resolveAllPropertiesInAllSections( model );
             resolveImportedDependencies( model );
             applyDependencyManagement( model, allParentsLoaded );
             resolveRanges( model );

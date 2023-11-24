@@ -325,10 +325,21 @@ public class ResolveDependenciesTest {
         GAV parent = resolveDependencies.store( getClass().getResourceAsStream( "/multipleboms/multiple-bom.pom" ) );
 
         Set<Dependency> dependencies = resolveDependencies.getDependencies( parent );
-
+        
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
         Assert.assertTrue( dependencies.size() > 0 );
         Assert.assertTrue( result.contains( "GAV [groupId=org.apache.logging.log4j, artifactId=log4j-core, version=2.16.0]" ) );
         Assert.assertFalse( result.contains( "GAV [groupId=org.apache.logging.log4j, artifactId=log4j-core, version=2.12.1]" ) );
+    }
+    
+    @Test
+    public void resolvedDependenciesForPomWithInvalidParent() {
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/pom-with-invalid-parent-and-properties.xml" ) );
+        
+        List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
+        
+        Assert.assertEquals(2,  dependencies.size() );
+        Assert.assertTrue( result.contains( "GAV [groupId=org.springframework, artifactId=spring-test, version=3.2.13.RELEASE]" ) );
+        Assert.assertTrue( result.contains( "GAV [groupId=org.springframework, artifactId=spring-test, version=3.2.13.RELEASE]" ) );
     }
 }
