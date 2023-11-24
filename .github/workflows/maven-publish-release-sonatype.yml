@@ -21,6 +21,8 @@ jobs:
         echo "$GITHUB_CONTEXT"
 
   release:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
       - name: Check out Git repository
