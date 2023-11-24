@@ -110,9 +110,20 @@ https://dzone.com/articles/how-to-create-and-release-a-jar-to-maven-central
 
 ## Release notes
 
+
 ## 1.3.1
 - Replace mockito-all with mockito-core
-- Compile with Java 17, target Java 8
+- Continue resolving versions from properties even if parent pom is not found
+- InMemoryCachingRepository can also store a given maven Model
+- Update log4j to 2.22.0
+- Update maven-model to 3.9.5
+- Update okhttp to 4.12.0
+- Update okio to 3.6.0
+- Update commons-lang3 to 3.14.0
+- Update kotlin-stdlib-common to 1.9.21
+- Update kotlin-stdlib to 1.9.20
+- Update maven-artifact to 3.9.5
+- Update maven-repository-metadata to 3.9.5
 
 ### 1.3.0
 - Capability of providing a custom dependency filter with ResolveDependencies.setDependencyFilter().
