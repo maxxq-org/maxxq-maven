@@ -1,0 +1,21 @@
+name: Git Log Search
+
+on: 
+  workflow_dispatch:
+    inputs:
+      search:
+        required: true
+        description: Text to search for
+
+jobs:
+  log-search:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Search for commits containing API keys
+        run: |
+          git log -S "${{ github.event.inputs.search }}" --all
