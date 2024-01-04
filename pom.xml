@@ -160,6 +160,7 @@
 					<failBuildOnCVSS>${owasp.CVSSv3.threshold}</failBuildOnCVSS>
 					<skip>${owasp.skip}</skip>
 					<nvdApiKey>42b4afcb-a542-4807-87c5-2496e9d48f72</nvdApiKey>
+					<nvdApiDelay>6000</nvdApiDelay>
 				</configuration>
 				<executions>
 					<execution>
