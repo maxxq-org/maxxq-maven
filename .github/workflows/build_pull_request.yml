@@ -1,9 +1,0 @@
-name: Build pull requests
-
-on:
-  pull_request:
-    branches: [ "master" ]
-    
-jobs:
-  publish-package:
-    uses: maxxq-org/maxxq-workflows/.github/workflows/maven-build-pull-request.yml@main
