@@ -55,14 +55,14 @@ A custom request builder can be given to RemoteRepository to craft request with 
 	new RemoteRepository(RemoteRepository.MAVEN_CENTRAL, customRequestBuilder)
 
 
-### resolver logic
+### Resolver Logic
 
-- traverse parent pom's: copy properties, dependencies and dependency management dependencies if not already existing
-- resolve properties in dependency management 
-- recursively follow pom includes in dependency management
-- apply dependency management on existing dependencies (not on the transitive ones, these are not yet loaded)
-- obtain transitive dependencies recursively. Do not replace existing dependencies (shortest path rule & in case of conflict take the first one) 
-- reapply dependency management on existing dependencies only for the root pom [dependency management is not transitive](src/main/resources/dependencymanagementisnottransitive/readme.md)
+- Traverse parent pom's: copy properties, dependencies and dependency management dependencies if not already existing
+- Resolve properties in dependency management 
+- Recursively follow pom includes in dependency management
+- Apply dependency management on existing dependencies (not on the transitive ones, these are not yet loaded)
+- Obtain transitive dependencies recursively. Do not replace existing dependencies (shortest path rule & in case of conflict take the first one) 
+- Reapply dependency management on existing dependencies only for the root pom [dependency management is not transitive](src/main/resources/dependencymanagementisnottransitive/readme.md)
 
 ## Calculating an effective pom
 
@@ -73,7 +73,7 @@ A custom request builder can be given to RemoteRepository to craft request with 
 
 Same logic applies as for ResolveDependencies for loading pom from other input sources and for multi module projects.
 
-## links
+## Links
 
 [maven bom](https://reflectoring.io/maven-bom/)
 
@@ -109,7 +109,6 @@ https://maven.apache.org/repository/guide-central-repository-upload.html
 https://dzone.com/articles/how-to-create-and-release-a-jar-to-maven-central
 
 ## Release notes
-
 
 ## 1.3.1
 - Replace mockito-all with mockito-core
