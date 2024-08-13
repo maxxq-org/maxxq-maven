@@ -3,17 +3,20 @@ package org.maxxq.maven.repository;
 import java.util.Optional;
 
 import org.apache.maven.model.Model;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.maxxq.maven.dependency.GAV;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith( MockitoJUnitRunner.class )
-public class InMemoryCachingRepositoryTest {
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@ExtendWith(MockitoExtension.class)
+class InMemoryCachingRepositoryTest {
     private InMemoryCachingRepository repository;
 
     @Mock
@@ -25,31 +28,31 @@ public class InMemoryCachingRepositoryTest {
     @Mock
     private Model                     model;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         repository = new InMemoryCachingRepository( repo );
     }
 
     @Test
-    public void readPom() {
+    void readPom() {
         Mockito.when( repo.readPom( gav ) ).thenReturn( Optional.of( model ) );
 
         Optional<Model> result = repository.readPom( gav );
         result = repository.readPom( gav );
 
-        Assert.assertTrue( result.isPresent() );
-        Assert.assertSame( model, result.get() );
+        assertTrue( result.isPresent() );
+        assertSame( model, result.get() );
         Mockito.verify( repo, Mockito.times( 1 ) ).readPom( gav );
     }
 
     @Test
-    public void readPomNull() {
+    void readPomNull() {
         Mockito.when( repo.readPom( gav ) ).thenReturn( Optional.empty() );
 
         Optional<Model> result = repository.readPom( gav );
         result = repository.readPom( gav );
 
-        Assert.assertFalse( result.isPresent() );
+        assertFalse( result.isPresent() );
         Mockito.verify( repo, Mockito.times( 1 ) ).readPom( gav );
     }
 }

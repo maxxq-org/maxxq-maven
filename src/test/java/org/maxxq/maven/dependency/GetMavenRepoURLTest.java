@@ -1,28 +1,28 @@
 package org.maxxq.maven.dependency;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.maxxq.maven.repository.RemoteRepository;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith( MockitoJUnitRunner.class )
-public class GetMavenRepoURLTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@ExtendWith(MockitoExtension.class)
+class GetMavenRepoURLTest {
     private GetMavenRepoURL getMavenRepoURL = new GetMavenRepoURL( RemoteRepository.MAVEN_CENTRAL );
 
     @Mock
     private GAV             dependency;
 
     @Test
-    public void apply() {
+    void apply() {
         Mockito.when( dependency.getArtifactId() ).thenReturn( "maven-model" );
         Mockito.when( dependency.getGroupId() ).thenReturn( "org.apache.maven" );
         Mockito.when( dependency.getVersion() ).thenReturn( "3.8.4" );
 
-        Assert
-            .assertEquals(
+        assertEquals(
                 "https://repo1.maven.org/maven2/org/apache/maven/maven-model/3.8.4/maven-model-3.8.4.pom",
                 getMavenRepoURL.apply( dependency ) );
     }

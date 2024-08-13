@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
@@ -23,13 +24,16 @@
 			<name>Guy Chauliac</name>
 			<email>guy.chauliac@gmail.com</email>
 			<organization>org.maxxq</organization>
-			<organizationUrl>https://github.com/guychauliac/MavenDependencyResolver</organizationUrl>
+			<organizationUrl>
+				https://github.com/guychauliac/MavenDependencyResolver</organizationUrl>
 		</developer>
 	</developers>
 
 	<scm>
-		<connection>scm:git:git://github.com/guychauliac/MavenDependencyResolver.git</connection>
-		<developerConnection>scm:git:ssh://github.com/guychauliac/MavenDependencyResolver.git</developerConnection>
+		<connection>
+			scm:git:git://github.com/guychauliac/MavenDependencyResolver.git</connection>
+		<developerConnection>
+			scm:git:ssh://github.com/guychauliac/MavenDependencyResolver.git</developerConnection>
 		<url>https://github.com/guychauliac/MavenDependencyResolver/tree/master</url>
 	</scm>
 
@@ -70,6 +74,11 @@
 					<artifactId>versions-maven-plugin</artifactId>
 					<version>2.17.1</version>
 				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>3.2.2</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 		<plugins>
@@ -97,7 +106,8 @@
 						</goals>
 						<configuration>
 							<formats>XML</formats>
-							<outputDirectory>${project.build.directory}/site/jacoco/</outputDirectory>
+							<outputDirectory>
+								${project.build.directory}/site/jacoco/</outputDirectory>
 						</configuration>
 					</execution>
 					<execution>
@@ -209,12 +219,31 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.openrewrite.maven</groupId>
+				<artifactId>rewrite-maven-plugin</artifactId>
+				<version>5.39.0</version>
+				<configuration>
+					<activeRecipes>
+						<recipe>
+							org.openrewrite.java.testing.junit5.JUnit5BestPractices</recipe>
+					</activeRecipes>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.openrewrite.recipe</groupId>
+						<artifactId>rewrite-testing-frameworks</artifactId>
+						<version>2.16.0</version>
+					</dependency>
+				</dependencies>
+			</plugin>
 		</plugins>
 	</build>
 
 
 	<dependencyManagement>
-		<!-- As dependency management is not transitive do not manage dependency versions for libraries in the dependency management section -->
+		<!-- As dependency management is not transitive do not manage dependency
+		versions for libraries in the dependency management section -->
 	</dependencyManagement>
 
 	<dependencies>
@@ -228,17 +257,10 @@
 			<artifactId>maven-settings</artifactId>
 			<version>3.9.8</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
 		<dependency>
-		    <groupId>org.mockito</groupId>
-		    <artifactId>mockito-core</artifactId>
-		    <version>5.12.0</version>
-		    <scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.13.2</version>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-junit-jupiter</artifactId>
+			<version>5.12.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -247,9 +269,9 @@
 			<version>4.12.0</version>
 		</dependency>
 		<dependency>
-		    <groupId>com.squareup.okio</groupId>
-		    <artifactId>okio</artifactId>
-		    <version>3.9.0</version>
+			<groupId>com.squareup.okio</groupId>
+			<artifactId>okio</artifactId>
+			<version>3.9.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
@@ -260,6 +282,12 @@
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
 			<version>${log4j.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<version>5.10.3</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -283,7 +311,8 @@
 			<artifactId>maven-artifact</artifactId>
 			<version>3.9.8</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.apache.maven/maven-repository-metadata -->
+		<!--
+		https://mvnrepository.com/artifact/org.apache.maven/maven-repository-metadata -->
 		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-repository-metadata</artifactId>

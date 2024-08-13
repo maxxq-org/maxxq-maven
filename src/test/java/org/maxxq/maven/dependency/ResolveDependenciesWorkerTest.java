@@ -5,22 +5,23 @@ import java.nio.file.Paths;
 import java.util.Set;
 
 import org.apache.maven.model.Dependency;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.maxxq.maven.repository.FileCachingRepository;
 import org.maxxq.maven.repository.InMemoryCachingRepository;
 import org.maxxq.maven.repository.RemoteRepository;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith( MockitoJUnitRunner.class )
-public class ResolveDependenciesWorkerTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@ExtendWith(MockitoExtension.class)
+class ResolveDependenciesWorkerTest {
 
     private ResolveDependenciesWorker worker;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         worker = new ResolveDependenciesWorker(
             new ModelIO().getModelFromResource( "/maven-dependencies.pom.xml" ),
             new InMemoryCachingRepository(
@@ -32,9 +33,9 @@ public class ResolveDependenciesWorkerTest {
     }
 
     @Test
-    public void resolveDependencies() {
+    void resolveDependencies() {
         Set<Dependency> dependencies = worker.get();
 
-        Assert.assertEquals( 10, dependencies.size() );
+        assertEquals( 10, dependencies.size() );
     }
 }

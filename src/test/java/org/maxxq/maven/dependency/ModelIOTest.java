@@ -5,15 +5,18 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.apache.maven.model.Model;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.maxxq.maven.repository.RepositoryException;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith( MockitoJUnitRunner.class )
-public class ModelIOTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@ExtendWith(MockitoExtension.class)
+class ModelIOTest {
     private ModelIO      modelIO = new ModelIO();
 
     @Mock
@@ -23,57 +26,63 @@ public class ModelIOTest {
     private Model        model;
 
     @Test
-    public void getModelFromInputStream() {
+    void getModelFromInputStream() {
         Model model = modelIO.getModelFromInputStream( getClass().getResourceAsStream( "/maven-dependencies.pom.xml" ) );
 
-        Assert.assertNotNull( model );
-        Assert.assertEquals( "chabernac", model.getGroupId() );
-        Assert.assertEquals( "maven-dependencies", model.getArtifactId() );
-        Assert.assertEquals( "0.1.0-SNAPSHOT", model.getVersion() );
-    }
-
-    @Test( expected = RepositoryException.class )
-    public void getModelFromNullInputStream() {
-        modelIO.getModelFromInputStream( null );
+        assertNotNull( model );
+        assertEquals( "chabernac", model.getGroupId() );
+        assertEquals( "maven-dependencies", model.getArtifactId() );
+        assertEquals( "0.1.0-SNAPSHOT", model.getVersion() );
     }
 
     @Test
-    public void getModelFromResource() {
+    void getModelFromNullInputStream() {
+        assertThrows( RepositoryException.class, () -> {
+            modelIO.getModelFromInputStream( null );
+        } );
+    }
+
+    @Test
+    void getModelFromResource() {
         Model model = modelIO.getModelFromResource( "/maven-dependencies.pom.xml" );
 
-        Assert.assertNotNull( model );
-        Assert.assertEquals( "chabernac", model.getGroupId() );
-        Assert.assertEquals( "maven-dependencies", model.getArtifactId() );
-        Assert.assertEquals( "0.1.0-SNAPSHOT", model.getVersion() );
+        assertNotNull( model );
+        assertEquals( "chabernac", model.getGroupId() );
+        assertEquals( "maven-dependencies", model.getArtifactId() );
+        assertEquals( "0.1.0-SNAPSHOT", model.getVersion() );
     }
 
     @Test
-    public void writeModelToStream() throws IOException {
+    void writeModelToStream() throws IOException {
         Model model = modelIO.getModelFromInputStream( getClass().getResourceAsStream( "/maven-dependencies.pom.xml" ) );
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         modelIO.writeModelToStream( model, out );
 
-        Assert.assertEquals( 1369, out.toByteArray().length );
-    }
-
-    @Test( expected = RepositoryException.class )
-    public void writeModelToNullStream() throws IOException {
-        modelIO.writeModelToStream( model, null );
+        assertEquals( 1369, out.toByteArray().length );
     }
 
     @Test
-    public void writeModelToString() throws IOException {
+    void writeModelToNullStream() {
+        assertThrows( RepositoryException.class, () -> {
+            modelIO.writeModelToStream( model, null );
+        } );
+    }
+
+    @Test
+    void writeModelToString() throws IOException {
         Model model = modelIO.getModelFromInputStream( getClass().getResourceAsStream( "/maven-dependencies.pom.xml" ) );
 
         String result = modelIO.writeModelToString( model );
 
-        Assert.assertEquals( 1369, result.length() );
+        assertEquals( 1369, result.length() );
     }
 
-    @Test( expected = RepositoryException.class )
-    public void writeNullModelToString() throws IOException {
-        modelIO.writeModelToString( null );
+    @Test
+    void writeNullModelToString() {
+        assertThrows( RepositoryException.class, () -> {
+            modelIO.writeModelToString( null );
+        } );
     }
 
 }

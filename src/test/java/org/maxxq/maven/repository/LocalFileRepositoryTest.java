@@ -10,44 +10,48 @@ import java.util.Optional;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.model.Model;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.maxxq.maven.dependency.GAV;
 import org.maxxq.maven.dependency.IModelIO;
 import org.maxxq.maven.model.MavenModel;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith( MockitoJUnitRunner.class )
-public class LocalFileRepositoryTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@ExtendWith(MockitoExtension.class)
+class LocalFileRepositoryTest {
     private LocalFileRepository localFileRepository;
 
     @Mock
     private IModelIO            modelIO;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         localFileRepository = new LocalFileRepository( Paths.get( System.getProperty( "java.io.tmpdir" ), "pomcache" ) );
     }
 
     @Test
-    public void storeRead() {
+    void storeRead() {
         Model model = createModel();
 
         GAV gav = localFileRepository.store( model );
         Optional<Model> result = localFileRepository.readPom( gav );
 
-        Assert.assertTrue( result.isPresent() );
-        Assert.assertEquals( "groupid", result.get().getGroupId() );
-        Assert.assertEquals( "artifactid", result.get().getArtifactId() );
-        Assert.assertEquals( "version", result.get().getVersion() );
+        assertTrue( result.isPresent() );
+        assertEquals( "groupid", result.get().getGroupId() );
+        assertEquals( "artifactid", result.get().getArtifactId() );
+        assertEquals( "version", result.get().getVersion() );
     }
 
     @Test
-    public void storeReadMavenModel() throws ParseException {
+    void storeReadMavenModel() throws ParseException {
         SimpleDateFormat format = new SimpleDateFormat( "dd/MM/yyyy" );
         Date aDateInThePast = format.parse( "22/11/2021" );
         Model mavenModel = new MavenModel( createModel(), aDateInThePast );
@@ -55,60 +59,64 @@ public class LocalFileRepositoryTest {
         GAV gav = localFileRepository.store( mavenModel );
         Optional<Model> result = localFileRepository.readPom( gav );
 
-        Assert.assertTrue( result.isPresent() );
-        Assert.assertEquals( "groupid", result.get().getGroupId() );
-        Assert.assertEquals( "artifactid", result.get().getArtifactId() );
-        Assert.assertEquals( "version", result.get().getVersion() );
-        Assert.assertTrue( result.get() instanceof MavenModel );
-        Assert.assertEquals( "22/11/2021", format.format( ( (MavenModel) result.get() ).getCreationDate() ) );
-    }
-
-    @Test( expected = RepositoryException.class )
-    public void storeThrowsIOException() {
-        localFileRepository = new LocalFileRepository( Paths.get( System.getProperty( "java.io.tmpdir" ), "pomcache" ), modelIO );
-        Mockito.doThrow( RuntimeException.class ).when( modelIO ).writeModelToStream( Mockito.any( Model.class ), Mockito.any( OutputStream.class ) );
-
-        localFileRepository.store( createModel() );
-    }
-
-    @Test( expected = RepositoryException.class )
-    public void readThrowsIOException() {
-        Model model = createModel();
-        localFileRepository.store( model );
-        localFileRepository = new LocalFileRepository( Paths.get( System.getProperty( "java.io.tmpdir" ), "pomcache" ), modelIO );
-        Mockito.doThrow( RuntimeException.class ).when( modelIO ).getModelFromInputStream( Mockito.any( InputStream.class ) );
-
-        localFileRepository.readPom( GAV.fromModel( model ) );
+        assertTrue( result.isPresent() );
+        assertEquals( "groupid", result.get().getGroupId() );
+        assertEquals( "artifactid", result.get().getArtifactId() );
+        assertEquals( "version", result.get().getVersion() );
+        assertTrue( result.get() instanceof MavenModel );
+        assertEquals( "22/11/2021", format.format( ( (MavenModel) result.get() ).getCreationDate() ) );
     }
 
     @Test
-    public void readNotExisting() {
+    void storeThrowsIOException() {
+        assertThrows( RepositoryException.class, () -> {
+            localFileRepository = new LocalFileRepository( Paths.get( System.getProperty( "java.io.tmpdir" ), "pomcache" ), modelIO );
+            Mockito.doThrow( RuntimeException.class ).when( modelIO ).writeModelToStream( Mockito.any( Model.class ), Mockito.any( OutputStream.class ) );
+
+            localFileRepository.store( createModel() );
+        } );
+    }
+
+    @Test
+    void readThrowsIOException() {
+        assertThrows( RepositoryException.class, () -> {
+            Model model = createModel();
+            localFileRepository.store( model );
+            localFileRepository = new LocalFileRepository( Paths.get( System.getProperty( "java.io.tmpdir" ), "pomcache" ), modelIO );
+            Mockito.doThrow( RuntimeException.class ).when( modelIO ).getModelFromInputStream( Mockito.any( InputStream.class ) );
+
+            localFileRepository.readPom( GAV.fromModel( model ) );
+        } );
+    }
+
+    @Test
+    void readNotExisting() {
         Optional<Model> result = localFileRepository.readPom( new GAV( "group", "artifact", "notexisting" ) );
 
-        Assert.assertFalse( result.isPresent() );
+        assertFalse( result.isPresent() );
     }
 
     @Test
-    public void isWritable() {
-        Assert.assertTrue( localFileRepository.isWritable() );
+    void isWritable() {
+        assertTrue( localFileRepository.isWritable() );
     }
 
     @Test
-    public void getRealMetaData() {
+    void getRealMetaData() {
         localFileRepository = new LocalFileRepository( Paths.get( "src/test/resources/pomcache" ) );
 
         Optional<Metadata> result = localFileRepository.getMetaData( "org.apache.maven", "maven-model" );
 
-        Assert.assertTrue( result.isPresent() );
+        assertTrue( result.isPresent() );
     }
 
     @Test
-    public void getMetaDataDoesNotExists() {
+    void getMetaDataDoesNotExists() {
         localFileRepository = new LocalFileRepository( Paths.get( "src/test/resources/pomcache" ) );
 
         Optional<Metadata> result = localFileRepository.getMetaData( "groupid", "artifactid" );
 
-        Assert.assertFalse( result.isPresent() );
+        assertFalse( result.isPresent() );
     }
 
     private Model createModel() {

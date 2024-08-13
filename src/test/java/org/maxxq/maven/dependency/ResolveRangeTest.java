@@ -5,17 +5,20 @@ import java.util.Optional;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.repository.metadata.Versioning;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.maxxq.maven.repository.IRepository;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith( MockitoJUnitRunner.class )
-public class ResolveRangeTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@ExtendWith(MockitoExtension.class)
+class ResolveRangeTest {
     private ResolveRange resolveRange;
 
     @Mock
@@ -30,13 +33,13 @@ public class ResolveRangeTest {
     @Mock
     private Versioning   versioning;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         resolveRange = new ResolveRange( repository );
     }
 
     @Test
-    public void apply() {
+    void apply() {
         Mockito.when( gav.getGroupId() ).thenReturn( "groupid" );
         Mockito.when( gav.getArtifactId() ).thenReturn( "artifactid" );
         Mockito.when( gav.getVersion() ).thenReturn( "[1.0.0,1.0.1]" );
@@ -46,25 +49,27 @@ public class ResolveRangeTest {
 
         Optional<String> result = resolveRange.apply( gav );
 
-        Assert.assertTrue( result.isPresent() );
-        Assert.assertEquals( "1.0.1", result.get() );
+        assertTrue( result.isPresent() );
+        assertEquals( "1.0.1", result.get() );
     }
 
     @Test
-    public void applyNoRange() {
+    void applyNoRange() {
         Mockito.when( gav.getVersion() ).thenReturn( "1.0.1" );
 
         Optional<String> result = resolveRange.apply( gav );
 
-        Assert.assertTrue( result.isPresent() );
-        Assert.assertEquals( "1.0.1", result.get() );
+        assertTrue( result.isPresent() );
+        assertEquals( "1.0.1", result.get() );
     }
 
-    @Test( expected = IllegalArgumentException.class )
-    public void applyInvalidRange() {
-        Mockito.when( gav.getVersion() ).thenReturn( "[1.0.1," );
+    @Test
+    void applyInvalidRange() {
+        assertThrows( IllegalArgumentException.class, () -> {
+            Mockito.when( gav.getVersion() ).thenReturn( "[1.0.1," );
 
-        resolveRange.apply( gav );
+            resolveRange.apply( gav );
+        } );
     }
 
 }

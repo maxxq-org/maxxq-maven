@@ -15,21 +15,26 @@ import java.util.stream.Stream;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.model.Model;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.maxxq.maven.dependency.GAV;
 import org.maxxq.maven.dependency.IModelIO;
 import org.maxxq.maven.model.MavenModel;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith( MockitoJUnitRunner.class )
-public class FileCachingRepositoryTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@ExtendWith(MockitoExtension.class)
+class FileCachingRepositoryTest {
     private FileCachingRepository repo;
 
     @Mock
@@ -46,14 +51,14 @@ public class FileCachingRepositoryTest {
     @Mock
     private Metadata              metadata;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         tempDir = Files.createTempDirectory( "pomcache" );
         repo = new FileCachingRepository( repository, tempDir, modelIO );
     }
 
-    @After
-    public void tearDown() throws IOException {
+    @AfterEach
+    void tearDown() throws IOException {
         try (Stream<Path> walk = Files.walk( tempDir )) {
             walk.sorted( Comparator.reverseOrder() )
                 .map( Path::toFile )
@@ -63,7 +68,7 @@ public class FileCachingRepositoryTest {
     }
 
     @Test
-    public void readPom() throws ParseException {
+    void readPom() throws ParseException {
         Model model = new Model();
         model.setGroupId( "groupid" );
         model.setArtifactId( "artifactid" );
@@ -79,20 +84,20 @@ public class FileCachingRepositoryTest {
         Optional<Model> result = repo.readPom( gav );
         result = repo.readPom( gav );
 
-        Assert.assertTrue( result.isPresent() );
-        Assert.assertEquals( GAV.fromModel( model ), GAV.fromModel( result.get() ) );
-        Assert.assertTrue( result.get() instanceof MavenModel );
-        Assert.assertEquals( "22/11/2021", format.format( ( (MavenModel) result.get() ).getCreationDate() ) );
+        assertTrue( result.isPresent() );
+        assertEquals( GAV.fromModel( model ), GAV.fromModel( result.get() ) );
+        assertTrue( result.get() instanceof MavenModel );
+        assertEquals( "22/11/2021", format.format( ( (MavenModel) result.get() ).getCreationDate() ) );
         Mockito.verify( repository, Mockito.times( 1 ) ).readPom( gav );
         ArgumentCaptor<Model> writtenModelCaptor = ArgumentCaptor.forClass( Model.class );
         Mockito.verify( modelIO, Mockito.times( 1 ) ).writeModelToStream( writtenModelCaptor.capture(), Mockito.any( OutputStream.class ) );
         Model writtenModel = writtenModelCaptor.getValue();
-        Assert.assertTrue( writtenModel instanceof MavenModel );
-        Assert.assertSame( model, ( (MavenModel) writtenModel ).getModel() );
+        assertTrue( writtenModel instanceof MavenModel );
+        assertSame( model, ( (MavenModel) writtenModel ).getModel() );
     }
 
     @Test
-    public void readPomNotPresent() {
+    void readPomNotPresent() {
         Model model = new Model();
         model.setGroupId( "groupid" );
         model.setArtifactId( "artifactid" );
@@ -102,41 +107,43 @@ public class FileCachingRepositoryTest {
 
         Optional<Model> result = repo.readPom( gav );
 
-        Assert.assertFalse( result.isPresent() );
+        assertFalse( result.isPresent() );
         Mockito.verify( repository, Mockito.times( 1 ) ).readPom( gav );
     }
 
     @Test
-    public void getMetaData() {
+    void getMetaData() {
         Mockito.when( repository.getMetaData( "groupid", "artifactid" ) ).thenReturn( Optional.of( metadata ) );
         Mockito.when( modelIO.getMetaDataFromString( Mockito.any( InputStream.class ) ) ).thenReturn( metadata );
 
         Optional<Metadata> result = repo.getMetaData( "groupid", "artifactid" );
         result = repo.getMetaData( "groupid", "artifactid" );
 
-        Assert.assertTrue( result.isPresent() );
-        Assert.assertEquals( metadata, result.get() );
+        assertTrue( result.isPresent() );
+        assertEquals( metadata, result.get() );
         Mockito.verify( repository, Mockito.times( 1 ) ).getMetaData( "groupid", "artifactid" );
         Mockito.verify( modelIO, Mockito.times( 1 ) ).writeMetadataToStream( Mockito.same( metadata ), Mockito.any( OutputStream.class ) );
     }
 
     @Test
-    public void getMetaDataNotPresent() {
+    void getMetaDataNotPresent() {
         Mockito.when( repository.getMetaData( "groupid", "artifactid" ) ).thenReturn( Optional.empty() );
 
         Optional<Metadata> result = repo.getMetaData( "groupid", "artifactid" );
 
-        Assert.assertFalse( result.isPresent() );
+        assertFalse( result.isPresent() );
         Mockito.verify( repository, Mockito.times( 1 ) ).getMetaData( "groupid", "artifactid" );
     }
 
     @Test
-    public void isWritable() {
-        Assert.assertFalse( repo.isWritable() );
+    void isWritable() {
+        assertFalse( repo.isWritable() );
     }
 
-    @Test( expected = UnsupportedOperationException.class )
-    public void store() {
-        repo.store( model );
+    @Test
+    void store() {
+        assertThrows( UnsupportedOperationException.class, () -> {
+            repo.store( model );
+        } );
     }
 }

@@ -3,17 +3,21 @@ package org.maxxq.maven.repository;
 import java.util.Optional;
 
 import org.apache.maven.model.Model;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.maxxq.maven.dependency.GAV;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith( MockitoJUnitRunner.class )
-public class VirtualRepositoryTest {
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+@ExtendWith(MockitoExtension.class)
+class VirtualRepositoryTest {
     private VirtualRepository virtualRepository = new VirtualRepository();
 
     @Mock
@@ -28,91 +32,93 @@ public class VirtualRepositoryTest {
     @Mock
     private Model             model;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         virtualRepository.addRepository( repository1 );
         virtualRepository.addRepository( repository2 );
     }
 
     @Test
-    public void readPomRepo1HasModel() {
+    void readPomRepo1HasModel() {
         Mockito.when( repository1.readPom( gav ) ).thenReturn( Optional.of( model ) );
 
         Optional<Model> result = virtualRepository.readPom( gav );
 
-        Assert.assertTrue( result.isPresent() );
-        Assert.assertSame( model, result.get() );
+        assertTrue( result.isPresent() );
+        assertSame( model, result.get() );
     }
 
     @Test
-    public void readPomRepo2HasModel() {
+    void readPomRepo2HasModel() {
         Mockito.when( repository1.readPom( gav ) ).thenReturn( Optional.empty() );
         Mockito.when( repository2.readPom( gav ) ).thenReturn( Optional.of( model ) );
 
         Optional<Model> result = virtualRepository.readPom( gav );
 
-        Assert.assertTrue( result.isPresent() );
-        Assert.assertSame( model, result.get() );
+        assertTrue( result.isPresent() );
+        assertSame( model, result.get() );
     }
 
     @Test
-    public void readPomNoneHaveModel() {
+    void readPomNoneHaveModel() {
         Mockito.when( repository1.readPom( gav ) ).thenReturn( Optional.empty() );
         Mockito.when( repository2.readPom( gav ) ).thenReturn( Optional.empty() );
 
         Optional<Model> result = virtualRepository.readPom( gav );
 
-        Assert.assertFalse( result.isPresent() );
+        assertFalse( result.isPresent() );
     }
 
     @Test
-    public void isWritableNotWritable() {
+    void isWritableNotWritable() {
         Mockito.when( repository1.isWritable() ).thenReturn( Boolean.FALSE );
         Mockito.when( repository2.isWritable() ).thenReturn( Boolean.FALSE );
 
-        Assert.assertFalse( virtualRepository.isWritable() );
+        assertFalse( virtualRepository.isWritable() );
     }
 
     @Test
-    public void isWritableRepo1() {
+    void isWritableRepo1() {
         Mockito.when( repository1.isWritable() ).thenReturn( Boolean.TRUE );
 
-        Assert.assertTrue( virtualRepository.isWritable() );
+        assertTrue( virtualRepository.isWritable() );
     }
 
     @Test
-    public void isWritableRepo2() {
+    void isWritableRepo2() {
         Mockito.when( repository1.isWritable() ).thenReturn( Boolean.FALSE );
         Mockito.when( repository2.isWritable() ).thenReturn( Boolean.TRUE );
 
-        Assert.assertTrue( virtualRepository.isWritable() );
+        assertTrue( virtualRepository.isWritable() );
     }
 
     @Test
-    public void isWritableRepo1and2() {
+    void isWritableRepo1and2() {
         Mockito.when( repository1.isWritable() ).thenReturn( Boolean.TRUE );
 
-        Assert.assertTrue( virtualRepository.isWritable() );
+        assertTrue( virtualRepository.isWritable() );
     }
 
     @Test
-    public void storeRepo2isWritable() {
+    void storeRepo2isWritable() {
         Mockito.when( repository1.isWritable() ).thenReturn( Boolean.FALSE );
         Mockito.when( repository2.isWritable() ).thenReturn( Boolean.TRUE );
         Mockito.when( repository2.store( model ) ).thenReturn( gav );
 
         GAV result = virtualRepository.store( model );
 
-        Assert.assertSame( gav, result );
+        assertSame( gav, result );
         Mockito.verify( repository1, Mockito.times( 0 ) ).store( model );
         Mockito.verify( repository2, Mockito.times( 1 ) ).store( model );
     }
 
-    @Test( expected = RepositoryException.class )
-    public void storeNoRepoIsWritable() {
-        Mockito.when( repository1.isWritable() ).thenReturn( Boolean.FALSE );
-        Mockito.when( repository2.isWritable() ).thenReturn( Boolean.FALSE );
+    @Test
+    void storeNoRepoIsWritable() {
+        assertThrows( RepositoryException.class, () -> {
+            Mockito.when( repository1.isWritable() ).thenReturn( Boolean.FALSE );
+            Mockito.when( repository2.isWritable() ).thenReturn( Boolean.FALSE );
 
-        virtualRepository.store( model );
+            virtualRepository.store( model );
+        } );
     }
 }
