@@ -64,6 +64,17 @@ class ResolveBuildConfigurationTest {
     }
 
     @Test
+    public void resolveConfigurationWithParent2() {
+        Model result = resolveConfiguration.resolveBuildConfiguration( getClass().getResourceAsStream( "/pom_with_target_from_parent.xml" ) );
+
+        assertNotNull( result );
+        new ModelIO().writeModelToStream( result, System.out );
+        assertEquals( "17", result.getProperties().getProperty( "maven.compiler.source" ) );
+        assertEquals( "17", result.getProperties().getProperty( "maven.compiler.target" ) );
+        assertEquals( "17", result.getProperties().getProperty( "maven.compiler.release" ) );
+    }
+
+    @Test
     void resolveConfigurationWithParent() {
         resolveConfiguration.store( getClass().getResourceAsStream( "/build.parent.pom.xml" ) );
 
