@@ -4,6 +4,14 @@
 - Various dependency updates
 - Rewrite unit tests from JUnit 4 to JUnit 5 with OpenRewrite
 - Fix: #227: JUnit detected as dependency while it has been excluded
+- Update Log4j to 2.24.1
+- Update rewrite-testing-frameworks to 2.19.0
+- Update maven-settings to 3.9.9
+- Update mockito-junit-jupiter to 5.14.0
+- Update okio to 3.9.1
+- Update junit-jupiter to 5.11.1
+- Update commons-lang3 to 3.17.0
+- Update maven-repository-metadata to 3.9.9
 
 ## 1.3.1
 - Replace mockito-all with mockito-core
