@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.eclipse.ee4j</groupId>
+  <artifactId>project</artifactId>
+  <version>1.0.7</version>
+  <packaging>pom</packaging>
+  <name>EE4J Project</name>
+  <description>Eclipse Enterprise for Java (EE4J) is an open source initiative to create standard APIs,
+        implementations of those APIs, and technology compatibility kits for Java runtimes
+        that enable development, deployment, and management of server-side and cloud-native applications.</description>
+  <url>https://projects.eclipse.org/projects/ee4j</url>
+  <inceptionYear>2017</inceptionYear>
+  <organization>
+    <name>Eclipse Foundation</name>
+    <url>https://www.eclipse.org</url>
+  </organization>
+  <licenses>
+    <license>
+      <name>Eclipse Public License v. 2.0</name>
+      <url>https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+    <license>
+      <name>GNU General Public License, version 2 with the GNU Classpath Exception</name>
+      <url>https://www.gnu.org/software/classpath/license.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>eclipseee4j</id>
+      <name>Eclipse EE4J Developers</name>
+      <email>ee4j-pmc@eclipse.org</email>
+      <organization>Eclipse Foundation</organization>
+    </developer>
+  </developers>
+  <mailingLists>
+    <mailingList>
+      <name>Community discussions</name>
+      <subscribe>https://accounts.eclipse.org/mailing-list/jakarta.ee-community</subscribe>
+      <unsubscribe>https://accounts.eclipse.org/mailing-list/jakarta.ee-community</unsubscribe>
+      <post>jakarta.ee-community@eclipse.org</post>
+      <archive>https://dev.eclipse.org/mhonarc/lists/jakarta.ee-community/</archive>
+      <otherArchives>
+        <otherArchive>http://dev.eclipse.org/mhonarc/lists/jakarta.ee-community/maillist.rss</otherArchive>
+      </otherArchives>
+    </mailingList>
+    <mailingList>
+      <name>PMC discussions</name>
+      <subscribe>https://accounts.eclipse.org/mailing-list/ee4j-pmc</subscribe>
+      <unsubscribe>https://accounts.eclipse.org/mailing-list/ee4j-pmc</unsubscribe>
+      <post>ee4j-pmc@eclipse.org</post>
+      <archive>https://dev.eclipse.org/mhonarc/lists/ee4j-pmc/</archive>
+      <otherArchives>
+        <otherArchive>http://dev.eclipse.org/mhonarc/lists/ee4j-pmc/maillist.rss</otherArchive>
+      </otherArchives>
+    </mailingList>
+  </mailingLists>
+  <scm>
+    <connection>scm:git:git@github.com:eclipse-ee4j/ee4j.git</connection>
+    <developerConnection>scm:git:git@github.com:eclipse-ee4j/ee4j.git</developerConnection>
+    <url>https://github.com/eclipse-ee4j/ee4j</url>
+  </scm>
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>https://github.com/eclipse-ee4j/ee4j/issues</url>
+  </issueManagement>
+  <distributionManagement>
+    <repository>
+      <id>ossrh</id>
+      <name>Sonatype Nexus Releases</name>
+      <url>${sonatypeOssDistMgmtReleasesUrl}</url>
+    </repository>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <name>Sonatype Nexus Snapshots</name>
+      <url>${sonatypeOssDistMgmtSnapshotsUrl}</url>
+    </snapshotRepository>
+  </distributionManagement>
+  <properties>
+    <sonatypeOssDistMgmtNexusUrl>https://jakarta.oss.sonatype.org/</sonatypeOssDistMgmtNexusUrl>
+    <sonatypeOssDistMgmtReleasesUrl>${sonatypeOssDistMgmtNexusUrl}service/local/staging/deploy/maven2/</sonatypeOssDistMgmtReleasesUrl>
+    <sonatypeOssDistMgmtSnapshotsUrl>${sonatypeOssDistMgmtNexusUrl}content/repositories/snapshots/</sonatypeOssDistMgmtSnapshotsUrl>
+    <release.arguments></release.arguments>
+    <sonatypeOssDistMgmtStagingUrl>${sonatypeOssDistMgmtNexusUrl}content/repositories/staging/</sonatypeOssDistMgmtStagingUrl>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-release-plugin</artifactId>
+          <version>2.5.3</version>
+          <configuration>
+            <mavenExecutorId>forked-path</mavenExecutorId>
+            <useReleaseProfile>false</useReleaseProfile>
+            <arguments>-Poss-release ${release.arguments}</arguments>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.sonatype.plugins</groupId>
+          <artifactId>nexus-staging-maven-plugin</artifactId>
+          <version>1.6.8</version>
+          <configuration>
+            <serverId>ossrh</serverId>
+            <nexusUrl>${sonatypeOssDistMgmtNexusUrl}</nexusUrl>
+            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+            <skipNexusStagingDeployMojo>${maven.deploy.skip}</skipNexusStagingDeployMojo>
+          </configuration>
+        </plugin>
+        <plugin>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <version>3.0.0-M3</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>3.2.1</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>3.2.0</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-gpg-plugin</artifactId>
+          <version>1.6</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+  <profiles>
+    <profile>
+      <id>oss-release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-enforcer-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>enforce-maven</id>
+                <goals>
+                  <goal>enforce</goal>
+                </goals>
+                <configuration>
+                  <rules>
+                    <requireMavenVersion>
+                      <version>[3.0.4,)</version>
+                      <message>Maven 3.0 through 3.0.3 inclusive does not pass
+                                                correct settings.xml to Maven Release Plugin.</message>
+                    </requireMavenVersion>
+                  </rules>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-source-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-sources</id>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <gpgArguments>
+                <arg>--pinentry-mode</arg>
+                <arg>loopback</arg>
+              </gpgArguments>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <extensions>true</extensions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>snapshots</id>
+      <activation />
+      <repositories>
+        <repository>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+          <id>sonatype-nexus-snapshots</id>
+          <name>Sonatype Nexus Snapshots</name>
+          <url>${sonatypeOssDistMgmtSnapshotsUrl}</url>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+          <id>sonatype-nexus-snapshots</id>
+          <name>Sonatype Nexus Snapshots</name>
+          <url>${sonatypeOssDistMgmtSnapshotsUrl}</url>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+    <profile>
+      <id>staging</id>
+      <activation />
+      <repositories>
+        <repository>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+          <id>sonatype-nexus-staging</id>
+          <name>Sonatype Nexus Staging</name>
+          <url>${sonatypeOssDistMgmtStagingUrl}</url>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+          </snapshots>
+          <id>sonatype-nexus-staging</id>
+          <name>Sonatype Nexus Staging</name>
+          <url>${sonatypeOssDistMgmtStagingUrl}</url>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+</project>

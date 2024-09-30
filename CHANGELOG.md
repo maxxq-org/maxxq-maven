@@ -3,6 +3,7 @@
 ## 1.3.2 (DRAFT)
 - Various dependency updates
 - Rewrite unit tests from JUnit 4 to JUnit 5 with OpenRewrite
+- Fix: #227: JUnit detected as dependency while it has been excluded
 
 ## 1.3.1
 - Replace mockito-all with mockito-core

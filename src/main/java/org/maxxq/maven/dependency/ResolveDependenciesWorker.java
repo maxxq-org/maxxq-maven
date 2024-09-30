@@ -73,7 +73,8 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             if ( becauseDependencyManagementIsNotTransitiveOnlyApplyOnRootPom( depth ) ) {
                 copyVersionsFromDependencyManagement( dependencies, model.getDependencyManagement().getDependencies() );
             }
-            return removeDuplicates( dependencies );
+            dependencies = removeDuplicates( dependencies );
+            return removeExclusions( dependencies, exclusions );
         } catch ( DepencyResolvingException e ) {
             throw e;
         } catch ( Exception e ) {
@@ -88,6 +89,13 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             .map( dependency -> dependency.getDependency() )
             .collect( Collectors.toSet() );
     }
+    
+    private Set<Dependency> removeExclusions( Set<Dependency> dependencies, List<Exclusion> exclusions) {
+        return dependencies.stream()
+            .filter(dependency -> !isExcluded( dependency, exclusions ))
+            .collect( Collectors.toSet() );
+    }
+
 
     private void resolveRanges( Model model ) {
         model.getDependencies()

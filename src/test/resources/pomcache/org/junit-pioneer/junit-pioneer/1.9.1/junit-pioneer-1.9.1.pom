@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.junit-pioneer</groupId>
+  <artifactId>junit-pioneer</artifactId>
+  <version>1.9.1</version>
+  <name>junit-pioneer</name>
+  <description>JUnit 5 Extension Pack</description>
+  <url>https://junit-pioneer.org/</url>
+  <licenses>
+    <license>
+      <name>Eclipse Public License v2.0</name>
+      <url>https://www.eclipse.org/legal/epl-v20.html</url>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>nipafx</id>
+      <name>Nicolai Parlog</name>
+      <url>https://github.com/nipafx</url>
+    </developer>
+    <developer>
+      <id>Bukama</id>
+      <name>Matthias Bünger</name>
+      <url>https://github.com/Bukama</url>
+    </developer>
+    <developer>
+      <id>aepfli</id>
+      <name>Simon Schrottner</name>
+      <url>https://github.com/aepfli</url>
+    </developer>
+    <developer>
+      <id>Michael1993</id>
+      <name>Mihály Verhás</name>
+      <url>https://github.com/Michael1993</url>
+    </developer>
+    <developer>
+      <id>beatngu13</id>
+      <name>Daniel Kraus</name>
+      <url>https://github.com/beatngu13</url>
+    </developer>
+  </developers>
+  <scm>
+    <url>https://github.com/junit-pioneer/junit-pioneer.git</url>
+  </scm>
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>https://github.com/junit-pioneer/junit-pioneer/issues</url>
+  </issueManagement>
+  <ciManagement>
+    <system>GitHub Actions</system>
+    <url>https://github.com/junit-pioneer/junit-pioneer/actions</url>
+  </ciManagement>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.junit</groupId>
+        <artifactId>junit-bom</artifactId>
+        <version>5.9.0</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-launcher</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.13.2.2</version>
+      <scope>compile</scope>
+      <optional>true</optional>
+    </dependency>
+  </dependencies>
+</project>

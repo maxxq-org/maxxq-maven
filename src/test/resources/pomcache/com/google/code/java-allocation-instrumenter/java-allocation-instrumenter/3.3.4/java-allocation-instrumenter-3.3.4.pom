@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
+  <groupId>com.google.code.java-allocation-instrumenter</groupId>
+  <artifactId>java-allocation-instrumenter</artifactId>
+  <version>3.3.4</version>
+  <name>java-allocation-instrumenter</name>
+  <description>A Java agent that rewrites bytecode to instrument allocation sites.</description>
+  <url>https://github.com/google/allocation-instrumenter/</url>
+  <inceptionYear>2009</inceptionYear>
+  <organization>
+    <name>Google, Inc.</name>
+    <url>http://www.google.com</url>
+  </organization>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <name>Jeremy Manson</name>
+      <organization>Google Inc.</organization>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:https://github.com/google/allocation-instrumenter.git</connection>
+    <developerConnection>scm:git:git@github.com:google/allocation-instrumenter.git</developerConnection>
+    <url>https://github.com/google/allocation-instrumenter/</url>
+  </scm>
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/google/allocation-instrumenter/issues</url>
+  </issueManagement>
+</project>

@@ -44,6 +44,19 @@ class ResolveDependenciesTest {
     }
 
     @Test
+    void resolveDependenciesWithExclusion2() {
+        Set<Dependency> dependencies = resolveDependencies
+            .getDependencies( getClass().getResourceAsStream( "/pom.with.exclusions.xml" ) );
+
+        List<GAV> result = dependencies.stream()
+            .map( dependency -> GAV.fromDependency( dependency ) )
+            .filter( dependency -> dependency.getGroupId().equals( "junit" ) )
+            .collect( Collectors.toList() );
+
+        assertEquals( 0, result.size(), "Did not expect junit as a dependency because it's excluded" );
+    }
+
+    @Test
     void resolveDependenciesWithManagedExclusion() {
         Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/pom-dependency-with-managed-exclusion.pom.xml" ) );
 
@@ -337,12 +350,20 @@ class ResolveDependenciesTest {
 
     @Test
     void resolvedDependenciesForPomWithInvalidParent() {
-        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/pom-with-invalid-parent-and-properties.xml" ) );
-        
-        List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
-        
-        assertEquals(2,  dependencies.size() );
+        Set<Dependency> dependencies = resolveDependencies
+            .getDependencies( getClass().getResourceAsStream( "/pom-with-invalid-parent-and-properties.xml" ) );
+
+        List<String> result = dependencies.stream()
+            .map( dependency -> GAV.fromDependency( dependency ).toString() )
+            .collect( Collectors.toList() );
+
+        assertEquals( 7, dependencies.size() );
+        assertTrue( result.contains( "GAV [groupId=org.springframework, artifactId=spring-orm, version=3.2.13.RELEASE]" ) );
         assertTrue( result.contains( "GAV [groupId=org.springframework, artifactId=spring-test, version=3.2.13.RELEASE]" ) );
-        assertTrue( result.contains( "GAV [groupId=org.springframework, artifactId=spring-test, version=3.2.13.RELEASE]" ) );
+        assertTrue( result.contains( "GAV [groupId=org.springframework, artifactId=spring-beans, version=3.2.13.RELEASE]" ) );
+        assertTrue( result.contains( "GAV [groupId=org.springframework, artifactId=spring-tx, version=3.2.13.RELEASE]" ) );
+        assertTrue( result.contains( "GAV [groupId=commons-logging, artifactId=commons-logging, version=1.1.3]" ) );
+        assertTrue( result.contains( "GAV [groupId=org.springframework, artifactId=spring-core, version=3.2.13.RELEASE]" ) );
+        assertTrue( result.contains( "GAV [groupId=org.springframework, artifactId=spring-jdbc, version=3.2.13.RELEASE]" ) );
     }
 }
