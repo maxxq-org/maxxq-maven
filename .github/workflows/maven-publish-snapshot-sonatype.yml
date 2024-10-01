@@ -71,3 +71,6 @@ jobs:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.gpg_passphrase }}
           MAVEN_SONATYPE_USER: ${{ secrets.nexus_username }}
           MAVEN_SONATYPE_PASSWORD: ${{ secrets.nexus_password }}
+
+      - name: Listing files in target folder
+        run: ls target/
