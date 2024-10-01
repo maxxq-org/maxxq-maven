@@ -28,11 +28,37 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Release Maven package
-        uses: samuelmeuli/action-maven-publish@v1
+      - uses: whelk-io/maven-settings-xml-action@v20
         with:
+          repositories: |
+            [
+              {
+                "id": "central",
+                "name": "Maven Central",
+                "url": "https://repo1.maven.org/maven2",
+                "releases": {"enabled": "true"},
+                "snapshots": {"enabled": "false"}
+              },
+              {
+                "id": "sonatype_snapshots",
+                "name": "Sonatype snapshots",
+                "url": "https://s01.oss.sonatype.org/content/repositories/snapshots",
+                "releases": {"enabled": "false"},
+                "snapshots": {"enabled": "true"}
+              }
+            ]
+          output_file: .m2/settings.xml
+
+      - name: print settings.xml
+        run: cat .m2/settings.xml
+
+      - name: Release Maven package
+        uses: WasiqB/maven-publish-action@v2.7.0
+        with:
+          settings_path: .m2/settings.xml
           gpg_private_key: ${{ secrets.gpg_private_key }}
           gpg_passphrase: ${{ secrets.gpg_passphrase }}
-          nexus_username: ${{ secrets.nexus_username }}
-          nexus_password: ${{ secrets.nexus_password }}
-          maven_goals_phases: clean deploy -DaltDeploymentRepository=ossrh::default::https://s01.oss.sonatype.org/content/repositories/snapshots
+          server_id: "sonatype_snapshots"
+          server_username: ${{ secrets.nexus_username }}
+          server_password: ${{ secrets.nexus_password }}
+          maven_goals_phases: clean deploy -DaltDeploymentRepository=sonatype_snapshots::default::https://s01.oss.sonatype.org/content/repositories/snapshots

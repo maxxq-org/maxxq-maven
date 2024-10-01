@@ -1,6 +1,10 @@
 ## Release notes
 
-## 1.3.2 (DRAFT)
+## 1.3.3 (DRAFT)
+- Update GPG plugin to 3.2.7
+- Fix: fix signing of generated artifacts
+
+## 1.3.2 (30/9/2024)
 - Various dependency updates
 - Rewrite unit tests from JUnit 4 to JUnit 5 with OpenRewrite
 - Fix: #227: JUnit detected as dependency while it has been excluded
