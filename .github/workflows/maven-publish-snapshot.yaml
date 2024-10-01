@@ -1,0 +1,22 @@
+name: Deploy snapshot to Sonatype with workflow
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+    
+jobs:
+  publish-package:
+    permissions:
+      contents: read
+      packages: write
+    uses: maxxq-org/maxxq-workflows/.github/workflows/maven-publish-snapshot.yml@main
+    with:
+      java-version: '17'
+      java-distribution: 'temurin'
+      maven-deployment-repo: 'https://s01.oss.sonatype.org/content/repositories/snapshots'
+    secrets:
+      gpg_private_key: "${{ secrets.GPG_PRIVATE_KEY }}"
+      gpg_passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      repo-username: ${{ secrets.NEXUS_USERNAME }}
+      repo-password: ${{ secrets.NEXUS_PASSWORD }}
