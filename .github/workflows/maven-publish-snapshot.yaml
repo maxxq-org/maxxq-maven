@@ -1,4 +1,4 @@
-name: Deploy snapshot to Sonatype with workflow
+name: Deploy snapshot to Sonatype
 
 on:
   push:
