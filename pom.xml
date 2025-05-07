@@ -77,7 +77,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.5.2</version>
+					<version>3.5.3</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
@@ -222,7 +222,7 @@
 			<plugin>
 				<groupId>org.openrewrite.maven</groupId>
 				<artifactId>rewrite-maven-plugin</artifactId>
-				<version>6.0.5</version>
+				<version>6.6.1</version>
 				<configuration>
 					<activeRecipes>
 						<recipe>
@@ -233,7 +233,7 @@
 					<dependency>
 						<groupId>org.openrewrite.recipe</groupId>
 						<artifactId>rewrite-testing-frameworks</artifactId>
-						<version>3.1.0</version>
+						<version>3.6.1</version>
 					</dependency>
 				</dependencies>
 			</plugin>
@@ -303,7 +303,7 @@
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
 			<artifactId>kotlin-stdlib</artifactId>
-			<version>2.1.0</version>
+			<version>2.1.20</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.apache.maven/maven-artifact -->
 		<dependency>
