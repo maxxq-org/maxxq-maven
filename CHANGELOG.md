@@ -3,6 +3,7 @@
 ## 1.3.3 (DRAFT)
 - Update GPG plugin to 3.2.7
 - Fix: fix signing of generated artifacts
+- Fix: Improve scope calculation for transitive dependencies
 
 ## 1.3.2 (30/9/2024)
 - Various dependency updates

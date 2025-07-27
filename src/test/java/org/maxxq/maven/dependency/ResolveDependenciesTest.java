@@ -1,5 +1,9 @@
 package org.maxxq.maven.dependency;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
@@ -12,10 +16,6 @@ import org.maxxq.maven.repository.InMemoryCachingRepository;
 import org.maxxq.maven.repository.LocalFileRepository;
 import org.maxxq.maven.repository.LocalInMemoryRepository;
 import org.maxxq.maven.repository.VirtualRepository;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ResolveDependenciesTest {
     private ResolveDependencies resolveDependencies;
@@ -298,6 +298,18 @@ class ResolveDependenciesTest {
     }
 
     @Test
+    void dependenciesThroughTestScopeShouldAlwaysHaveTestScope() {
+        Set<String> scopesForJettyDependencies = resolveDependencies.getDependencies( new GAV( "org.springframework.ws", "spring-ws-core", "4.0.11" ) )
+            .stream()
+            .filter( dependency -> dependency.getGroupId().contains( "jetty" ) )
+            .map( dependency -> dependency.getScope() )
+            .collect( Collectors.toSet() );
+
+        assertEquals( 1, scopesForJettyDependencies.size() );
+        assertTrue( scopesForJettyDependencies.contains( "test" ) );
+    }
+
+    @Test
     void getDependenciesForJongo() {
         Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/jongo-1.3.0.pom" ) );
 
@@ -341,7 +353,7 @@ class ResolveDependenciesTest {
         GAV parent = resolveDependencies.store( getClass().getResourceAsStream( "/multipleboms/multiple-bom.pom" ) );
 
         Set<Dependency> dependencies = resolveDependencies.getDependencies( parent );
-        
+
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
         assertTrue( dependencies.size() > 0 );
         assertTrue( result.contains( "GAV [groupId=org.apache.logging.log4j, artifactId=log4j-core, version=2.16.0]" ) );

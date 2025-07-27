@@ -134,7 +134,16 @@ public class ResolveDependencies implements IDependencyResolver {
 
     @Override
     public Set<Dependency> getDependencies( Stream<GAV> gavs ) {
-        return gavs.flatMap( gav -> getDependencies( gav ).stream() )
+        return removeDuplicates(
+            gavs.flatMap( gav -> getDependencies( gav ).stream() )
+                .collect( Collectors.toSet() ) );
+    }
+
+    private Set<Dependency> removeDuplicates( Set<Dependency> dependencies ) {
+        return dependencies.stream()
+            .map( dependency -> new ComparableDependency( dependency ) )
+            .distinct()
+            .map( dependency -> dependency.getDependency() )
             .collect( Collectors.toSet() );
     }
 

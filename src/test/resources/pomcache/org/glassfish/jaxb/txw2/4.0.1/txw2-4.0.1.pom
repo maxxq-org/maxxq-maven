@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.sun.xml.bind.mvn</groupId>
+    <artifactId>jaxb-txw-parent</artifactId>
+    <version>4.0.1</version>
+  </parent>
+  <groupId>org.glassfish.jaxb</groupId>
+  <artifactId>txw2</artifactId>
+  <name>TXW2 Runtime</name>
+  <description>TXW is a library that allows you to write XML documents.</description>
+  <url>https://eclipse-ee4j.github.io/jaxb-ri/</url>
+  <properties>
+    <doclint>all</doclint>
+    <spotbugs.exclude>${project.basedir}/exclude-txw-runtime.xml</spotbugs.exclude>
+  </properties>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Implementation-Title>TXW Runtime</Implementation-Title>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

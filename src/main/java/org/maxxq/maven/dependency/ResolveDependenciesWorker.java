@@ -69,7 +69,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             applyDependencyManagement( model, allParentsLoaded );
             resolveRanges( model );
             addDependenciesToList( dependencies, model, exclusions, depth );
-            addTransitiveDependencieswToList( dependencies, model, exclusions, depth );
+            addTransitiveDependenciesToList( dependencies, model, exclusions, depth );
             if ( becauseDependencyManagementIsNotTransitiveOnlyApplyOnRootPom( depth ) ) {
                 copyVersionsFromDependencyManagement( dependencies, model.getDependencyManagement().getDependencies() );
             }
@@ -89,13 +89,12 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
             .map( dependency -> dependency.getDependency() )
             .collect( Collectors.toSet() );
     }
-    
-    private Set<Dependency> removeExclusions( Set<Dependency> dependencies, List<Exclusion> exclusions) {
+
+    private Set<Dependency> removeExclusions( Set<Dependency> dependencies, List<Exclusion> exclusions ) {
         return dependencies.stream()
-            .filter(dependency -> !isExcluded( dependency, exclusions ))
+            .filter( dependency -> !isExcluded( dependency, exclusions ) )
             .collect( Collectors.toSet() );
     }
-
 
     private void resolveRanges( Model model ) {
         model.getDependencies()
@@ -165,7 +164,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         return dependency;
     }
 
-    private void addTransitiveDependencieswToList( Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, int depth ) {
+    private void addTransitiveDependenciesToList( Set<Dependency> dependencies, Model model, List<Exclusion> exclusions, int depth ) {
         model.getDependencies()
             .stream()
             .map( dependency -> addDefaults( dependency ) )
@@ -250,7 +249,17 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         LOGGER.trace( "Following transitive dependencies of: {}", GAV.fromDependency( dependency ) );
         return repository.readPom( GAV.fromDependency( dependency ) )
             .map( model -> processPomStream( model, dependency.getExclusions(), depth + 1 ) )
+            .map( transitiveDependencies -> calculateTransitiveScopes( dependency, transitiveDependencies ) )
             .orElse( new LinkedHashSet<>() );
+    }
+
+    private Set<Dependency> calculateTransitiveScopes( Dependency dependency, Set<Dependency> dependencies ) {
+        Scope baseScope = Scope.fromScope( dependency.getScope() );
+        dependencies.stream()
+            .forEach(
+                transitivieDependency -> transitivieDependency.setScope( baseScope.transitiveScope( Scope.fromScope( transitivieDependency.getScope() ) ).getScope() ) );
+
+        return dependencies;
     }
 
     private void applyDependencyManagement( Model model, boolean allParentsLoaded ) {

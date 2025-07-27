@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.glassfish.jaxb</groupId>
+    <artifactId>jaxb-bom</artifactId>
+    <version>4.0.1</version>
+    <relativePath>../bom/pom.xml</relativePath>
+  </parent>
+  <groupId>com.sun.xml.bind</groupId>
+  <artifactId>jaxb-bom-ext</artifactId>
+  <packaging>pom</packaging>
+  <name>JAXB BOM with ALL dependencies</name>
+  <description>JAXB Bill of Materials (BOM) with all dependencies.
+        If you are not sure - DON'T USE THIS BOM. Use com.sun.xml.bind:jaxb-bom instead.</description>
+  <url>https://eclipse-ee4j.github.io/jaxb-ri/</url>
+  <properties>
+    <relaxng.version>${project.version}</relaxng.version>
+    <ant.version>1.10.12</ant.version>
+    <codemodel.version>${project.version}</codemodel.version>
+    <dtd-parser.version>1.5.0</dtd-parser.version>
+    <xsom.version>${project.version}</xsom.version>
+  </properties>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.sun.xml.bind.external</groupId>
+        <artifactId>rngom</artifactId>
+        <version>${relaxng.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>xsom</artifactId>
+        <version>${xsom.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.xml.dtd-parser</groupId>
+        <artifactId>dtd-parser</artifactId>
+        <version>${dtd-parser.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.istack</groupId>
+        <artifactId>istack-commons-tools</artifactId>
+        <version>${istack.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>codemodel</artifactId>
+        <version>${codemodel.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jaxb</groupId>
+        <artifactId>txw2</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.ant</groupId>
+        <artifactId>ant</artifactId>
+        <version>${ant.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.sun.xml.bind.external</groupId>
+        <artifactId>relaxng-datatype</artifactId>
+        <version>${relaxng.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>
