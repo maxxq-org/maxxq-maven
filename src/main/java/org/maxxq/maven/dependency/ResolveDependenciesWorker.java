@@ -255,11 +255,13 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
 
     private Set<Dependency> calculateTransitiveScopes( Dependency dependency, Set<Dependency> dependencies ) {
         Scope baseScope = Scope.fromScope( dependency.getScope() );
-        dependencies.stream()
-            .forEach(
-                transitivieDependency -> transitivieDependency.setScope( baseScope.transitiveScope( Scope.fromScope( transitivieDependency.getScope() ) ).getScope() ) );
-
-        return dependencies;
+        return dependencies.stream()
+            .map( dep -> {
+                Dependency clone = dep.clone();
+                clone.setScope( baseScope.transitiveScope( Scope.fromScope( dep.getScope() ) ).getScope() );
+                return clone;
+            } )
+            .collect( Collectors.toSet() );
     }
 
     private void applyDependencyManagement( Model model, boolean allParentsLoaded ) {
