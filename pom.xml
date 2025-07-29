@@ -243,7 +243,7 @@
 				<version>0.8.0</version>
 				<extensions>true</extensions>
 				<configuration>
-					<publishingServerId>central</publishingServerId>
+					<publishingServerId>repo</publishingServerId>
 				</configuration>
 			</plugin>
 		</plugins>

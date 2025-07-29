@@ -14,7 +14,7 @@ jobs:
     with:
       java-version: '17'
       java-distribution: 'temurin'
-      maven-deployment-repo: 'https://s01.oss.sonatype.org/content/repositories/snapshots'
+      maven-deployment-repo: 'https://central.sonatype.com/repository/maven-snapshots/'
     secrets:
       gpg_private_key: "${{ secrets.GPG_PRIVATE_KEY }}"
       gpg_passphrase: ${{ secrets.GPG_PASSPHRASE }}
