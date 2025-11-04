@@ -69,24 +69,22 @@ class LocalFileRepositoryTest {
 
     @Test
     void storeThrowsIOException() {
-        assertThrows( RepositoryException.class, () -> {
-            localFileRepository = new LocalFileRepository( Paths.get( System.getProperty( "java.io.tmpdir" ), "pomcache" ), modelIO );
-            Mockito.doThrow( RuntimeException.class ).when( modelIO ).writeModelToStream( Mockito.any( Model.class ), Mockito.any( OutputStream.class ) );
+        localFileRepository = new LocalFileRepository( Paths.get( System.getProperty( "java.io.tmpdir" ), "pomcache" ), modelIO );
+        Mockito.doThrow( RuntimeException.class ).when( modelIO ).writeModelToStream( Mockito.any( Model.class ), Mockito.any( OutputStream.class ) );
+        assertThrows( RepositoryException.class, () ->
 
-            localFileRepository.store( createModel() );
-        } );
+            localFileRepository.store( createModel() ) );
     }
 
     @Test
     void readThrowsIOException() {
-        assertThrows( RepositoryException.class, () -> {
-            Model model = createModel();
-            localFileRepository.store( model );
-            localFileRepository = new LocalFileRepository( Paths.get( System.getProperty( "java.io.tmpdir" ), "pomcache" ), modelIO );
-            Mockito.doThrow( RuntimeException.class ).when( modelIO ).getModelFromInputStream( Mockito.any( InputStream.class ) );
+        Model model = createModel();
+        localFileRepository.store( model );
+        localFileRepository = new LocalFileRepository( Paths.get( System.getProperty( "java.io.tmpdir" ), "pomcache" ), modelIO );
+        Mockito.doThrow( RuntimeException.class ).when( modelIO ).getModelFromInputStream( Mockito.any( InputStream.class ) );
+        assertThrows( RepositoryException.class, () ->
 
-            localFileRepository.readPom( GAV.fromModel( model ) );
-        } );
+            localFileRepository.readPom( GAV.fromModel( model ) ) );
     }
 
     @Test

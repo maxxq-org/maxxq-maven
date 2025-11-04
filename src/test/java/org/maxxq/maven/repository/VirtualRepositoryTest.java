@@ -114,11 +114,10 @@ class VirtualRepositoryTest {
 
     @Test
     void storeNoRepoIsWritable() {
-        assertThrows( RepositoryException.class, () -> {
-            Mockito.when( repository1.isWritable() ).thenReturn( Boolean.FALSE );
-            Mockito.when( repository2.isWritable() ).thenReturn( Boolean.FALSE );
+        Mockito.when( repository1.isWritable() ).thenReturn( Boolean.FALSE );
+        Mockito.when( repository2.isWritable() ).thenReturn( Boolean.FALSE );
+        assertThrows( RepositoryException.class, () ->
 
-            virtualRepository.store( model );
-        } );
+            virtualRepository.store( model ) );
     }
 }

@@ -65,11 +65,10 @@ class ResolveRangeTest {
 
     @Test
     void applyInvalidRange() {
-        assertThrows( IllegalArgumentException.class, () -> {
-            Mockito.when( gav.getVersion() ).thenReturn( "[1.0.1," );
+        Mockito.when( gav.getVersion() ).thenReturn( "[1.0.1," );
+        assertThrows( IllegalArgumentException.class, () ->
 
-            resolveRange.apply( gav );
-        } );
+            resolveRange.apply( gav ) );
     }
 
 }

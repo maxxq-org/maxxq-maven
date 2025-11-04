@@ -1,5 +1,6 @@
 package org.maxxq.maven.dependency;
 
+import java.io.InputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith( MockitoExtension.class )
 class ModelIOTest {
     private ModelIO      modelIO = new ModelIO();
 
@@ -27,7 +28,9 @@ class ModelIOTest {
 
     @Test
     void getModelFromInputStream() {
-        Model model = modelIO.getModelFromInputStream( getClass().getResourceAsStream( "/maven-dependencies.pom.xml" ) );
+        InputStream inputStream = getClass().getResourceAsStream( "/maven-dependencies.pom.xml" );
+
+        Model model = modelIO.getModelFromInputStream( inputStream );
 
         assertNotNull( model );
         assertEquals( "chabernac", model.getGroupId() );

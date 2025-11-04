@@ -9,7 +9,10 @@ class GetVersionsURLTest {
 
     @Test
     void apply() {
-        String result = getVersionsURL.apply("org.mockito", "mockito-all");
+        String groupId = "org.mockito";
+        String artifactId = "mockito-all";
+
+        String result = getVersionsURL.apply(groupId, artifactId);
 
         assertEquals("https://repo1.maven.org/maven2/org/mockito/mockito-all/maven-metadata.xml", result);
     }

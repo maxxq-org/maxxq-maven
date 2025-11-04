@@ -64,7 +64,7 @@ class ResolveBuildConfigurationTest {
     }
 
     @Test
-    public void resolveConfigurationWithParent2() {
+    void resolveConfigurationWithParent2() {
         Model result = resolveConfiguration.resolveBuildConfiguration( getClass().getResourceAsStream( "/pom_with_target_from_parent.xml" ) );
 
         assertNotNull( result );

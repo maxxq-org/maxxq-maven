@@ -142,8 +142,7 @@ class FileCachingRepositoryTest {
 
     @Test
     void store() {
-        assertThrows( UnsupportedOperationException.class, () -> {
-            repo.store( model );
-        } );
+        assertThrows( UnsupportedOperationException.class, () ->
+            repo.store( model ) );
     }
 }

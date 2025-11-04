@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith( MockitoExtension.class )
 class GetMavenRepoURLTest {
     private GetMavenRepoURL getMavenRepoURL = new GetMavenRepoURL( RemoteRepository.MAVEN_CENTRAL );
 
@@ -22,9 +22,11 @@ class GetMavenRepoURLTest {
         Mockito.when( dependency.getGroupId() ).thenReturn( "org.apache.maven" );
         Mockito.when( dependency.getVersion() ).thenReturn( "3.8.4" );
 
+        String result = getMavenRepoURL.apply( dependency );
+
         assertEquals(
-                "https://repo1.maven.org/maven2/org/apache/maven/maven-model/3.8.4/maven-model-3.8.4.pom",
-                getMavenRepoURL.apply( dependency ) );
+            "https://repo1.maven.org/maven2/org/apache/maven/maven-model/3.8.4/maven-model-3.8.4.pom",
+            result );
     }
 
 }
