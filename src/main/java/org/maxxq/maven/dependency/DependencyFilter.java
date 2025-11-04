@@ -15,40 +15,50 @@ public class DependencyFilter implements IDependencyFilter {
         return keepOptional;
     }
 
-    public void setKeepOptional( boolean keepOptional ) {
+    public DependencyFilter setKeepOptional( boolean keepOptional ) {
         this.keepOptional = keepOptional;
+        return this;
     }
 
     public boolean isKeepTest() {
         return keepTest;
     }
 
-    public void setKeepTest( boolean keepTest ) {
+    public DependencyFilter setKeepTest( boolean keepTest ) {
         this.keepTest = keepTest;
+        return this;
     }
 
     public boolean isKeepCompile() {
         return keepCompile;
     }
 
-    public void setKeepCompile( boolean keepCompile ) {
+    public DependencyFilter setKeepCompile( boolean keepCompile ) {
         this.keepCompile = keepCompile;
+        return this;
     }
 
     public boolean isKeepRuntime() {
         return keepRuntime;
     }
 
-    public void setKeepRuntime( boolean keepRuntime ) {
+    public DependencyFilter setKeepRuntime( boolean keepRuntime ) {
         this.keepRuntime = keepRuntime;
+        return this;
     }
 
     public boolean isKeepProvided() {
         return keepProvided;
     }
 
-    public void setKeepProvided( boolean keepProvided ) {
+    public DependencyFilter setKeepProvided( boolean keepProvided ) {
         this.keepProvided = keepProvided;
+        return this;
+    }
+
+    public DependencyFilter setKeepTestRootOnly( boolean keepTestRootOnly ) {
+        this.keepTestRootOnly = keepTestRootOnly;
+        return this;
     }
 
     @Override
@@ -56,8 +66,8 @@ public class DependencyFilter implements IDependencyFilter {
         if ( StringUtils.isEmpty( dependency.getScope() ) ) {
             return true;
         }
-        if ( keepOptional && dependency.isOptional() ) {
-            return true;
+        if ( !keepOptional && dependency.isOptional() ) {
+            return false;
         }
         if ( keepCompile && "compile".equals( dependency.getScope() ) ) {
             return true;
