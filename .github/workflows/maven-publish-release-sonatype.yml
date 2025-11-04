@@ -44,7 +44,7 @@ jobs:
           gpg_passphrase: ${{ secrets.gpg_passphrase }}
           nexus_username: ${{ secrets.nexus_username }}
           nexus_password: ${{ secrets.nexus_password }}
-          maven_goals_phases: clean deploy -DaltDeploymentRepository=ossrh::default::https://s01.oss.sonatype.org/service/local/staging/deploy/maven2
+          maven_goals_phases: clean deploy -DaltDeploymentRepository=repo::default::https://central.sonatype.com/repository/maven-releases/
   tag:         
     runs-on: ubuntu-latest
     needs: [release]
