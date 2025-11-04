@@ -326,14 +326,17 @@ class ResolveDependenciesTest {
     }
 
     /**
-     * provided, optional and dependency coming through profiles are currently excluded
+     * Validate including optional dependencies when not being filtered.
+     * Care needs to be taken as the filtering is applied at runtime.
+     * if setKeepCompile would be set to false, no optional dependencies would be found because the optional dependencies come through transitive compile dependencies.
      */
     @Test
     void validateScopesOnlyOptional() {
         resolveDependencies.setDependenyFilter(
             new DependencyFilter()
                 .keepNothing()
-                .setKeepOptional( true ));
+                .setKeepCompile( true )
+                .setKeepOptional( true ) );
         GAV gav = new GAV( "org.springframework.ws", "spring-ws-core", "4.0.11" );
 
         Set<Dependency> result = resolveDependencies.getDependencies( gav );
@@ -354,7 +357,7 @@ class ResolveDependenciesTest {
 
         System.out.println( resultString );
 
-        assertEquals( 38, result.size() );
+        assertEquals( 32, result.size() );
         assertTrue( resultString.toString().contains( "ch.qos.logback:logback-classic:jar:1.2.12:compile (optional)" ) );
         assertTrue( resultString.toString().contains( "com.google.code.findbugs:jsr305:jar:3.0.2:compile (optional)" ) );
         assertTrue( resultString.toString().contains( "commons-httpclient:commons-httpclient:jar:3.1:compile (optional)" ) );

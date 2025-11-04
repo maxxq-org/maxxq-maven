@@ -4,12 +4,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.model.Dependency;
 
 public class DependencyFilter implements IDependencyFilter {
-    private boolean keepOptional     = false;
-    private boolean keepTest         = false;
+    private boolean keepOptional = false;
+    private boolean keepTest     = false;
     private boolean keepTestRoot = true;
-    private boolean keepCompile      = true;
-    private boolean keepRuntime      = true;
-    private boolean keepProvided     = false;
+    private boolean keepCompile  = true;
+    private boolean keepRuntime  = true;
+    private boolean keepProvided = false;
 
     public boolean isKeepOptional() {
         return keepOptional;
@@ -60,7 +60,7 @@ public class DependencyFilter implements IDependencyFilter {
         this.keepTestRoot = keepTestRoot;
         return this;
     }
-    
+
     public DependencyFilter keepNothing() {
         this.keepCompile = false;
         this.keepOptional = false;
@@ -70,7 +70,7 @@ public class DependencyFilter implements IDependencyFilter {
         this.keepTestRoot = false;
         return this;
     }
-    
+
     public DependencyFilter keepAll() {
         this.keepCompile = true;
         this.keepOptional = true;
