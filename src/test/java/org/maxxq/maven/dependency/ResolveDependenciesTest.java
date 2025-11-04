@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
@@ -36,43 +37,46 @@ class ResolveDependenciesTest {
 
     @Test
     void resolveDependenciesWithExclusion() {
-        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/pom-dependency-with-exclusion.pom.xml" ) );
+        InputStream pomStream = getClass().getResourceAsStream( "/pom-dependency-with-exclusion.pom.xml" );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( pomStream );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
-
         assertEquals( 1, dependencies.size() );
         assertTrue( result.contains( "GAV [groupId=org.apache.maven, artifactId=maven-settings, version=3.8.4]" ) );
     }
 
     @Test
     void resolveDependenciesWithExclusion2() {
-        Set<Dependency> dependencies = resolveDependencies
-            .getDependencies( getClass().getResourceAsStream( "/pom.with.exclusions.xml" ) );
+        InputStream pomStream = getClass().getResourceAsStream( "/pom.with.exclusions.xml" );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( pomStream );
 
         List<GAV> result = dependencies.stream()
             .map( dependency -> GAV.fromDependency( dependency ) )
             .filter( dependency -> dependency.getGroupId().equals( "junit" ) )
             .collect( Collectors.toList() );
-
         assertEquals( 0, result.size(), "Did not expect junit as a dependency because it's excluded" );
     }
 
     @Test
     void resolveDependenciesWithManagedExclusion() {
-        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/pom-dependency-with-managed-exclusion.pom.xml" ) );
+        InputStream pomStream = getClass().getResourceAsStream( "/pom-dependency-with-managed-exclusion.pom.xml" );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( pomStream );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
-
         assertEquals( 1, dependencies.size() );
         assertTrue( result.contains( "GAV [groupId=org.apache.maven, artifactId=maven-settings, version=3.8.4]" ) );
     }
 
     @Test
     void resolveDependenciesWithManagedDependency() {
-        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/pom-override-dependency-with-management.pom.xml" ) );
+        InputStream pomStream = getClass().getResourceAsStream( "/pom-override-dependency-with-management.pom.xml" );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( pomStream );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
-
         assertEquals( 10, dependencies.size() );
         assertTrue( result.contains( "GAV [groupId=org.apiguardian, artifactId=apiguardian-api, version=1.0.0]" ) );
     }
@@ -97,10 +101,11 @@ class ResolveDependenciesTest {
 
     @Test
     void resolveDependencies() {
-        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/maven-dependencies.pom.xml" ) );
+        InputStream pomStream = getClass().getResourceAsStream( "/maven-dependencies.pom.xml" );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( pomStream );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
-
         assertEquals( 10, dependencies.size() );
         assertTrue( result.contains( "GAV [groupId=org.apiguardian, artifactId=apiguardian-api, version=1.0.0]" ) );
         assertTrue( result.contains( "GAV [groupId=org.apache.commons, artifactId=commons-lang3, version=3.4]" ) );
@@ -117,10 +122,11 @@ class ResolveDependenciesTest {
     @Test
     void resolveDependenciesCustomFilterForScopeCompile() {
         resolveDependencies.setDependenyFilter( ( dependency, depth ) -> dependency.getScope().equals( "compile" ) );
-        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/maven-dependencies.pom.xml" ) );
+        InputStream pomStream = getClass().getResourceAsStream( "/maven-dependencies.pom.xml" );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( pomStream );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
-
         System.out.println( result );
         assertEquals( 4, dependencies.size() );
         assertTrue( result.contains( "GAV [groupId=org.apache.commons, artifactId=commons-lang3, version=3.4]" ) );
@@ -132,10 +138,11 @@ class ResolveDependenciesTest {
     @Test
     void resolveDependenciesCustomFilterForDepth() {
         resolveDependencies.setDependenyFilter( ( dependency, depth ) -> depth == 0 );
-        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/maven-dependencies.pom.xml" ) );
+        InputStream pomStream = getClass().getResourceAsStream( "/maven-dependencies.pom.xml" );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( pomStream );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
-
         System.out.println( result );
         assertEquals( 3, dependencies.size() );
         assertTrue( result.contains( "GAV [groupId=org.apache.maven, artifactId=maven-model, version=3.3.9]" ) );
@@ -145,10 +152,11 @@ class ResolveDependenciesTest {
 
     @Test
     void resolveDependenciesWithRanges() {
-        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/maven-dependencies-range.pom.xml" ) );
+        InputStream pomStream = getClass().getResourceAsStream( "/maven-dependencies-range.pom.xml" );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( pomStream );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
-
         result.stream().forEach( resultstring -> System.out.println( resultstring ) );
         assertEquals( 9, dependencies.size() );
         assertTrue( result.contains( "GAV [groupId=org.apiguardian, artifactId=apiguardian-api, version=1.0.0]" ) );
@@ -164,7 +172,9 @@ class ResolveDependenciesTest {
 
     @Test
     void resolveDependenciesFlawedWithDouble() {
-        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/maven-dependencies-double.pom.xml" ) );
+        InputStream pomStream = getClass().getResourceAsStream( "/maven-dependencies-double.pom.xml" );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( pomStream );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
         result.stream().forEach( resultstring -> System.out.println( "strange: " + resultstring ) );
@@ -183,12 +193,12 @@ class ResolveDependenciesTest {
 
     @Test
     void resolveDependenciesWithImport() {
-        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/commons-io-2.11.0.pom.xml" ) );
+        InputStream pomStream = getClass().getResourceAsStream( "/commons-io-2.11.0.pom.xml" );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( pomStream );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
-
         result.stream().forEach( resultstring -> System.out.println( resultstring ) );
-
         assertEquals( 28, dependencies.size() );
         assertTrue( result.contains( "GAV [groupId=org.apiguardian, artifactId=apiguardian-api, version=1.1.0]" ) );
         assertTrue( result.contains( "GAV [groupId=net.bytebuddy, artifactId=byte-buddy, version=1.11.3]" ) );
@@ -222,13 +232,13 @@ class ResolveDependenciesTest {
 
     @Test
     void resolveDependenciesMultiModule() {
-        Set<Dependency> dependencies = resolveDependencies.getDependencies(
-            getClass().getResourceAsStream( "/multimodule/module2.pom.xml" ),
-            getClass().getResourceAsStream( "/multimodule/parent.pom.xml" ),
-            getClass().getResourceAsStream( "/multimodule/module1.pom.xml" ) );
+        InputStream module2PomStream = getClass().getResourceAsStream( "/multimodule/module2.pom.xml" );
+        InputStream parentPomStream = getClass().getResourceAsStream( "/multimodule/parent.pom.xml" );
+        InputStream module1PomStream = getClass().getResourceAsStream( "/multimodule/module1.pom.xml" );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( module2PomStream, parentPomStream, module1PomStream );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
-
         assertEquals( 26, result.size() );
         assertTrue( result.contains( "GAV [groupId=commons-io, artifactId=commons-io, version=2.11.0]" ) );
         System.out.println( "Add assertions for each library" );
@@ -236,13 +246,13 @@ class ResolveDependenciesTest {
 
     @Test
     void resolveDependenciesMultiModule2() {
-        Set<Dependency> dependencies = resolveDependencies.getDependencies(
-            getClass().getResourceAsStream( "/multimodulefollowmodules/pom.xml" ),
-            getClass().getResourceAsStream( "/multimodulefollowmodules/module1/pom.xml" ),
-            getClass().getResourceAsStream( "/multimodulefollowmodules/module2/pom.xml" ) );
+        InputStream pomStream = getClass().getResourceAsStream( "/multimodulefollowmodules/pom.xml" );
+        InputStream module1PomStream = getClass().getResourceAsStream( "/multimodulefollowmodules/module1/pom.xml" );
+        InputStream module2PomStream = getClass().getResourceAsStream( "/multimodulefollowmodules/module2/pom.xml" );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( pomStream, module1PomStream, module2PomStream );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
-
         assertEquals( 26, result.size() );
         assertTrue( result.contains( "GAV [groupId=commons-io, artifactId=commons-io, version=2.11.0]" ) );
         System.out.println( "Add assertions for each library" );
@@ -250,10 +260,10 @@ class ResolveDependenciesTest {
 
     @Test
     void resolveDependenciesMultiModuleFollowModules() {
-        List<GAV> gavs = resolveDependencies
-            .setPomStreamProvider( new ClasspathPomStreamProvider() )
-            .storeMultiModule( getClass().getResourceAsStream( "/multimodulefollowmodules/pom.xml" ), "/multimodulefollowmodules/" );
+        resolveDependencies.setPomStreamProvider( new ClasspathPomStreamProvider() );
+        InputStream pomStream = getClass().getResourceAsStream( "/multimodulefollowmodules/pom.xml" );
 
+        List<GAV> gavs = resolveDependencies.storeMultiModule( pomStream, "/multimodulefollowmodules/" );
         Set<Dependency> dependencies = resolveDependencies.getDependencies( gavs );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
@@ -273,20 +283,23 @@ class ResolveDependenciesTest {
         Set<Dependency> dependencies = resolveDependencies.getDependencies( module1, module2 );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
-
         assertEquals( 26, result.size() );
     }
 
     @Test
     void getDependenciesForNonExistingGAV() {
-        Set<Dependency> result = resolveDependencies.getDependencies( new GAV( "groupid", "artifactid", "notexisting" ) );
+        GAV gav = new GAV( "groupid", "artifactid", "notexisting" );
+
+        Set<Dependency> result = resolveDependencies.getDependencies( gav );
 
         assertEquals( 0, result.size() );
     }
 
     @Test
     void getDependenciesForOkHttpClientWithGavFromMavenCentral() {
-        List<String> result = resolveDependencies.getDependencies( new GAV( "com.squareup.okhttp3", "okhttp", "4.9.3" ) )
+        GAV gav = new GAV( "com.squareup.okhttp3", "okhttp", "4.9.3" );
+
+        List<String> result = resolveDependencies.getDependencies( gav )
             .stream()
             .map( dependency -> dependency.toString() )
             .collect( Collectors.toList() );
@@ -300,7 +313,9 @@ class ResolveDependenciesTest {
 
     @Test
     void dependenciesThroughTestScopeShouldAlwaysHaveTestScope() {
-        Set<String> scopesForJettyDependencies = resolveDependencies.getDependencies( new GAV( "org.springframework.ws", "spring-ws-core", "4.0.11" ) )
+        GAV gav = new GAV( "org.springframework.ws", "spring-ws-core", "4.0.11" );
+
+        Set<String> scopesForJettyDependencies = resolveDependencies.getDependencies( gav )
             .stream()
             .filter( dependency -> dependency.getGroupId().contains( "jetty" ) )
             .map( dependency -> dependency.getScope() )
@@ -314,8 +329,14 @@ class ResolveDependenciesTest {
      * provided, optional and dependency coming through profiles are currently excluded
      */
     @Test
-    void validateScopes() {
-        Set<Dependency> result = resolveDependencies.getDependencies( new GAV( "org.springframework.ws", "spring-ws-core", "4.0.11" ) );
+    void validateScopesOnlyOptional() {
+        resolveDependencies.setDependenyFilter(
+            new DependencyFilter()
+                .keepNothing()
+                .setKeepOptional( true ));
+        GAV gav = new GAV( "org.springframework.ws", "spring-ws-core", "4.0.11" );
+
+        Set<Dependency> result = resolveDependencies.getDependencies( gav );
 
         StringBuilder resultString = new StringBuilder();
         result.stream()
@@ -323,7 +344,7 @@ class ResolveDependenciesTest {
             .forEach(
                 dependency -> resultString.append(
                     String.format(
-                        "%s:%s:%s:%s:%s\n",
+                        "%s:%s:%s:%s:%s%s\n",
                         dependency.getGroupId(),
                         dependency.getArtifactId(),
                         dependency.getType(),
@@ -333,177 +354,58 @@ class ResolveDependenciesTest {
 
         System.out.println( resultString );
 
-        // result.stream()
-        // .sorted( Comparator.comparing( Dependency::getGroupId ).thenComparing( Dependency::getArtifactId ) )
-        // .forEach(
-        // dependency -> System.out.printf(
-        // "\t%s:%s:%s:%s%n",
-        // dependency.getGroupId(),
-        // dependency.getArtifactId(),
-        // dependency.getVersion(),
-        // dependency.getScope(),
-        // dependency.isOptional() ? " (optional)" : "" ) );
+        assertEquals( 38, result.size() );
+        assertTrue( resultString.toString().contains( "ch.qos.logback:logback-classic:jar:1.2.12:compile (optional)" ) );
+        assertTrue( resultString.toString().contains( "com.google.code.findbugs:jsr305:jar:3.0.2:compile (optional)" ) );
+        assertTrue( resultString.toString().contains( "commons-httpclient:commons-httpclient:jar:3.1:compile (optional)" ) );
+    }
 
-        // String expected_result = """
-        // com.fasterxml.woodstox:woodstox-core:jar:6.5.1:test
-        // com.jayway.jsonpath:json-path:jar:2.7.0:test
-        // com.sun.istack:istack-commons-runtime:jar:4.1.1:runtime
-        // com.sun.xml.messaging.saaj:saaj-impl:jar:2.0.1:compile
-        // commons-codec:commons-codec:jar:1.9:compile (optional)
-        // commons-httpclient:commons-httpclient:jar:3.1:compile (optional)
-        // commons-io:commons-io:jar:2.11.0:test
-        // dom4j:dom4j:jar:1.6.1:compile (optional)
-        // io.micrometer:micrometer-commons:jar:1.10.13:compile
-        // io.micrometer:micrometer-observation:jar:1.10.13:compile
-        // io.projectreactor:reactor-core:jar:3.5.14:test
-        // jakarta.activation:jakarta.activation-api:jar:2.1.0:compile
-        // jakarta.mail:jakarta.mail-api:jar:2.1.0:test
-        // jakarta.servlet:jakarta.servlet-api:jar:6.0.0:provided
-        // jakarta.xml.bind:jakarta.xml.bind-api:jar:4.0.0:compile
-        // jakarta.xml.soap:jakarta.xml.soap-api:jar:3.0.0:compile
-        // net.bytebuddy:byte-buddy-agent:jar:1.11.19:test
-        // net.bytebuddy:byte-buddy:jar:1.11.19:test
-        // net.minidev:accessors-smart:jar:2.4.7:test
-        // net.minidev:json-smart:jar:2.4.7:test
-        // org.apache.httpcomponents.client5:httpclient5:jar:5.2.1:compile (optional)
-        // org.apache.httpcomponents.core5:httpcore5-h2:jar:5.2:compile (optional)
-        // org.apache.httpcomponents.core5:httpcore5:jar:5.2:compile (optional)
-        // org.apache.httpcomponents:httpclient:jar:4.5.3:compile (optional)
-        // org.apache.httpcomponents:httpcore:jar:4.4.6:compile (optional)
-        // org.apache.logging.log4j:log4j-api:jar:2.19.0:test
-        // org.apache.logging.log4j:log4j-core:jar:2.19.0:test
-        // org.apache.ws.xmlschema:xmlschema-core:jar:2.2.2:compile (optional)
-        // org.apiguardian:apiguardian-api:jar:1.1.2:test
-        // org.aspectj:aspectjrt:jar:1.9.6:test
-        // org.aspectj:aspectjweaver:jar:1.9.6:test
-        // org.assertj:assertj-core:jar:3.9.0:test
-        // org.codehaus.woodstox:stax2-api:jar:4.2.1:test
-        // org.easymock:easymock:jar:4.3:test
-        // org.eclipse.angus:angus-activation:jar:1.0.0:runtime
-        // org.eclipse.angus:angus-mail:jar:1.0.0:test
-        // org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api:jar:5.0.2:test
-        // org.eclipse.jetty:jetty-http:jar:11.0.12:test
-        // org.eclipse.jetty:jetty-io:jar:11.0.12:test
-        // org.eclipse.jetty:jetty-security:jar:11.0.12:test
-        // org.eclipse.jetty:jetty-server:jar:11.0.12:test
-        // org.eclipse.jetty:jetty-servlet:jar:11.0.12:test
-        // org.eclipse.jetty:jetty-util:jar:11.0.12:test
-        // org.glassfish.jaxb:jaxb-core:jar:4.0.1:runtime
-        // org.glassfish.jaxb:jaxb-runtime:jar:4.0.1:runtime
-        // org.glassfish.jaxb:txw2:jar:4.0.1:runtime
-        // org.jdom:jdom2:jar:2.0.6.1:compile (optional)
-        // org.junit.jupiter:junit-jupiter-api:jar:5.9.1:test
-        // org.junit.jupiter:junit-jupiter-engine:jar:5.9.1:test
-        // org.junit.platform:junit-platform-commons:jar:1.9.1:test
-        // org.junit.platform:junit-platform-engine:jar:1.9.1:test
-        // org.jvnet.staxex:stax-ex:jar:2.0.1:compile
-        // org.mockito:mockito-core:jar:4.0.0:test
-        // org.objenesis:objenesis:jar:3.2:test
-        // org.opentest4j:opentest4j:jar:1.2.0:test
-        // org.ow2.asm:asm:jar:9.1:test
-        // org.reactivestreams:reactive-streams:jar:1.0.4:test
-        // org.slf4j:slf4j-api:jar:2.0.6:test
-        // org.springframework.hateoas:spring-hateoas:jar:2.0.7:test
-        // org.springframework.plugin:spring-plugin-core:jar:3.0.0:test
-        // org.springframework.ws:spring-xml:jar:4.0.11:compile
-        // org.springframework:spring-aop:jar:6.0.16:compile
-        // org.springframework:spring-beans:jar:6.0.16:compile
-        // org.springframework:spring-context:jar:6.0.16:compile
-        // org.springframework:spring-core:jar:6.0.16:compile
-        // org.springframework:spring-expression:jar:6.0.16:compile
-        // org.springframework:spring-jcl:jar:6.0.16:compile
-        // org.springframework:spring-oxm:jar:6.0.16:compile
-        // org.springframework:spring-test:jar:6.0.16:test
-        // org.springframework:spring-web:jar:6.0.16:compile
-        // org.springframework:spring-webflux:jar:6.0.16:test
-        // org.springframework:spring-webmvc:jar:6.0.16:compile
-        // org.xmlunit:xmlunit-assertj:jar:2.9.0:test
-        // org.xmlunit:xmlunit-core:jar:2.9.0:test
-        // wsdl4j:wsdl4j:jar:1.6.3:compile (optional)
-        // xml-apis:xml-apis:jar:1.0.b2:compile (optional)
-        // xom:xom:jar:1.3.7:compile (optional)
-        // """;
+    @Test
+    void validateScopesWithouthOptionalAndTest() {
+        resolveDependencies.setDependenyFilter(
+            new DependencyFilter()
+                .setKeepOptional( false )
+                .setKeepTest( false )
+                .setKeepTestRoot( false ) );
+        GAV gav = new GAV( "org.springframework.ws", "spring-ws-core", "4.0.11" );
 
-        String expected_result = """
-            com.fasterxml.woodstox:woodstox-core:jar:6.5.1:test
-            com.jayway.jsonpath:json-path:jar:2.7.0:test
-            com.sun.istack:istack-commons-runtime:jar:4.1.1:runtime
-            com.sun.xml.messaging.saaj:saaj-impl:jar:2.0.1:compile
-            commons-io:commons-io:jar:2.11.0:test
-            io.micrometer:micrometer-commons:jar:1.10.13:compile
-            io.micrometer:micrometer-observation:jar:1.10.13:compile
-            io.projectreactor:reactor-core:jar:3.5.14:test
-            jakarta.activation:jakarta.activation-api:jar:2.1.0:compile
-            jakarta.xml.bind:jakarta.xml.bind-api:jar:4.0.0:compile
-            jakarta.xml.soap:jakarta.xml.soap-api:jar:3.0.0:compile
-            net.bytebuddy:byte-buddy:jar:1.11.19:test
-            net.bytebuddy:byte-buddy-agent:jar:1.11.19:test
-            net.minidev:accessors-smart:jar:2.4.7:test
-            net.minidev:json-smart:jar:2.4.7:test
-            org.apache.logging.log4j:log4j-api:jar:2.19.0:test
-            org.apache.logging.log4j:log4j-core:jar:2.19.0:test
-            org.apiguardian:apiguardian-api:jar:1.1.2:test
-            org.aspectj:aspectjrt:jar:1.9.6:test
-            org.aspectj:aspectjweaver:jar:1.9.6:test
-            org.assertj:assertj-core:jar:3.9.0:test
-            org.codehaus.woodstox:stax2-api:jar:4.2.1:test
-            org.easymock:easymock:jar:4.3:test
-            org.eclipse.angus:angus-activation:jar:1.0.0:runtime
-            org.eclipse.jetty:jetty-http:jar:11.0.12:test
-            org.eclipse.jetty:jetty-io:jar:11.0.12:test
-            org.eclipse.jetty:jetty-security:jar:11.0.12:test
-            org.eclipse.jetty:jetty-server:jar:11.0.12:test
-            org.eclipse.jetty:jetty-servlet:jar:11.0.12:test
-            org.eclipse.jetty:jetty-util:jar:11.0.12:test
-            org.eclipse.jetty.toolchain:jetty-jakarta-servlet-api:jar:5.0.2:test
-            org.glassfish.jaxb:jaxb-core:jar:4.0.1:runtime
-            org.glassfish.jaxb:jaxb-runtime:jar:4.0.1:runtime
-            org.glassfish.jaxb:txw2:jar:4.0.1:runtime
-            org.junit.jupiter:junit-jupiter-api:jar:5.9.1:test
-            org.junit.jupiter:junit-jupiter-engine:jar:5.9.1:test
-            org.junit.platform:junit-platform-commons:jar:1.9.1:test
-            org.junit.platform:junit-platform-engine:jar:1.9.1:test
-            org.jvnet.staxex:stax-ex:jar:2.0.1:compile
-            org.mockito:mockito-core:jar:4.0.0:test
-            org.objenesis:objenesis:jar:3.2:test
-            org.opentest4j:opentest4j:jar:1.2.0:test
-            org.ow2.asm:asm:jar:9.1:test
-            org.reactivestreams:reactive-streams:jar:1.0.4:test
-            org.slf4j:slf4j-api:jar:2.0.6:test
-            org.springframework:spring-aop:jar:6.0.16:compile
-            org.springframework:spring-beans:jar:6.0.16:compile
-            org.springframework:spring-context:jar:6.0.16:compile
-            org.springframework:spring-core:jar:6.0.16:compile
-            org.springframework:spring-expression:jar:6.0.16:compile
-            org.springframework:spring-jcl:jar:6.0.16:compile
-            org.springframework:spring-oxm:jar:6.0.16:compile
-            org.springframework:spring-test:jar:6.0.16:test
-            org.springframework:spring-web:jar:6.0.16:compile
-            org.springframework:spring-webflux:jar:6.0.16:test
-            org.springframework:spring-webmvc:jar:6.0.16:compile
-            org.springframework.hateoas:spring-hateoas:jar:2.0.7:test
-            org.springframework.plugin:spring-plugin-core:jar:3.0.0:test
-            org.springframework.ws:spring-xml:jar:4.0.11:compile
-            org.xmlunit:xmlunit-assertj:jar:2.9.0:test
-            org.xmlunit:xmlunit-core:jar:2.9.0:test
-                                    """;
+        Set<Dependency> result = resolveDependencies.getDependencies( gav );
 
-        assertEquals( expected_result.trim(), resultString.toString().trim() );
-        assertEquals( 61, result.size() );
+        StringBuilder resultString = new StringBuilder();
+        result.stream()
+            .sorted( Comparator.comparing( Dependency::getGroupId ).thenComparing( Dependency::getArtifactId ) )
+            .forEach(
+                dependency -> resultString.append(
+                    String.format(
+                        "%s:%s:%s:%s:%s%s\n",
+                        dependency.getGroupId(),
+                        dependency.getArtifactId(),
+                        dependency.getType(),
+                        dependency.getVersion(),
+                        dependency.getScope(),
+                        dependency.isOptional() ? " (optional)" : "" ) ) );
+
+        System.out.println( resultString );
+
+        assertEquals( 22, result.size() );
+
     }
 
     @Test
     void getDependenciesForJongo() {
-        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/jongo-1.3.0.pom" ) );
+        InputStream pomStream = getClass().getResourceAsStream( "/jongo-1.3.0.pom" );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( pomStream );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).sorted().collect( Collectors.toList() );
-
         assertEquals( 31, result.size() );
     }
 
     @Test
     void getDependenciesForActiveMQWithGavFromMavenCentral() {
-        Set<Dependency> dependencies = resolveDependencies.getDependencies( getClass().getResourceAsStream( "/pom-with-old-property-style.xml" ) );
+        InputStream pomStream = getClass().getResourceAsStream( "/pom-with-old-property-style.xml" );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( pomStream );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).sorted().collect( Collectors.toList() );
         assertEquals( 12, result.size() );
@@ -524,17 +426,19 @@ class ResolveDependenciesTest {
     @Test
     void getDependenciesWithFaultyMultiModuleProjectIgnoreIConsistencies() {
         resolveDependencies.setIgnoreIconsistencies( true );
-        Set<Dependency> dependencies = resolveDependencies.getDependencies(
-            getClass().getResourceAsStream( "/multimoduleinconsistent/parent.pom.xml" ),
-            getClass().getResourceAsStream( "/multimoduleinconsistent/module2.pom.xml" ) );
+        InputStream parentPomStream = getClass().getResourceAsStream( "/multimoduleinconsistent/parent.pom.xml" );
+        InputStream module2PomStream = getClass().getResourceAsStream( "/multimoduleinconsistent/module2.pom.xml" );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( parentPomStream, module2PomStream );
 
         assertTrue( dependencies.size() > 0 );
     }
 
     @Test
     void resolveDependenciesForMultipleBoms() {
-        GAV parent = resolveDependencies.store( getClass().getResourceAsStream( "/multipleboms/multiple-bom.pom" ) );
+        InputStream pomStream = getClass().getResourceAsStream( "/multipleboms/multiple-bom.pom" );
 
+        GAV parent = resolveDependencies.store( pomStream );
         Set<Dependency> dependencies = resolveDependencies.getDependencies( parent );
 
         List<String> result = dependencies.stream().map( dependency -> GAV.fromDependency( dependency ).toString() ).collect( Collectors.toList() );
@@ -545,8 +449,9 @@ class ResolveDependenciesTest {
 
     @Test
     void resolvedDependenciesForPomWithInvalidParent() {
-        Set<Dependency> dependencies = resolveDependencies
-            .getDependencies( getClass().getResourceAsStream( "/pom-with-invalid-parent-and-properties.xml" ) );
+        InputStream pomStream = getClass().getResourceAsStream( "/pom-with-invalid-parent-and-properties.xml" );
+
+        Set<Dependency> dependencies = resolveDependencies.getDependencies( pomStream );
 
         List<String> result = dependencies.stream()
             .map( dependency -> GAV.fromDependency( dependency ).toString() )

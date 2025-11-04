@@ -44,7 +44,7 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         this.repository = repository;
         this.resolveRange = new ResolveRange( repository );
         this.ignoreInconsistencies = ignoreInconsistencies;
-        this.dependencyFilter = dependencyFilter == null ? new DefaultDependencyFilter() : dependencyFilter;
+        this.dependencyFilter = dependencyFilter == null ? new DependencyFilter() : dependencyFilter;
     }
 
     @Override
@@ -151,7 +151,6 @@ public class ResolveDependenciesWorker implements Supplier<Set<Dependency>> {
         model.getDependencies()
             .stream()
             .map( dependency -> addDefaults( dependency ) )
-            .filter( dependency -> !dependency.isOptional() )
             .filter( dependency -> dependencyFilter.keepDependency( dependency, depth ) )
             .filter( dependency -> !isExcluded( dependency, exclusions ) )
             .forEach( dependency -> dependencies.add( dependency ) );

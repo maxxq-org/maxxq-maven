@@ -6,7 +6,7 @@ import org.apache.maven.model.Dependency;
 public class DependencyFilter implements IDependencyFilter {
     private boolean keepOptional     = false;
     private boolean keepTest         = false;
-    private boolean keepTestRootOnly = true;
+    private boolean keepTestRoot = true;
     private boolean keepCompile      = true;
     private boolean keepRuntime      = true;
     private boolean keepProvided     = false;
@@ -56,8 +56,28 @@ public class DependencyFilter implements IDependencyFilter {
         return this;
     }
 
-    public DependencyFilter setKeepTestRootOnly( boolean keepTestRootOnly ) {
-        this.keepTestRootOnly = keepTestRootOnly;
+    public DependencyFilter setKeepTestRoot( boolean keepTestRoot ) {
+        this.keepTestRoot = keepTestRoot;
+        return this;
+    }
+    
+    public DependencyFilter keepNothing() {
+        this.keepCompile = false;
+        this.keepOptional = false;
+        this.keepProvided = false;
+        this.keepRuntime = false;
+        this.keepTest = false;
+        this.keepTestRoot = false;
+        return this;
+    }
+    
+    public DependencyFilter keepAll() {
+        this.keepCompile = true;
+        this.keepOptional = true;
+        this.keepProvided = true;
+        this.keepRuntime = true;
+        this.keepTest = true;
+        this.keepTestRoot = true;
         return this;
     }
 
@@ -75,7 +95,7 @@ public class DependencyFilter implements IDependencyFilter {
         if ( keepTest && "test".equals( dependency.getScope() ) ) {
             return true;
         }
-        if ( keepTestRootOnly && "test".equals( dependency.getScope() ) && isRootPOM( depth ) ) {
+        if ( keepTestRoot && "test".equals( dependency.getScope() ) && isRootPOM( depth ) ) {
             return true;
         }
         if ( keepRuntime && "runtime".equals( dependency.getScope() ) ) {

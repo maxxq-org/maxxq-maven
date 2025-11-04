@@ -172,7 +172,7 @@ class DependencyFilterTest {
     void keepTestRootOnly() {
         // Arrange
         dependencyFilter.setKeepTest(false);
-        dependencyFilter.setKeepTestRootOnly(true);
+        dependencyFilter.setKeepTestRoot(true);
         Dependency dependency = new Dependency();
         dependency.setScope("test");
 
@@ -187,7 +187,7 @@ class DependencyFilterTest {
     void notKeepTestRootOnly() {
         // Arrange
         dependencyFilter.setKeepTest(false);
-        dependencyFilter.setKeepTestRootOnly(true);
+        dependencyFilter.setKeepTestRoot(true);
         Dependency dependency = new Dependency();
         dependency.setScope("test");
 
