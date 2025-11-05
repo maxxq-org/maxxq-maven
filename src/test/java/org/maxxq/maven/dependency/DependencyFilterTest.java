@@ -197,4 +197,69 @@ class DependencyFilterTest {
         // Assert
         assertFalse(result);
     }
+
+    @Test
+    void isKeepCompile() {
+        assertTrue(dependencyFilter.isKeepCompile());
+        dependencyFilter.setKeepCompile(false);
+        assertFalse(dependencyFilter.isKeepCompile());
+    }
+
+    @Test
+    void isKeepRuntime() {
+        assertTrue(dependencyFilter.isKeepRuntime());
+        dependencyFilter.setKeepRuntime(false);
+        assertFalse(dependencyFilter.isKeepRuntime());
+    }
+
+    @Test
+    void isKeepProvided() {
+        assertFalse(dependencyFilter.isKeepProvided());
+        dependencyFilter.setKeepProvided(true);
+        assertTrue(dependencyFilter.isKeepProvided());
+    }
+
+    @Test
+    void isKeepTest() {
+        assertFalse(dependencyFilter.isKeepTest());
+        dependencyFilter.setKeepTest(true);
+        assertTrue(dependencyFilter.isKeepTest());
+    }
+
+    @Test
+    void isKeepOptional() {
+        assertFalse(dependencyFilter.isKeepOptional());
+        dependencyFilter.setKeepOptional(true);
+        assertTrue(dependencyFilter.isKeepOptional());
+    }
+
+    @Test
+    void keepNothing() {
+        dependencyFilter.keepNothing();
+        assertFalse(dependencyFilter.isKeepCompile());
+        assertFalse(dependencyFilter.isKeepRuntime());
+        assertFalse(dependencyFilter.isKeepProvided());
+        assertFalse(dependencyFilter.isKeepTest());
+        assertFalse(dependencyFilter.isKeepOptional());
+    }
+
+    @Test
+    void keepAll() {
+        dependencyFilter.keepAll();
+        assertTrue(dependencyFilter.isKeepCompile());
+        assertTrue(dependencyFilter.isKeepRuntime());
+        assertTrue(dependencyFilter.isKeepProvided());
+        assertTrue(dependencyFilter.isKeepTest());
+        assertTrue(dependencyFilter.isKeepOptional());
+    }
+
+    @Test
+    void keepMavenDefault() {
+        dependencyFilter.keepMavenDefault();
+        assertTrue(dependencyFilter.isKeepCompile());
+        assertTrue(dependencyFilter.isKeepRuntime());
+        assertFalse(dependencyFilter.isKeepProvided());
+        assertFalse(dependencyFilter.isKeepTest());
+        assertFalse(dependencyFilter.isKeepOptional());
+    }
 }

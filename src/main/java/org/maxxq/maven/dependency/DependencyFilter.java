@@ -81,6 +81,16 @@ public class DependencyFilter implements IDependencyFilter {
         return this;
     }
 
+    public DependencyFilter keepMavenDefault() {
+        this.keepCompile = true;
+        this.keepOptional = false;
+        this.keepProvided = false;
+        this.keepRuntime = true;
+        this.keepTest = false;
+        this.keepTestRoot = false;
+        return this;
+    }
+    
     @Override
     public boolean keepDependency( Dependency dependency, int depth ) {
         if ( StringUtils.isEmpty( dependency.getScope() ) ) {
