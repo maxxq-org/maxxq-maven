@@ -1,5 +1,8 @@
 ## Release notes
 
+## 1.3.5 (29/01/2026)
+- upgrade to Junit 6
+
 ## 1.3.4 (29/01/2026)
 - Fix: Improve handling of Maven version ranges
 - Update GPG plugin to 3.2.8
