@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -69,6 +70,56 @@ class ResolveRangeTest {
         assertThrows( IllegalArgumentException.class, () ->
 
             resolveRange.apply( gav ) );
+    }
+
+    @Test
+    void applySingleVersionRange() {
+        Mockito.when( gav.getGroupId() ).thenReturn( "groupid" );
+        Mockito.when( gav.getArtifactId() ).thenReturn( "artifactid" );
+        Mockito.when( gav.getVersion() ).thenReturn( "[1.0.0]" );
+        Mockito.when( repository.getMetaData( "groupid", "artifactid" ) ).thenReturn( Optional.of( metaData ) );
+        Mockito.when( metaData.getVersioning() ).thenReturn( versioning );
+        Mockito.when( versioning.getVersions() ).thenReturn( Arrays.asList( "1.0.0", "1.0.1", "1.0.2" ) );
+
+        Optional<String> result = resolveRange.apply( gav );
+
+        assertTrue( result.isPresent() );
+        assertEquals( "1.0.0", result.get() );
+    }
+
+    @Test
+    void applyOpenEndedRange() {
+        Mockito.when( gav.getGroupId() ).thenReturn( "groupid" );
+        Mockito.when( gav.getArtifactId() ).thenReturn( "artifactid" );
+        Mockito.when( gav.getVersion() ).thenReturn( "[1.0.0,)" );
+        Mockito.when( repository.getMetaData( "groupid", "artifactid" ) ).thenReturn( Optional.of( metaData ) );
+        Mockito.when( metaData.getVersioning() ).thenReturn( versioning );
+        Mockito.when( versioning.getVersions() ).thenReturn( Arrays.asList( "1.0.0", "1.0.1", "1.0.2" ) );
+
+        Optional<String> result = resolveRange.apply( gav );
+
+        assertTrue( result.isPresent() );
+        assertEquals( "1.0.2", result.get() );
+    }
+
+    @Test
+    void isRangeReturnsTrueForVersionsWithComma() {
+        assertTrue( ResolveRange.isRange( "[1.0.0,1.0.1]" ) );
+    }
+
+    @Test
+    void isRangeReturnsTrueForVersionsWithBrackets() {
+        assertTrue( ResolveRange.isRange( "[1.0.0]" ) );
+    }
+
+    @Test
+    void isRangeReturnsTrueForVersionsWithParentheses() {
+        assertTrue( ResolveRange.isRange( "(1.0.0,2.0.0)" ) );
+    }
+
+    @Test
+    void isRangeReturnsFalseForSimpleVersion() {
+        assertFalse( ResolveRange.isRange( "1.0.0" ) );
     }
 
 }
