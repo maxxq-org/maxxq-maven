@@ -14,7 +14,7 @@
 
 The `ResolveRange` class is responsible for:
 
-1. **Detecting version ranges** - Uses the `isRange(String version)` static method to determine if a version string represents a range. A version is considered a range if it contains:
+1. **Detecting version ranges** - Uses the `isRange(String version)` static method to determine if a version string represents a range. A version is considered a range if it matches the regular expression pattern `[,\\[\\]()]`, which detects:
    - A comma `,` (e.g., `[1.0.0,1.0.1]`, `(1.0.0,2.0.0)`)
    - Square brackets `[` or `]` (e.g., `[1.0.0]`, `[1.0.0,)`)
    - Parentheses `(` or `)` (e.g., `(1.0.0,2.0.0]`)
@@ -79,3 +79,8 @@ Tests cover:
 - Handling invalid version ranges
 - Resolving single version ranges (e.g., `[1.0.0]`)
 - Resolving open-ended ranges (e.g., `[1.0.0,)`)
+- Testing `isRange()` method with various inputs:
+  - Versions with commas
+  - Versions with brackets
+  - Versions with parentheses
+  - Simple versions without range characters
