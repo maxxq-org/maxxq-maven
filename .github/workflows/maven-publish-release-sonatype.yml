@@ -12,8 +12,8 @@ on:
 jobs:
   publish-package:
     permissions:
-      contents: read
-      packages: write-all
+      contents: write
+      packages: write
     uses: maxxq-org/maxxq-workflows/.github/workflows/maven-publish-release.yml@main
     with:
       java-version: '17'
