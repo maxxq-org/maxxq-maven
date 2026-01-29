@@ -89,14 +89,22 @@ https://github.com/marketplace/actions/action-maven-publish
 ### create release version
 	git checkout release/[1-9] 1-9: major version of the release
 	git reset --hard master	      : reset to the last version for which a release needs to be created
-	mvn versions:set              : set the version to the desired release version
-	git push --force	      : force the release branch to this version containing the release version
+	mvn versions:set              : set the version to the desired release version.  Depending on the change it should be either an increment of major, minor or patch version.  Major version is onlyi incremented if a non backwards compatible change has been made.  Minor version is incremented if a new feauture has been added.  Patch version is incremented if a bug has been fixed.
+	git add --all && git commit		: Commit the change of the version in pom.xml to the release branch
+	git push --force	      : do a forced push of the change to the remote
+	git checkokut development 	: Switch back to the development branch
+	git merge release/[1-9] 		: Merge the release branch in the development branch
+	mvn versions:set				: Increment the patch version and make it again a snapshot version.
+	git add --all && git commit	: Commit the change of the version in the pom.xml
+	git push							: Push the change to the remote development branch
+	
+Update CHANGELOG.MD and document all changes that have been introduced since the previous release version.  Indicate for each change if it was a fix, new feature or non backwards compatible change.
 
 github action [worfklow for code quality](.github/workflows/codeql-analysis.yml) will be triggered after which 
 github action [workflow for release version](.github/workflows/maven-publish-release-sonatype.yml) for publishing the release is executed
 
 after successfull execution the release version is uploaded to sonatype where a manual approval will result in a final publishing of the jar.
-Go to [https://s01.oss.sonatype.org/#stagingRepositories](https://s01.oss.sonatype.org/#stagingRepositories) and login with your crendentials.  Find the jar ready for publication and either choose 'close' to finalize the publication or 'reject' to discard the release version.  [https://central.sonatype.org/publish/release/#locate-and-examine-your-staging-repository](sonatype publish staged artifacts)
+Go to [https://central.sonatype.com/publishing](https://central.sonatype.com/publishing) and login with your crendentials.  Find the jar ready for publication and either choose 'Publish' to finalize the publication or 'Drop' to discard the release version.  
 
 After closing the artifact is available on [https://search.maven.org/](https://search.maven.org/) but not yet on [https://mvnrepository.com/repos/central](https://mvnrepository.com/repos/central), to be analysed.
 
