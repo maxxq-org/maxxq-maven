@@ -40,7 +40,7 @@ public class ResolveRange implements Function<GAV, Optional<String>> {
     }
 
     public static boolean isRange( String version ) {
-        return version.contains( "," );
+        return version.contains( "," ) || version.contains( "[" ) || version.contains( "]" ) || version.contains( "(" ) || version.contains( ")" );
     }
 
 }
