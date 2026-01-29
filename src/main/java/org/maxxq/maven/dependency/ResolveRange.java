@@ -3,6 +3,7 @@ package org.maxxq.maven.dependency;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import org.apache.maven.artifact.repository.metadata.Metadata;
 import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
@@ -11,6 +12,7 @@ import org.apache.maven.artifact.versioning.VersionRange;
 import org.maxxq.maven.repository.IRepository;
 
 public class ResolveRange implements Function<GAV, Optional<String>> {
+    private static final Pattern VERSION_RANGE_PATTERN = Pattern.compile( "[,\\[\\]()]" );
     private final IRepository repository;
 
     public ResolveRange( IRepository repository ) {
@@ -40,7 +42,7 @@ public class ResolveRange implements Function<GAV, Optional<String>> {
     }
 
     public static boolean isRange( String version ) {
-        return version.contains( "," ) || version.contains( "[" ) || version.contains( "]" ) || version.contains( "(" ) || version.contains( ")" );
+        return VERSION_RANGE_PATTERN.matcher( version ).find();
     }
 
 }

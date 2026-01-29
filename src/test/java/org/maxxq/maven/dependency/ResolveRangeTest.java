@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -99,6 +100,26 @@ class ResolveRangeTest {
 
         assertTrue( result.isPresent() );
         assertEquals( "1.0.2", result.get() );
+    }
+
+    @Test
+    void isRangeReturnsTrueForVersionsWithComma() {
+        assertTrue( ResolveRange.isRange( "[1.0.0,1.0.1]" ) );
+    }
+
+    @Test
+    void isRangeReturnsTrueForVersionsWithBrackets() {
+        assertTrue( ResolveRange.isRange( "[1.0.0]" ) );
+    }
+
+    @Test
+    void isRangeReturnsTrueForVersionsWithParentheses() {
+        assertTrue( ResolveRange.isRange( "(1.0.0,2.0.0)" ) );
+    }
+
+    @Test
+    void isRangeReturnsFalseForSimpleVersion() {
+        assertFalse( ResolveRange.isRange( "1.0.0" ) );
     }
 
 }
