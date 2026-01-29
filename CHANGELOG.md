@@ -1,5 +1,21 @@
 ## Release notes
 
+## 1.3.4 (29/01/2026)
+- Update GPG plugin to 3.2.8
+- Update rewrite-testing-frameworks to 3.20.0
+- Update maven-javadoc-plugin to 3.11.2
+- Update maven-model to 3.9.11
+- Update maven-repository-metadata to 3.9.11
+- Update mockito-junit-jupiter to 5.18.0
+- Update okio to 3.16.4
+- Update junit-jupiter to 5.11.4
+- Update commons-lang3 to 3.20.0
+- Update kotlin-stdlib to 2.1.20
+- Update kotlin-stdlib-common to 2.0.21
+- Update central-publishing-maven-plugin to 0.8.0
+- Update log4j to 2.25.3
+- Various other dependency updates
+
 ## 1.3.3 (29/07/2025)
 - Update GPG plugin to 3.2.7
 - Fix: fix signing of generated artifacts
