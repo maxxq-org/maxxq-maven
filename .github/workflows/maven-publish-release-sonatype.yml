@@ -10,7 +10,12 @@ on:
     branches: 
       - 'release/**'  
 jobs:
+  build:
+    uses: ./.github/workflows/build_without_deploy.yml
+    secrets: inherit
+  
   publish-package:
+    needs: build
     permissions:
       contents: write
       packages: write

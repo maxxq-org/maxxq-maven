@@ -14,19 +14,16 @@ on:
   pull_request:
     branches: [ "master" ]
   workflow_dispatch:
+  workflow_call:
 
 jobs:
-  build-java-17:
+  build:
+    strategy:
+      matrix:
+        java-version: [17, 21, 25]
     uses: maxxq-org/maxxq-workflows/.github/workflows/maven-build-verify.yml@main
     secrets: inherit
     with:
-      java-version:  17
+      java-version: ${{ matrix.java-version }}
       java-distribution: temurin
-      
-  build-java-21:
-    uses: maxxq-org/maxxq-workflows/.github/workflows/maven-build-verify.yml@main
-    secrets: inherit
-    with:
-      java-version:  21      
-      java-distribution: oracle
 
