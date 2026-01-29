@@ -7,61 +7,20 @@ on:
     types:
       - completed
     branches: 
-      - 'release/**'
-
+      - 'release/**'  
 jobs:
-  printJob:    
-    name: Print event
-    runs-on: ubuntu-latest
-    steps:
-    - name: Dump GitHub context
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: |
-        echo "$GITHUB_CONTEXT"
-
-  release:
+  publish-package:
     permissions:
-      contents: write
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.workflow_run.head_branch }}
-        
-      - name: Install Java and Maven
-        uses: actions/setup-java@v4
-        with:
-          java-version: 17
-          distribution: 'temurin'
-          cache: 'maven'
-
-      - name: Release Maven package
-        uses: samuelmeuli/action-maven-publish@v1
-        with:
-          gpg_private_key: ${{ secrets.gpg_private_key }}
-          gpg_passphrase: ${{ secrets.gpg_passphrase }}
-          nexus_username: ${{ secrets.nexus_username }}
-          nexus_password: ${{ secrets.nexus_password }}
-          maven_goals_phases: clean deploy -DaltDeploymentRepository=repo::default::https://central.sonatype.com/repository/maven-releases/
-  tag:         
-    runs-on: ubuntu-latest
-    needs: [release]
-    steps:
-      - name: Checkout files
-        uses: Bhacaz/checkout-files@v2
-        with:
-         files: pom.xml
-         branch: ${{ github.event.workflow_run.head_branch }}
-      - name: Get version from pom.xml
-        id: get-version
-        uses: JActions/maven-version@v1.2.0
-      - name: Create Tag
-        uses: negz/create-tag@v1
-        with:
-          version: ${{ steps.get-version.outputs.version }}
-          message: Release version for ${{ steps.get-version.outputs.version }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-        
+      contents: read
+      packages: write
+    uses: maxxq-org/maxxq-workflows/.github/workflows/maven-publish-release.yml@main
+    with:
+      java-version: '17'
+      java-distribution: 'temurin'
+      maven-deployment-repo: 'https://central.sonatype.com/repository/maven-releases/'
+    secrets:
+      gpg_private_key: "${{ secrets.GPG_PRIVATE_KEY }}"
+      gpg_passphrase: ${{ secrets.GPG_PASSPHRASE }}
+      repo-username: ${{ secrets.NEXUS_USERNAME }}
+      repo-password: ${{ secrets.NEXUS_PASSWORD }}
         
