@@ -1,6 +1,7 @@
 ## Release notes
 
 ## 1.3.4 (29/01/2026)
+- Fix: Improve handling of Maven version ranges
 - Update GPG plugin to 3.2.8
 - Update rewrite-testing-frameworks to 3.20.0
 - Update maven-javadoc-plugin to 3.11.2
