@@ -1,7 +1,15 @@
 ## Release notes
 
-## 1.3.5 (29/01/2026)
-- upgrade to Junit 6
+## 1.3.5 (25/10/2026)
+- Upgrade to JUnit 6 (`junit-jupiter` 6.1.3)
+- Update Maven dependencies to 3.10.0 (`maven-model`, `maven-settings`, `maven-artifact`, `maven-repository-metadata`)
+- Update `mockito-junit-jupiter` to 5.24.0
+- Update `okhttp-jvm` to 5.5.1 and `okio-jvm` to 3.18.2
+- Update `commons-lang3` to 3.21.0
+- Update `kotlin-stdlib` to 2.4.21
+- Update Log4j to 2.26.1
+- Update `maven-javadoc-plugin` to 3.12.0
+- Update `rewrite-maven-plugin` to 6.28.1
 
 ## 1.3.4 (29/01/2026)
 - Fix: Improve handling of Maven version ranges
